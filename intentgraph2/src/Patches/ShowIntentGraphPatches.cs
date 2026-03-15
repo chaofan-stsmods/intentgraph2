@@ -1,8 +1,10 @@
 using Godot;
 using HarmonyLib;
 using IntentGraph2.Scenes;
+using MegaCrit.Sts2.addons.mega_text;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Helpers;
+using MegaCrit.Sts2.Core.Localization.Fonts;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
@@ -57,7 +59,9 @@ public class ShowIntentGraphPatches
             intentGraphPanel = scene.Instantiate<MarginContainer>(PackedScene.GenEditState.Disabled);
             var monsterNameLabel = intentGraphPanel.GetNode<Label>("%MonsterName");
             monsterNameLabel.Text = creature.Name;
-            
+            monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Regular, ThemeConstants.Label.font);
+            monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Bold, ThemeConstants.Label.font);
+
             var intentGraph = intentGraphPanel.GetNode<NIntentGraph>("%IntentGraph");
             intentGraph.Graph = graph;
 

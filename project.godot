@@ -18,6 +18,12 @@ config/icon="uid://hjenw0qseag6"
 
 project/assembly_name="intentgraph2"
 
+[file_customization]
+
+folder_colors={
+"res://intentgraph2/": "orange"
+}
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
