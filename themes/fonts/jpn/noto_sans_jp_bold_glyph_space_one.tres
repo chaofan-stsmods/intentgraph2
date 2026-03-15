@@ -1,0 +1,7 @@
+[gd_resource type="FontVariation" load_steps=2 format=3 uid="uid://c37p7gyfjrysx"]
+
+[ext_resource type="FontFile" uid="uid://c2ff85emvedr3" path="res://fonts/jpn/NotoSansJP-Bold.ttf" id="1_x544p"]
+
+[resource]
+base_font = ExtResource("1_x544p")
+spacing_glyph = 1

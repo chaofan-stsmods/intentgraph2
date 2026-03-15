@@ -1,0 +1,9 @@
+[gd_resource type="FontVariation" load_steps=3 format=3 uid="uid://ux4d708e7mk6"]
+
+[ext_resource type="FontVariation" uid="uid://ciql5khgewwbm" path="res://themes/kreon_bold_glyph_space_two.tres" id="1_ei48x"]
+[ext_resource type="FontVariation" uid="uid://c37p7gyfjrysx" path="res://themes/fonts/jpn/noto_sans_jp_bold_glyph_space_one.tres" id="2_nb47i"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_nb47i")])
+base_font = ExtResource("1_ei48x")
+spacing_glyph = 1
