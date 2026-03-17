@@ -5,12 +5,14 @@ using IntentGraph2.Scenes;
 using IntentGraph2.Utils;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -25,28 +27,53 @@ public class MonsterSetupPatch
     {
         if (creature.IsMonster)
         {
-            var monster = creature.Monster;
-            var graph = GenerateGraph(monster);
-            GeneratedGraphs.TryAdd(monster, graph);
+            try
+            {
+                var monster = creature.Monster;
+                var graph = GenerateGraph(monster);
+                if (monster != null && graph != null)
+                {
+                    GeneratedGraphs.TryAdd(monster, graph);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn(ex.ToString());
+            }
         }
     }
 
-    private static Graph GenerateGraph(MonsterModel monster)
+    [return: NotNullIfNotNull(nameof(monster))]
+    private static Graph? GenerateGraph(MonsterModel? monster)
     {
-        var stateMachine = monster.MoveStateMachine;
+        if (monster?.MoveStateMachine == null)
+        {
+            return null;
+        }
 
-        var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
+        var stateMachine = monster.MoveStateMachine;
         var initialState = stateMachine.GetInitialState();
 
-        var intentDefinition = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName, null);
-
+        var intentDefinition = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
         if (intentDefinition?.Graph != null)
         {
             return MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph);
         }
 
-        var stateNodes = ToMonsterStateNode(monster.GetType().FullName, font, stateMachine, initialState, intentDefinition?.SecondaryInitialStates);
+        var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
+        var stateNodes = ToMonsterStateNode(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition?.SecondaryInitialStates);
         var graph = StateNodesToGraph(stateNodes);
+
+        if (intentDefinition?.GraphPatch != null)
+        {
+            var patch = MakeGraphFromIntentDefinition(stateMachine, intentDefinition.GraphPatch);
+            graph.Width = Math.Max(graph.Width, patch.Width);
+            graph.Height = Math.Max(graph.Height, patch.Height);
+            graph.Icons.AddRange(patch.Icons);
+            graph.IconGroups.AddRange(patch.IconGroups);
+            graph.Labels.AddRange(patch.Labels);
+            graph.Arrows.AddRange(patch.Arrows);
+        }
 
         return graph;
     }
@@ -75,12 +102,12 @@ public class MonsterSetupPatch
         return result;
     }
 
-    private static List<MonsterStateNode> ToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState initialState, string[] secondaryStates)
+    private static List<MonsterStateNode> ToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState initialState, string[]? secondaryStates)
     {
         var existingNodes = new Dictionary<MonsterState, MonsterStateNode>();
 
         var result = new List<MonsterStateNode>();
-        MonsterStateNode initialStateNode = null;
+        MonsterStateNode? initialStateNode = null;
 
         // For conditional branch to check monster slot.
         if (initialState is ConditionalBranchState conditionalBranchState)
@@ -98,6 +125,7 @@ public class MonsterSetupPatch
             initialStateNode = ToMonsterStateNode(monsterName, font, stateMachine, initialState, existingNodes, parent: null);
         }
 
+        SimplifyStateNodes(initialStateNode);
         result.Add(initialStateNode);
 
         if (secondaryStates != null)
@@ -107,7 +135,8 @@ public class MonsterSetupPatch
                 var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == stateName);
                 if (state != null && !existingNodes.ContainsKey(state))
                 {
-                    var stateNode = ToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);                    
+                    var stateNode = ToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);
+                    SimplifyStateNodes(stateNode);
                     result.Add(stateNode);
                 }
             }
@@ -116,8 +145,14 @@ public class MonsterSetupPatch
         return result;
     }
 
-    private static MonsterStateNode ToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState state, Dictionary<MonsterState, MonsterStateNode> existingNodes, MonsterStateNode parent)
+    [return: NotNullIfNotNull(nameof(state))]
+    private static MonsterStateNode? ToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState? state, Dictionary<MonsterState, MonsterStateNode> existingNodes, MonsterStateNode? parent)
     {
+        if (state == null)
+        {
+            return null;
+        }
+
         if (parent == null && existingNodes.TryGetValue(state, out var existingNode))
         {
             return existingNode;
@@ -170,7 +205,10 @@ public class MonsterSetupPatch
                 {
                     var evaluatedSstateName = conditionalBranchState.EvaluateStates();
                     var evaluatedState = stateMachine.States.Values.FirstOrDefault(s => s.Id == evaluatedSstateName);
-                    return ToMonsterStateNode(monsterName, font, stateMachine, evaluatedState, existingNodes, parent);
+                    if (evaluatedState != null)
+                    {
+                        return ToMonsterStateNode(monsterName, font, stateMachine, evaluatedState, existingNodes, parent);
+                    }
                 }
 
                 var conditionalStates = conditionalBranchState.GetStates();
@@ -205,7 +243,10 @@ public class MonsterSetupPatch
                 if (nextState != null)
                 {
                     var nextStateNode = ToMonsterStateNode(monsterName, font, stateMachine, nextState, existingNodes, parent: result);
-                    children.Add((text, nextStateNode));
+                    if (nextStateNode != null)
+                    {
+                        children.Add((text, nextStateNode));
+                    }
                 }
             }
 
@@ -244,6 +285,132 @@ public class MonsterSetupPatch
             MoveRepeatType.UseOnlyOnce => ", " + IntentGraphMod.IntentGraphStrings.GetValueOrDefault("ui.UseOnlyOnce"),
             _ => ""
         });
+    }
+
+    private static void SimplifyStateNodes(MonsterStateNode stateNode)
+    {
+        var visited = new HashSet<MonsterStateNode>();
+        var queue = new Queue<MonsterStateNode>();
+        queue.Enqueue(stateNode);
+        while (queue.Count > 0)
+        {
+            var node = queue.Dequeue();
+            if (!visited.Add(node))
+            {
+                continue;
+            }
+            if (node.Children != null)
+            {
+                foreach (var child in node.Children)
+                {
+                    queue.Enqueue(child.node);
+                }
+            }
+            if (node.NextState != null)
+            {
+                queue.Enqueue(node.NextState);
+            }
+        }
+
+        var rootNodes = new List<MonsterStateNode>(visited.Where(n => n.Parent == null));
+        var existingSameNodes = new List<(MonsterStateNode, MonsterStateNode)>();
+        for (int i = 0; i < rootNodes.Count; i++)
+        {
+            MonsterStateNode? nodeA = rootNodes[i];
+            for (int j = i + 1; j < rootNodes.Count; j++)
+            {
+                MonsterStateNode? nodeB = rootNodes[j];
+                if (AreSameNode(nodeA, nodeB, existingSameNodes))
+                {
+                    existingSameNodes.Add((nodeA, nodeB));
+                }
+            }
+        }
+
+        var replacement = new Dictionary<MonsterStateNode, MonsterStateNode>();
+        foreach (var (a, b) in existingSameNodes)
+        {
+            if (!replacement.ContainsKey(a) && !replacement.ContainsKey(b))
+            {
+                replacement[b] = a;
+            }
+        }
+
+        foreach (var node in visited)
+        {
+            if (node.NextState != null && replacement.TryGetValue(node.NextState, out var replacementNextState))
+            {
+                node.NextState = replacementNextState;
+            }
+        }
+    }
+
+    private static bool AreSameNode(MonsterStateNode a, MonsterStateNode b, List<(MonsterStateNode, MonsterStateNode)> exisitingSameNodes)
+    {
+        if (exisitingSameNodes.Contains((a, b)) || exisitingSameNodes.Contains((b, a)))
+        {
+            return true;
+        }
+
+        if (a == b)
+        {
+            return true;
+        }
+
+        if ((a.Children != null) != (b.Children != null))
+        {
+            return false;
+        }
+
+        if ((a.NextState != null) != (b.NextState != null))
+        {
+            return false;
+        }
+
+        // pretend a and b are the same and check next states.
+        exisitingSameNodes.Add((a, b));
+        try
+        {
+            if (a.Children != null)
+            {
+                if (a.Children.Count != b.Children!.Count)
+                {
+                    return false;
+                }
+                for (int i = 0; i < a.Children.Count; i++)
+                {
+                    if (a.Children[i].label != b.Children[i].label)
+                    {
+                        return false;
+                    }
+                    if (!AreSameNode(a.Children[i].node, b.Children[i].node, exisitingSameNodes))
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                if (a.State != b.State)
+                {
+                    return false;
+                }
+            }
+
+            if (a.NextState != null)
+            {
+                if (!AreSameNode(a.NextState, b.NextState!, exisitingSameNodes))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        finally
+        {
+            exisitingSameNodes.Remove((a, b));
+        }
     }
 
     private static Graph StateNodesToGraph(List<MonsterStateNode> stateNodes)
@@ -349,11 +516,11 @@ public class MonsterSetupPatch
             AbstractIntent intent = intents[i];
             if (intent is AttackIntent attackIntent)
             {
-                iconList.Add(new Icon(i * 0.72f + x, y, IntentType.Attack, (int?)attackIntent.DamageCalc?.Invoke(), attackIntent.Repeats));
+                iconList.Add(new Icon(i * 0.72f + x, y, intent.IntentType, (int?)attackIntent.DamageCalc?.Invoke(), attackIntent.Repeats));
             }
             else if (intent is StatusIntent statusIntent)
             {
-                iconList.Add(new Icon(i * 0.72f + x, y, IntentType.StatusCard, statusIntent.CardCount));
+                iconList.Add(new Icon(i * 0.72f + x, y, intent.IntentType, statusIntent.CardCount));
             }
             else
             {
@@ -539,10 +706,10 @@ public class MonsterSetupPatch
     {
         public float Width { get; set; }
         public float Height { get; set; }
-        public MonsterStateNode Parent { get; set; }
-        public List<(string label, MonsterStateNode node)> Children { get; set; }
-        public MonsterState State { get; init; }
-        public MonsterStateNode NextState { get; set; }
+        public MonsterStateNode? Parent { get; set; }
+        public List<(string label, MonsterStateNode node)>? Children { get; set; }
+        public required MonsterState State { get; init; }
+        public MonsterStateNode? NextState { get; set; }
         public int NextStateCount { get; set; } // include children's next states
         public float X { get; set; }
         public float Y { get; set; }

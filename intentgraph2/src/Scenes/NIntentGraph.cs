@@ -54,27 +54,27 @@ public partial class NIntentGraph : Control
     private static readonly Rect2 ArrowR = new Rect2(111, 15, 15, 20);
     private static readonly Rect2 ArrowL = new Rect2(76, 15, 15, 20);
 
-    private Texture2D arrowTexture;
-    private Texture2D groupBorderTexture;
+    private Texture2D? arrowTexture;
+    private Texture2D? groupBorderTexture;
     private Dictionary<string, Texture2D> intentTextures = new Dictionary<string, Texture2D>();
-    private Font font;
+    private Font? font;
 
-    private Graph graph;
+    private Graph? graph;
 
-    public Graph Graph
+    public Graph? Graph
     {
         get => graph;
         set
         {
             graph = value;
-            CustomMinimumSize = new Vector2(GridSize * graph.Width, GridSize * graph.Height);
+            CustomMinimumSize = new Vector2(GridSize * graph?.Width ?? GridSize, GridSize * graph?.Height ?? GridSize);
             QueueRedraw();
         }
     }
 
     public override void _Ready()
     {
-        font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
+        this.font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
     }
 
     public override void _Input(InputEvent evt)

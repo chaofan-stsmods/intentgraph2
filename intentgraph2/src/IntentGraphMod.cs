@@ -28,7 +28,6 @@ public class IntentGraphMod
     public static Dictionary<string, string> IntentGraphStrings = new Dictionary<string, string>();
     public static Dictionary<string, IntentDefinition> IntentDefinitions = new Dictionary<string, IntentDefinition>();
 
-
     public static void InitializeMod()
     {
         Log.Info("IntentGraphMod initialized!");
@@ -47,10 +46,10 @@ public class IntentGraphMod
 
     public static void LoadIntentDefinitions()
     {
-        var file = $"res://intentgraph2/intents/intents.json";
+        var file = $"res://intentgraph2/intentgraph.json";
         using FileAccess fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
         string asText = fileAccess.GetAsText();
-        IntentDefinitions = JsonSerializer.Deserialize<Dictionary<string, IntentDefinition>>(asText, SerializeOptions);
+        IntentDefinitions = JsonSerializer.Deserialize<Dictionary<string, IntentDefinition>>(asText, SerializeOptions) ?? new Dictionary<string, IntentDefinition>();
     }
 }
 

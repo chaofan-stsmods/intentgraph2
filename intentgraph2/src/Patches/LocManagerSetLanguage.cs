@@ -9,7 +9,6 @@ namespace IntentGraph2.Patches;
 [HarmonyPatch(typeof(LocManager), nameof(LocManager.SetLanguage))]
 public class LocManagerSetLanguage
 {
-
     public static void Postfix(LocManager __instance, string language)
     {
         var file = $"res://intentgraph2/localization/{language}/intentgraph.json";
@@ -20,6 +19,6 @@ public class LocManagerSetLanguage
 
         using FileAccess fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
         string asText = fileAccess.GetAsText();
-        IntentGraphMod.IntentGraphStrings = JsonSerializer.Deserialize<Dictionary<string, string>>(asText);
+        IntentGraphMod.IntentGraphStrings = JsonSerializer.Deserialize<Dictionary<string, string>>(asText) ?? new Dictionary<string, string>();
     }
 }

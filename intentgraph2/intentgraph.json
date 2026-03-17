@@ -10,20 +10,10 @@
 		]
 	},
 	"MegaCrit.Sts2.Core.Models.Monsters.TerrorEel": {
-		"graph": {
+		"graphPatch": {
 			"width": 3.22,
 			"height": 2.5,
 			"moves": [
-				{
-					"x": 0,
-					"y": 0,
-					"id": "CRASH_MOVE"
-				},
-				{
-					"x": 1.5,
-					"y": 0,
-					"id": "ThrashMove"
-				},
 				{
 					"x": 0,
 					"y": 1.5,
@@ -36,12 +26,6 @@
 				}
 			],
 			"arrows": [
-				{
-					"path": [0, 1, 0.3, 1.5]
-				},
-				{
-					"path": [0, 1.5, 0.7, 1]
-				},
 				{
 					"path": [0, 1, 2, 1.5]
 				},

@@ -7,7 +7,7 @@
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.FrogKnight.HALF_HEALTH.TONGUE_LASH": "",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.FrogKnight.HALF_HEALTH.BEETLE_CHARGE": "HP<50%, one use",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.KnowledgeDemon.CurseOfKnowledgeBranch.CURSE_OF_KNOWLEDGE_MOVE": "",
-	"branch.MegaCrit.Sts2.Core.Models.Monsters.KnowledgeDemon.CurseOfKnowledgeBranch.SLAP_MOVE": "Player have 3 curses",
+	"branch.MegaCrit.Sts2.Core.Models.Monsters.KnowledgeDemon.CurseOfKnowledgeBranch.SLAP_MOVE": "Player has 3 curses",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.LagavulinMatriarch.SLEEP_BRANCH.SLEEP_MOVE": "",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.LagavulinMatriarch.SLEEP_BRANCH.SLASH_MOVE": "Awake",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.LivingShield.SHIELD_SLAM_BRANCH.SHIELD_SLAM_MOVE": "Has ally",

@@ -18,27 +18,33 @@ public static class StateMachineExtensions
     {
         var list = conditionalBranchState.GetType().GetProperty("States", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(conditionalBranchState) as IList;
         var result = new List<string>();
-        foreach (var item in list)
+        if (list != null)
         {
-            var id = item.GetType().GetField("id", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)?.GetValue(item) as string;
-            if (id != null)
+            foreach (var item in list)
             {
-                result.Add(id);
+                var id = item.GetType().GetField("id", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)?.GetValue(item) as string;
+                if (id != null)
+                {
+                    result.Add(id);
+                }
             }
         }
 
         return result;
     }
 
-    public static string EvaluateStates(this ConditionalBranchState conditionalBranchState)
+    public static string? EvaluateStates(this ConditionalBranchState conditionalBranchState)
     {
         var list = conditionalBranchState.GetType().GetProperty("States", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(conditionalBranchState) as IList;
-        foreach (var item in list)
+        if (list != null)
         {
-            var result = item.GetType().GetMethod("Evaluate", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)?.Invoke(item, null) as float?;
-            if (result != null && result > 0)
+            foreach (var item in list)
             {
-                return item.GetType().GetField("id", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)?.GetValue(item) as string;
+                var result = item.GetType().GetMethod("Evaluate", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)?.Invoke(item, null) as float?;
+                if (result != null && result > 0)
+                {
+                    return item.GetType().GetField("id", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)?.GetValue(item) as string;
+                }
             }
         }
 

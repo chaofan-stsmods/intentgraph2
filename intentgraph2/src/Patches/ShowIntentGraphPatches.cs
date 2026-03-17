@@ -14,8 +14,8 @@ namespace IntentGraph2.Patches;
 
 public class ShowIntentGraphPatches
 {
-    private static MarginContainer intentGraphPanel;
-    private static Action unregisterResizedEvent;
+    private static MarginContainer? intentGraphPanel;
+    private static Action? unregisterResizedEvent;
     private static bool intentGraphVisible = true;
 
     public static void ToggleIntentGraphVisibility()
@@ -36,7 +36,7 @@ public class ShowIntentGraphPatches
     {
         public static void Postfix(NCreature __instance)
         {
-            if (NCombatRoom.Instance.Ui.Hand.InCardPlay || __instance.Entity?.IsMonster != true)
+            if (NGame.Instance?.HoverTipsContainer == null || NCombatRoom.Instance?.Ui.Hand.InCardPlay != false || __instance.Entity?.IsMonster != true)
             {
                 return;
             }
@@ -50,7 +50,7 @@ public class ShowIntentGraphPatches
             }
 
             var creature = __instance.Entity;
-            if (!MonsterSetupPatch.GeneratedGraphs.TryGetValue(creature.Monster, out var graph))
+            if (creature.Monster == null || !MonsterSetupPatch.GeneratedGraphs.TryGetValue(creature.Monster, out var graph))
             {
                 return;
             }

@@ -22,6 +22,6 @@ public record class IconGroup(float X = 0, float Y = 0, float Width = 1, float H
 
 public record class Label(float X = 0, float Y = 0, string Text = "", string Align = "left");
 
-public record class Arrow(float[] Path = null);
+public record class Arrow(float[] Path);
 
 public record class Move(float X = 0, float Y = 0, string Id = "");
