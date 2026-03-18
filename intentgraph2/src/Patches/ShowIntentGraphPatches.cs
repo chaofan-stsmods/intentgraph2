@@ -1,12 +1,14 @@
 using Godot;
 using HarmonyLib;
 using IntentGraph2.Scenes;
+using IntentGraph2.Utils;
 using MegaCrit.Sts2.addons.mega_text;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Localization.Fonts;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Combat;
+using MegaCrit.Sts2.Core.Nodes.HoverTips;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using System;
 
@@ -14,6 +16,8 @@ namespace IntentGraph2.Patches;
 
 public class ShowIntentGraphPatches
 {
+    private const float IntentGraphPanelTop = 90;
+
     private static MarginContainer? intentGraphPanel;
     private static Action? unregisterResizedEvent;
     private static bool intentGraphVisible = true;
@@ -64,13 +68,7 @@ public class ShowIntentGraphPatches
 
             var intentGraph = intentGraphPanel.GetNode<NIntentGraph>("%IntentGraph");
             intentGraph.Graph = graph;
-
-            var handleResized = () =>
-            {
-                intentGraphPanel.Position = new Vector2(
-                    Math.Clamp(__instance.GlobalPosition.X + __instance.Size.X / 2 - intentGraphPanel.Size.X / 2, 0, NGame.Instance.GetViewportRect().Size.X - intentGraphPanel.Size.X),
-                    90);
-            };
+            Action handleResized = OnIntentGraphPanelResized(__instance, intentGraphPanel);
 
             unregisterResizedEvent = () =>
             {
@@ -87,6 +85,51 @@ public class ShowIntentGraphPatches
             {
                 intentGraphPanel.Hide();
             }
+        }
+
+        private static Action OnIntentGraphPanelResized(NCreature __instance, MarginContainer intentGraphPanel)
+        {
+            return () =>
+            {
+                var parent = intentGraphPanel.GetParent();
+                NHoverTipSet? tipSet = null;
+                if (parent != null)
+                {
+                    foreach (var node in parent.GetChildren())
+                    {
+                        if (node is NHoverTipSet hoverTipSet)
+                        {
+                            tipSet = hoverTipSet;
+                            break;
+                        }
+                    }
+                }
+
+                var maxX = NGame.Instance!.GetViewportRect().Size.X - intentGraphPanel.Size.X;
+                var candidateX = Math.Clamp(__instance.GlobalPosition.X + __instance.Size.X / 2 - intentGraphPanel.Size.X / 2, 0, maxX);
+
+                var textTipContainer = tipSet?.GetTextHoverTipContainer();
+                if (textTipContainer != null)
+                {
+                    var tipSetPosition = textTipContainer.GlobalPosition;
+                    var tipSetSize = textTipContainer.Size;
+                    if (tipSetPosition.Y < IntentGraphPanelTop + intentGraphPanel.Size.Y &&
+                        tipSetPosition.X + tipSetSize.X > candidateX &&
+                        tipSetPosition.X < candidateX + intentGraphPanel.Size.X)
+                    {
+                        if (tipSetPosition.X + tipSetSize.X / 2 < candidateX + intentGraphPanel.Size.X / 2 && tipSetPosition.X + tipSetSize.X <= maxX)
+                        {
+                            candidateX = tipSetPosition.X + tipSetSize.X;
+                        }
+                        else if (tipSetPosition.X - intentGraphPanel.Size.X >= 0)
+                        {
+                            candidateX = tipSetPosition.X - intentGraphPanel.Size.X;
+                        }
+                    }
+                }
+
+                intentGraphPanel.Position = new Vector2(candidateX, IntentGraphPanelTop);
+            };
         }
     }
 
