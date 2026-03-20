@@ -25,5 +25,6 @@
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.SCRATCH_MOVE": "33%, or 8% if can summon, ≤1",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.DISEASE_BITE_MOVE": "33%, or 8% if can summon, ≤1",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.SCREECH_MOVE": "33%, or 8% if can summon, ⏱3",
-	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE": "75% since 3rd move, one use, overall 3 uses"
+	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE": "75% since 3rd move, one use, overall 3 uses",
+	"text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE": "T starts from 3, +1 each time it's used"
 }

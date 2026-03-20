@@ -25,5 +25,6 @@
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.SCRATCH_MOVE": "33%, 如果可召唤则8%, ≤1",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.DISEASE_BITE_MOVE": "33%, 如果可召唤则8%, ≤1",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.SCREECH_MOVE": "33%, 如果可召唤则8%, ⏱3",
-	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE": "自第3次行动起75%, 只能用1次, 全体总共3次"
+	"branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE": "自第3次行动起75%, 只能用1次, 全体总共3次",
+	"text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE": "T从3开始，每次使用+1"
 }

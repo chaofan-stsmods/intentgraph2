@@ -11,6 +11,7 @@ using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.HoverTips;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using System;
+using System.Linq;
 
 namespace IntentGraph2.Patches;
 
@@ -92,18 +93,8 @@ public class ShowIntentGraphPatches
             return () =>
             {
                 var parent = intentGraphPanel.GetParent();
-                NHoverTipSet? tipSet = null;
-                if (parent != null)
-                {
-                    foreach (var node in parent.GetChildren())
-                    {
-                        if (node is NHoverTipSet hoverTipSet)
-                        {
-                            tipSet = hoverTipSet;
-                            break;
-                        }
-                    }
-                }
+                // don't break because we want to find the last hover tip set which is most likely the one related to the current creature
+                var tipSet = (NHoverTipSet?)parent?.GetChildren().Last(c => c is NHoverTipSet);
 
                 var maxX = NGame.Instance!.GetViewportRect().Size.X - intentGraphPanel.Size.X;
                 var candidateX = Math.Clamp(__instance.GlobalPosition.X + __instance.Size.X / 2 - intentGraphPanel.Size.X / 2, 0, maxX);

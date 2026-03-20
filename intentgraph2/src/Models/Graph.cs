@@ -16,7 +16,7 @@ public class Graph
     public List<Move> Moves { get; set; } = new();
 }
 
-public record class Icon(float X = 0, float Y = 0, IntentType IntentType = IntentType.Hidden, int? Value = null, int Times = 1, string ValueText = "");
+public record class Icon(float X = 0, float Y = 0, IntentType IntentType = IntentType.Hidden, int? Value = null, int Times = 1, string ValueText = "", string TimesText = "");
 
 public record class IconGroup(float X = 0, float Y = 0, float Width = 1, float Height = 1);
 

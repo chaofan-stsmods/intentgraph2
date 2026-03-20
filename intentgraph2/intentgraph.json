@@ -7,7 +7,23 @@
 	"MegaCrit.Sts2.Core.Models.Monsters.TestSubject": {
 		"secondaryInitialStates": [
             "RESPAWN_MOVE"
-		]
+		],
+		"moveReplacements": {
+			"MULTI_CLAW_MOVE": [
+				{
+					"timesText": "T"
+				}
+			]
+		},
+		"graphPatch": {
+			"labels": [
+				{
+					"x": 3.5,
+					"y": 0.8,
+					"text": "text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE"
+				}
+			]
+		}
 	},
 	"MegaCrit.Sts2.Core.Models.Monsters.TerrorEel": {
 		"graphPatch": {

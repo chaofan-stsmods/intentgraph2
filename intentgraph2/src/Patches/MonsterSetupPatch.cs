@@ -57,16 +57,16 @@ public class MonsterSetupPatch
         var intentDefinition = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
         if (intentDefinition?.Graph != null)
         {
-            return MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph);
+            return MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph, intentDefinition);
         }
 
         var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
         var stateNodes = ToMonsterStateNode(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition?.SecondaryInitialStates);
-        var graph = StateNodesToGraph(stateNodes);
+        var graph = StateNodesToGraph(stateNodes, intentDefinition);
 
         if (intentDefinition?.GraphPatch != null)
         {
-            var patch = MakeGraphFromIntentDefinition(stateMachine, intentDefinition.GraphPatch);
+            var patch = MakeGraphFromIntentDefinition(stateMachine, intentDefinition.GraphPatch, intentDefinition);
             graph.Width = Math.Max(graph.Width, patch.Width);
             graph.Height = Math.Max(graph.Height, patch.Height);
             graph.Icons.AddRange(patch.Icons);
@@ -78,7 +78,7 @@ public class MonsterSetupPatch
         return graph;
     }
 
-    private static Graph MakeGraphFromIntentDefinition(MonsterMoveStateMachine stateMachine, Graph graph)
+    private static Graph MakeGraphFromIntentDefinition(MonsterMoveStateMachine stateMachine, Graph graph, IntentDefinition intentDefinition)
     {
         var result = new Graph
         {
@@ -86,16 +86,22 @@ public class MonsterSetupPatch
             Height = graph.Height,
             Icons = [.. graph.Icons],
             IconGroups = [.. graph.IconGroups],
-            Labels = [.. graph.Labels],
             Arrows = [.. graph.Arrows],
         };
+
+        foreach (var label in graph.Labels)
+        {
+            result.Labels.Add(new Models.Label(label.X, label.Y, IntentGraphMod.IntentGraphStrings.GetValueOrDefault(label.Text, label.Text), label.Align));
+        }
 
         foreach (var move in graph.Moves)
         {
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == move.Id);
             if (state != null && state is MoveState moveState)
             {
-                AddIcons(moveState.Intents, result.Icons, move.X, move.Y);
+                MoveReplacement[]? replacements = null;
+                intentDefinition?.MoveReplacements?.TryGetValue(state.Id, out replacements);
+                AddIcons(moveState.Intents, result.Icons, move.X, move.Y, replacements);
             }
         }
 
@@ -413,13 +419,13 @@ public class MonsterSetupPatch
         }
     }
 
-    private static Graph StateNodesToGraph(List<MonsterStateNode> stateNodes)
+    private static Graph StateNodesToGraph(List<MonsterStateNode> stateNodes, IntentDefinition? intentDefinition)
     {
         var result = new Graph();
         var y = 0f;
         foreach (var stateNode in stateNodes)
         {
-            AddStateNodeToGraph(stateNode, result, new GraphGenerationContext(), 0, y);
+            AddStateNodeToGraph(stateNode, result, new GraphGenerationContext() { IntentDefinition = intentDefinition }, 0, y);
             y = result.Height;
         }
         return result;
@@ -475,7 +481,9 @@ public class MonsterSetupPatch
         {
             if (stateNode.State is MoveState moveState)
             {
-                AddIcons(moveState.Intents, graph.Icons, x, y);
+                MoveReplacement[]? replacements = null;
+                context.IntentDefinition?.MoveReplacements?.TryGetValue(moveState.Id, out replacements);
+                AddIcons(moveState.Intents, graph.Icons, x, y, replacements);
             }
         }
         else
@@ -509,18 +517,21 @@ public class MonsterSetupPatch
         }
     }
 
-    private static void AddIcons(IReadOnlyList<AbstractIntent> intents, List<Icon> iconList, float x, float y)
+    private static void AddIcons(IReadOnlyList<AbstractIntent> intents, List<Icon> iconList, float x, float y, MoveReplacement[]? replacements)
     {
         for (int i = 0; i < intents.Count; i++)
         {
-            AbstractIntent intent = intents[i];
+            var intent = intents[i];
+            var replacement = i < replacements?.Length ? replacements[i] : null;
             if (intent is AttackIntent attackIntent)
             {
-                iconList.Add(new Icon(i * 0.72f + x, y, intent.IntentType, (int?)attackIntent.DamageCalc?.Invoke(), attackIntent.Repeats));
+                iconList.Add(new Icon(i * 0.72f + x, y, intent.IntentType,
+                    (int?)attackIntent.DamageCalc?.Invoke(), attackIntent.Repeats,
+                    replacement?.ValueText ?? string.Empty, replacement?.TimesText ?? string.Empty));
             }
             else if (intent is StatusIntent statusIntent)
             {
-                iconList.Add(new Icon(i * 0.72f + x, y, intent.IntentType, statusIntent.CardCount));
+                iconList.Add(new Icon(i * 0.72f + x, y, intent.IntentType, statusIntent.CardCount, ValueText: replacement?.ValueText ?? string.Empty));
             }
             else
             {
@@ -700,6 +711,7 @@ public class MonsterSetupPatch
         public  Dictionary<float, MonsterStateNode> HLineTargetNode { get; set; } = new();
         public Dictionary<float, MonsterStateNode> VLineSourceNode { get; set; } = new();
         public Dictionary<int, MonsterStateNode> IndexOnGraphToNode { get; set; } = new();
+        public IntentDefinition? IntentDefinition { get; init; }
     }
 
     private class MonsterStateNode

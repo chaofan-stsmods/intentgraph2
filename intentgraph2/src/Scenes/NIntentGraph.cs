@@ -118,13 +118,18 @@ public partial class NIntentGraph : Control
         DrawIconIntent(icon);
 
         var text = string.Empty;
-        if (!string.IsNullOrEmpty(icon.ValueText))
+        var valueText = !string.IsNullOrEmpty(icon.ValueText) ? icon.ValueText.Replace("{}", icon.Value?.ToString()) : (icon.Value?.ToString() ?? string.Empty);
+        if (!string.IsNullOrEmpty(valueText))
         {
-            text = icon.ValueText;
-        }
-        else if (icon.Value.HasValue)
-        {
-            text = icon.Times > 1 ? $"{icon.Value}x{icon.Times}" : $"{icon.Value}";
+            if (icon.Times <= 1 && string.IsNullOrEmpty(icon.TimesText))
+            {
+                text = valueText;
+            }
+            else
+            {
+                var timesText = !string.IsNullOrEmpty(icon.TimesText) ? icon.TimesText.Replace("{}", icon.Times.ToString()) : icon.Times.ToString();
+                text = $"{valueText}x{timesText}";
+            }
         }
 
         if (!string.IsNullOrEmpty(text))
