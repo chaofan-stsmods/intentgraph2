@@ -43,7 +43,6 @@ public class MonsterSetupPatch
         }
     }
 
-    [return: NotNullIfNotNull(nameof(monster))]
     private static Graph? GenerateGraph(MonsterModel? monster)
     {
         if (monster?.MoveStateMachine == null)
@@ -73,6 +72,12 @@ public class MonsterSetupPatch
             graph.IconGroups.AddRange(patch.IconGroups);
             graph.Labels.AddRange(patch.Labels);
             graph.Arrows.AddRange(patch.Arrows);
+        }
+
+        // Empty intents may have arrows so don't check it.
+        if (graph.Icons.Count == 0 && graph.IconGroups.Count == 0 && graph.Labels.Count == 0)
+        {
+            return null;
         }
 
         return graph;
@@ -423,11 +428,19 @@ public class MonsterSetupPatch
     {
         var result = new Graph();
         var y = 0f;
+        var arrowTarget = new Dictionary<Arrow, MonsterStateNode>();
         foreach (var stateNode in stateNodes)
         {
-            AddStateNodeToGraph(stateNode, result, new GraphGenerationContext() { IntentDefinition = intentDefinition }, 0, y);
+            var context = new GraphGenerationContext()
+            {
+                IntentDefinition = intentDefinition,
+                ArrowTarget = arrowTarget,
+            };
+            AddStateNodeToGraph(stateNode, result, context, 0, y);
             y = result.Height;
         }
+
+        TuneArrowPosition(result.Arrows, arrowTarget);
         return result;
     }
 
@@ -563,8 +576,8 @@ public class MonsterSetupPatch
                 // <--
                 if (nextStateNode.NextState == stateNode)
                 {
-                    graph.Arrows.Add(new Arrow([0, stateNode.X + stateNode.Width, centerY - 0.2f, nextStateNode.X])); // -->
-                    graph.Arrows.Add(new Arrow([0, nextStateNode.X, centerY + 0.2f, stateNode.X + stateNode.Width])); // <--
+                    AddArrow(graph, new Arrow([0, stateNode.X + stateNode.Width, centerY - 0.2f, nextStateNode.X]), context, nextStateNode); // -->
+                    AddArrow(graph, new Arrow([0, nextStateNode.X, centerY + 0.2f, stateNode.X + stateNode.Width]), context, stateNode); // <--
                     nextStateNode.AddedArrow = true;
                     return;
                 }
@@ -575,12 +588,13 @@ public class MonsterSetupPatch
                     {
                         arrow.Path[1] -= 0.1f;
                     }
-                    graph.Arrows.Add(arrow); // -->
+                    AddArrow(graph, arrow, context, nextStateNode); // -->
                     return;
                 }
             }
         }
-        else if (stateNode.IndexOnGraph - 1 == nextStateNode.IndexOnGraph)
+        
+        if (stateNode.IndexOnGraph - 1 == nextStateNode.IndexOnGraph)
         {
             var minY = Math.Max(stateNode.Y + 0.25f, nextStateNode.Y + 0.25f);
             var maxY = Math.Min(stateNode.Y + stateNode.Height - 0.25f, nextStateNode.Y + nextStateNode.Height - 0.25f);
@@ -592,8 +606,8 @@ public class MonsterSetupPatch
                 // -->
                 if (nextStateNode.NextState == stateNode)
                 {
-                    graph.Arrows.Add(new Arrow([0, stateNode.X, centerY + 0.2f, nextStateNode.X + nextStateNode.Width])); // <--
-                    graph.Arrows.Add(new Arrow([0, nextStateNode.X + nextStateNode.Width, centerY - 0.2f, stateNode.X])); // -->
+                    AddArrow(graph, new Arrow([0, stateNode.X, centerY + 0.2f, nextStateNode.X + nextStateNode.Width]), context, nextStateNode); // <--
+                    AddArrow(graph, new Arrow([0, nextStateNode.X + nextStateNode.Width, centerY - 0.2f, stateNode.X]), context, stateNode); // -->
                     nextStateNode.AddedArrow = true;
                     return;
                 }
@@ -604,7 +618,8 @@ public class MonsterSetupPatch
                     {
                         arrow.Path[1] += 0.1f;
                     }
-                    graph.Arrows.Add(arrow); // <--
+                    AddArrow(graph, arrow, context, nextStateNode); // <--
+                    context.ArrowTarget[arrow] = nextStateNode;
                     return;
                 }
             }
@@ -646,7 +661,8 @@ public class MonsterSetupPatch
                         arrow.Path[1] += 0.1f;
                     }
                 }
-                graph.Arrows.Add(arrow);
+                AddArrow(graph, arrow, context, nextStateNode);
+                context.ArrowTarget[arrow] = nextStateNode;
                 return;
             }
         }
@@ -657,7 +673,7 @@ public class MonsterSetupPatch
         var arrowRight = stateNode.ArrowRight;
         var arrowBottom = nextStateNode.IndexOnGraph <= stateNode.IndexOnGraph ? stateNode.ArrowBottom : stateNode.Y + stateNode.Height + 0.25f;
 
-        while (context.VLineSourceNode.TryGetValue(arrowRight, out var vLineSource) && vLineSource != stateNode)
+        while (context.VLineTargetNode.TryGetValue(arrowRight, out var vLineTarget) && vLineTarget != nextStateNode)
         {
             arrowRight += 0.25f;
         }
@@ -679,7 +695,7 @@ public class MonsterSetupPatch
         {
             arrowBottom += 0.25f;
         }
-        context.VLineSourceNode[arrowRight] = stateNode;
+        context.VLineTargetNode[arrowRight] = nextStateNode;
         context.HLineTargetNode[arrowBottom] = nextStateNode;
         arrow = new Arrow([0,
                 stateNode.X + stateNode.Width, stateNode.Y + stateNode.Height / 2,
@@ -692,7 +708,8 @@ public class MonsterSetupPatch
             arrow.Path[1] -= 0.1f;
         }
 
-        graph.Arrows.Add(arrow);
+        AddArrow(graph, arrow, context, nextStateNode);
+        context.ArrowTarget[arrow] = nextStateNode;
 
         if (arrowRight > graph.Width)
         {
@@ -705,13 +722,112 @@ public class MonsterSetupPatch
         }
     }
 
+    private static void AddArrow(Graph graph, Arrow arrow, GraphGenerationContext context, MonsterStateNode target)
+    {
+        graph.Arrows.Add(arrow);
+        context.ArrowTarget[arrow] = target;
+    }
+
+    private static void TuneArrowPosition(List<Arrow> arrows, Dictionary<Arrow, MonsterStateNode> arrowTarget)
+    {
+        for (var i = 0; i < arrows.Count; i++)
+        {
+            var arrow1 = arrows[i];
+            for (var j = i + 1; j < arrows.Count; j++)
+            {
+                var arrow2 = arrows[j];
+                var sameTarget = arrowTarget[arrow1] == arrowTarget[arrow2];
+
+                foreach (var (h1, s1, e1, p1) in ArrowSegments(arrow1))
+                {
+                    foreach (var (h2, s2, e2, p2) in ArrowSegments(arrow2))
+                    {
+                        if (h1 != h2)
+                        {
+                            break;
+                        }
+
+                        if (h1 && Math.Abs(s1.Y - s2.Y) < 0.12f) // horizontal
+                        {
+                            // same target & same end arrows don't need to adjust
+                            if (sameTarget && Math.Abs(e1.X - e2.X) < 0.001f)
+                            {
+                                continue;
+                            }
+
+                            var min1x = Math.Min(s1.X, e1.X);
+                            var min2x = Math.Min(s2.X, e2.X);
+                            var max1x = Math.Max(s1.X, e1.X);
+                            var max2x = Math.Max(s2.X, e2.X);
+                            if (Math.Max(min1x, min2x) < Math.Min(max1x, max2x))
+                            {
+                                var centerY = (s1.Y + s2.Y) / 2;
+                                arrow1.Path[p1] = centerY + (s1.X < s2.X ? -0.15f : 0.15f);
+                                arrow2.Path[p2] = centerY + (s1.X < s2.X ? 0.15f : -0.15f);
+                            }
+                        }
+
+                        if (!h1 && Math.Abs(s1.X - s2.X) < 0.12) // vertical
+                        {
+                            // same target & same end arrows don't need to adjust
+                            if (sameTarget && Math.Abs(e1.Y - e2.Y) < 0.001f)
+                            {
+                                continue;
+                            }
+
+                            var min1y = Math.Min(s1.Y, e1.Y);
+                            var min2y = Math.Min(s2.Y, e2.Y);
+                            var max1y = Math.Max(s1.Y, e1.Y);
+                            var max2y = Math.Max(s2.Y, e2.Y);
+                            if (Math.Max(min1y, min2y) < Math.Min(max1y, max2y))
+                            {
+                                var centerX = (s1.X + s2.X) / 2;
+                                arrow1.Path[p1] = centerX + (s1.Y < s2.Y ? -0.15f : 0.15f);
+                                arrow2.Path[p2] = centerX + (s1.Y < s2.Y ? 0.15f : -0.15f);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<(bool horizontal, Vector2 start, Vector2 end, int pathIndex)> ArrowSegments(Arrow arrow)
+    {
+        var horizontal = arrow.Path[0] == 0;
+        var x = arrow.Path[1];
+        var y = arrow.Path[2];
+        var xIndex = 1;
+        var yIndex = 2;
+        for (var i = 3; i < arrow.Path.Length; i++)
+        {
+            if (horizontal)
+            {
+                yield return (horizontal, new Vector2(x, y), new Vector2(arrow.Path[i], y), yIndex);
+                x = arrow.Path[i];
+                xIndex = i;
+            }
+            else
+            {
+                yield return (horizontal, new Vector2(x, y), new Vector2(x, arrow.Path[i]), xIndex);
+                y = arrow.Path[i];
+                yIndex = i;
+            }
+
+            horizontal = !horizontal;
+        }
+
+        yield break;
+    }
+
     private class GraphGenerationContext {
         public int IndexOnGraph { get; set; }
         public float NextNodeX { get; set; }
-        public  Dictionary<float, MonsterStateNode> HLineTargetNode { get; set; } = new();
-        public Dictionary<float, MonsterStateNode> VLineSourceNode { get; set; } = new();
+        public Dictionary<float, MonsterStateNode> HLineTargetNode { get; set; } = new();
+        public Dictionary<float, MonsterStateNode> VLineTargetNode { get; set; } = new();
         public Dictionary<int, MonsterStateNode> IndexOnGraphToNode { get; set; } = new();
         public IntentDefinition? IntentDefinition { get; init; }
+        public Dictionary<Arrow, MonsterStateNode> ArrowTarget { get; set; } = new();
     }
 
     private class MonsterStateNode
