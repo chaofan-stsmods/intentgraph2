@@ -3,5 +3,5 @@
   "name": "Intent Graph", 
   "author": "Chaofan", 
   "description": "Show monster intent as a state machine.", 
-  "version": "v0.1" 
+  "version": "0.1.0" 
 } 

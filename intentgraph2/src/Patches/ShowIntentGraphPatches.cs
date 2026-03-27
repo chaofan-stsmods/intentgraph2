@@ -64,8 +64,8 @@ public class ShowIntentGraphPatches
             intentGraphPanel = scene.Instantiate<MarginContainer>(PackedScene.GenEditState.Disabled);
             var monsterNameLabel = intentGraphPanel.GetNode<Label>("%MonsterName");
             monsterNameLabel.Text = creature.Name;
-            monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Regular, ThemeConstants.Label.font);
-            monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Bold, ThemeConstants.Label.font);
+            monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Regular, "font");
+            monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Bold, "font");
 
             var intentGraph = intentGraphPanel.GetNode<NIntentGraph>("%IntentGraph");
             intentGraph.Graph = graph;
