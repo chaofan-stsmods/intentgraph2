@@ -426,6 +426,13 @@ public class MonsterSetupPatch
 
     private static Graph StateNodesToGraph(List<MonsterStateNode> stateNodes, IntentDefinition? intentDefinition)
     {
+        // Remove self loop if it's the only next state to avoid unnecessary arrow.
+        if (stateNodes.Count == 1 && stateNodes[0].NextState == stateNodes[0])
+        {
+            stateNodes[0].NextState = null;
+            stateNodes[0].NextStateCount = 0;
+        }
+
         var result = new Graph();
         var y = 0f;
         var arrowTarget = new Dictionary<Arrow, MonsterStateNode>();

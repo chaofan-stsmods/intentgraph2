@@ -79,7 +79,7 @@ public partial class NIntentGraph : Control
 
     public override void _Input(InputEvent evt)
     {
-        if (evt is InputEventKey evtKey && evtKey.Keycode == Key.F1 && evtKey.IsPressed())
+        if (evt is InputEventKey evtKey && evtKey.IsPressed() && evtKey.Keycode == IntentGraphMod.GetToggleHotKey())
         {
             ShowIntentGraphPatches.ToggleIntentGraphVisibility();
         }
