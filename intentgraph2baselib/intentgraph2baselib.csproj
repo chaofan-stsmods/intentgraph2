@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>IntentGraph2.BaseLib</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\intentgraph-2\intentgraph2.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BaseLib">
+      <HintPath>E:\Games\steamlib\steamapps\common\Slay the Spire 2\mods\BaseLib\BaseLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;E:\Games\steamlib\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\..\intentgraph-2\publish\&quot; /Y" />
+  </Target>
+
+</Project>
