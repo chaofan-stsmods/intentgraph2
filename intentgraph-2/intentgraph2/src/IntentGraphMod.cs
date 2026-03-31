@@ -55,7 +55,7 @@ public class IntentGraphMod
     {
         LogInfo("IntentGraphMod post initialize");
 
-        if (ModManager.LoadedMods.Any(m => m.manifest?.id == "BaseLib"))
+        if (GetLoadedMods().Any(m => m.manifest?.id == "BaseLib"))
         {
             try
             {
@@ -90,7 +90,7 @@ public class IntentGraphMod
 
         LoadIntentDefinitionForMod(ModId);
 
-        foreach (var mod in ModManager.LoadedMods)
+        foreach (var mod in GetLoadedMods())
         {
             if (mod?.manifest?.id != null && mod.manifest.id != ModId)
             {
@@ -102,6 +102,28 @@ public class IntentGraphMod
     public static Key GetToggleHotKey()
     {
         return baseLibHelper?.Config.ToggleIntentGraphKey ?? Key.F1;
+    }
+
+    public static void LogInfo(string message)
+    {
+        Log.Info($"[IntentGraph] {message}");
+    }
+
+    public static IEnumerable<Mod> GetLoadedMods()
+    {
+        var loadedMods1 = typeof(ModManager).GetProperty("LoadedMods", BindingFlags.Static | BindingFlags.Public)?.GetValue(null);
+        if (loadedMods1 != null)
+        {
+            return (IEnumerable<Mod>)loadedMods1;
+        }
+
+        var loadedMods2 = typeof(ModManager).GetMethod("GetLoadedMods", BindingFlags.Static | BindingFlags.Public)?.Invoke(null, null);
+        if (loadedMods2 != null)
+        {
+            return (IEnumerable<Mod>)loadedMods2;
+        }
+
+        return Enumerable.Empty<Mod>();
     }
 
     private static void LoadIntentDefinitionForMod(string modId)
@@ -137,11 +159,6 @@ public class IntentGraphMod
                 }
             }
         }
-    }
-
-    public static void LogInfo(string message)
-    {
-        Log.Info($"[IntentGraph] {message}");
     }
 }
 

@@ -17,7 +17,7 @@ public class LocManagerSetLanguagePatch
 
         LoadIntentStringsFromMod(IntentGraphMod.ModId, language);
 
-        foreach (var mod in ModManager.LoadedMods)
+        foreach (var mod in IntentGraphMod.GetLoadedMods())
         {
             if (mod?.manifest?.id != null && mod.manifest.id != IntentGraphMod.ModId)
             {
