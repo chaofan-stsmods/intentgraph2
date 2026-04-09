@@ -31,7 +31,7 @@ public class IntentGraphMod
     };
 
     public static Dictionary<string, string> IntentGraphStrings = new Dictionary<string, string>();
-    public static Dictionary<string, IntentDefinition> IntentDefinitions = new Dictionary<string, IntentDefinition>();
+    public static Dictionary<string, IntentDefinitionList> IntentDefinitions = new Dictionary<string, IntentDefinitionList>();
 
     public const string ModId = "intentgraph2";
 
@@ -136,7 +136,7 @@ public class IntentGraphMod
             LogInfo("Loading intent definitions from " + file);
             using var fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
             var asText = fileAccess.GetAsText();
-            var intents = JsonSerializer.Deserialize<Dictionary<string, IntentDefinition>>(asText, SerializeOptions) ?? new Dictionary<string, IntentDefinition>();
+            var intents = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
             foreach (var kv in intents)
             {
                 IntentDefinitions[kv.Key] = kv.Value;
@@ -152,7 +152,7 @@ public class IntentGraphMod
                 LogInfo("Loading intent definitions from " + file2);
                 using var fileAccess2 = FileAccess.Open(file2, FileAccess.ModeFlags.Read);
                 var asText2 = fileAccess2.GetAsText();
-                var intents2 = JsonSerializer.Deserialize<Dictionary<string, IntentDefinition>>(asText2, SerializeOptions) ?? new Dictionary<string, IntentDefinition>();
+                var intents2 = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText2, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
                 foreach (var kv in intents2)
                 {
                     IntentDefinitions[kv.Key] = kv.Value;

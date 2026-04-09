@@ -21,6 +21,8 @@ namespace IntentGraph2.Patches;
 [HarmonyPatch(typeof(CombatManager), nameof(CombatManager.AfterCreatureAdded))]
 public class MonsterSetupPatch
 {
+    private const float IconPaddingInMove = -0.28f;
+
     public static readonly ConditionalWeakTable<MonsterModel, Graph> GeneratedGraphs = new();
 
     public static void Postfix(CombatManager __instance, Creature creature)
@@ -53,14 +55,24 @@ public class MonsterSetupPatch
         var stateMachine = monster.MoveStateMachine;
         var initialState = stateMachine.GetInitialState();
 
-        var intentDefinition = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
+        var intentDefinitionList = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
+        var intentDefinition = intentDefinitionList?.FindFirstMatchCondition(monster);
         if (intentDefinition?.Graph != null)
         {
             return MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph, intentDefinition);
         }
 
         var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
-        var stateNodes = ToMonsterStateNode(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition?.SecondaryInitialStates);
+        List<MonsterStateNode> stateNodes;
+        if (intentDefinition?.StateMachine != null)
+        {
+            stateNodes = ToMonsterStateNodeList(stateMachine, intentDefinition.StateMachine, font);
+        }
+        else
+        {
+            stateNodes = ToMonsterStateNodeList(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition?.SecondaryInitialStates);
+        }
+
         var graph = StateNodesToGraph(stateNodes, intentDefinition);
 
         if (intentDefinition?.GraphPatch != null)
@@ -113,7 +125,112 @@ public class MonsterSetupPatch
         return result;
     }
 
-    private static List<MonsterStateNode> ToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState initialState, string[]? secondaryStates)
+    private static List<MonsterStateNode> ToMonsterStateNodeList(MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, Font font)
+    {
+        var existingNodes = new Dictionary<string, MonsterStateNode>();
+        var initialStates = new List<(int, MonsterStateNode)>();
+
+        foreach (var node in overwriteStateMachine)
+        {
+            if (node.IsInitialState)
+            {
+                var stateNode = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, node, existingNodes, parent: null);
+                if (stateNode != null)
+                {
+                    initialStates.Add((node.InitialStatePriority, stateNode));
+                }
+            }
+        }
+
+        return initialStates.OrderBy(t => t.Item1).Select(t => t.Item2).ToList();
+    }
+
+    private static MonsterStateNode? ToMonsterStateNode(Font font, MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, StateMachineNode? node, Dictionary<string, MonsterStateNode> existingNodes, MonsterStateNode? parent)
+    {
+        if (node == null)
+        {
+            return null;
+        }
+
+        var name = node.Name;
+        if (parent == null && existingNodes.TryGetValue(name, out var existingNode))
+        {
+            return existingNode;
+        }
+
+        if (node.Children == null || node.Children.Length == 0)
+        {
+            var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == (node.MoveName ?? node.Name)) as MoveState;
+            if (state == null)
+            {
+                return null;
+            }
+
+            var result = new MonsterStateNode
+            {
+                State = state,
+                Width = state.Intents.Count + (state.Intents.Count - 1) * IconPaddingInMove,
+                Height = 1,
+                NextStateCount = 1,
+                Parent = parent,
+            };
+
+            if (parent == null)
+            {
+                existingNodes[name] = result;
+            }
+
+            if (node.FollowUpState != null)
+            {
+                result.NextState = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null);
+            }
+
+            return result;
+        }
+        else
+        {
+            var result = new MonsterStateNode
+            {
+                State = null,
+                Parent = parent,
+            };
+
+            if (parent == null)
+            {
+                existingNodes[name] = result;
+            }
+
+            var children = new List<(string label, MonsterStateNode node)>();
+            for (int i = 0; i < node.Children.Length; i++)
+            {
+                var childNode = node.Children[i].Node;
+                var text = node.Children[i].Label;
+                var childStateNode = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, childNode, existingNodes, parent: result);
+                if (childStateNode != null)
+                {
+                    children.Add((text, childStateNode));
+                }
+            }
+
+            var longestText = node.Children.Select(c => font.GetStringSize(c.Label, fontSize: 18).X).DefaultIfEmpty(0).Max() / NIntentGraph.GridSize;
+
+            result.Width = Math.Max(longestText, children.Select(c => c.node.Width).DefaultIfEmpty(1).Max()) + 0.2f; // 0.1 padding
+            // 0.1 padding, 0.25 label, -0.15 for single move
+            result.Height = 0.25f * children.Count + children.Select(c => c.node.Height).Sum() + 0.2f - 0.15f * children.Where(c => c.node.Children == null).Count();
+            result.Children = children;
+
+            if (node.FollowUpState != null)
+            {
+                result.NextState = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null);
+            }
+
+            result.NextStateCount = (result.NextState == null ? 0 : 1) + children.Select(c => c.node.NextStateCount).DefaultIfEmpty(0).Max();
+
+            return result;
+        }
+    }
+
+    private static List<MonsterStateNode> ToMonsterStateNodeList(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState initialState, string[]? secondaryStates)
     {
         var existingNodes = new Dictionary<MonsterState, MonsterStateNode>();
 
@@ -174,7 +291,7 @@ public class MonsterSetupPatch
             var result = new MonsterStateNode
             {
                 State = state,
-                Width = moveState.Intents.Count - (moveState.Intents.Count - 1) * 0.28f,
+                Width = moveState.Intents.Count + (moveState.Intents.Count - 1) * IconPaddingInMove,
                 Height = 1,
                 NextStateCount = 1,
                 Parent = parent,
@@ -248,15 +365,15 @@ public class MonsterSetupPatch
             var children = new List<(string label, MonsterStateNode node)>();
             for (int i = 0; i < states.Count; i++)
             {
-                var nextStateId = states[i];
+                var childStateId = states[i];
                 var text = texts[i];
-                var nextState = stateMachine.States.Values.FirstOrDefault(s => s.Id == nextStateId);
-                if (nextState != null)
+                var childState = stateMachine.States.Values.FirstOrDefault(s => s.Id == childStateId);
+                if (childState != null)
                 {
-                    var nextStateNode = ToMonsterStateNode(monsterName, font, stateMachine, nextState, existingNodes, parent: result);
-                    if (nextStateNode != null)
+                    var childStateNode = ToMonsterStateNode(monsterName, font, stateMachine, childState, existingNodes, parent: result);
+                    if (childStateNode != null)
                     {
-                        children.Add((text, nextStateNode));
+                        children.Add((text, childStateNode));
                     }
                 }
             }
@@ -545,17 +662,17 @@ public class MonsterSetupPatch
             var replacement = i < replacements?.Length ? replacements[i] : null;
             if (intent is AttackIntent attackIntent)
             {
-                iconList.Add(new Icon(i * 0.72f + x, y, intent.IntentType,
+                iconList.Add(new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType,
                     (int?)attackIntent.DamageCalc?.Invoke(), attackIntent.Repeats,
                     replacement?.ValueText ?? string.Empty, replacement?.TimesText ?? string.Empty));
             }
             else if (intent is StatusIntent statusIntent)
             {
-                iconList.Add(new Icon(i * 0.72f + x, y, intent.IntentType, statusIntent.CardCount, ValueText: replacement?.ValueText ?? string.Empty));
+                iconList.Add(new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType, statusIntent.CardCount, ValueText: replacement?.ValueText ?? string.Empty));
             }
             else
             {
-                iconList.Add(new Icon(i * 0.72f + x, y, intent.IntentType));
+                iconList.Add(new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType));
             }
         }
     }
@@ -843,7 +960,7 @@ public class MonsterSetupPatch
         public float Height { get; set; }
         public MonsterStateNode? Parent { get; set; }
         public List<(string label, MonsterStateNode node)>? Children { get; set; }
-        public required MonsterState State { get; init; }
+        public MonsterState? State { get; set; }
         public MonsterStateNode? NextState { get; set; }
         public int NextStateCount { get; set; } // include children's next states
         public float X { get; set; }
