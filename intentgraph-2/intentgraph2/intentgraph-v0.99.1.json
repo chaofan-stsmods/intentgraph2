@@ -1,46 +1,46 @@
 {
-	"MegaCrit.Sts2.Core.Models.Monsters.HauntedShip": [
-		{
-			"stateMachine": [
-				{
-					"name": "RAMMING_SPEED_MOVE",
-					"isInitialState": true,
-					"followUpState": "HAUNT_MOVE"
-				},
-				{
-					"name": "HAUNT_MOVE",
-					"followUpState": "random1"
-				},
-				{
-					"name": "random1",
-					"followUpState": "RAMMING_SPEED_MOVE_2",
-					"children": [
-						{
-							"label": "33%, ≤1",
-							"node": {
-								"name": "RAMMING_SPEED_MOVE"
-							}
-						},
-						{
-							"label": "33%, ≤1",
-							"node": {
-								"name": "SWIPE_MOVE"
-							}
-						},
-						{
-							"label": "33%, ≤1",
-							"node": {
-								"name": "STOMP_MOVE"
-							}
-						}
-					]
-				},
-				{
-					"name": "RAMMING_SPEED_MOVE_2",
-					"moveName": "RAMMING_SPEED_MOVE",
-					"followUpState": "random1"
-				}
-			]
-		}
-	]
+    "MegaCrit.Sts2.Core.Models.Monsters.HauntedShip": [
+        {
+            "stateMachine": [
+                {
+                    "name": "RAMMING_SPEED_MOVE",
+                    "isInitialState": true,
+                    "followUpState": "HAUNT_MOVE"
+                },
+                {
+                    "name": "HAUNT_MOVE",
+                    "followUpState": "random1"
+                },
+                {
+                    "name": "random1",
+                    "followUpState": "RAMMING_SPEED_MOVE_2",
+                    "children": [
+                        {
+                            "label": "33%, ≤1",
+                            "node": {
+                                "name": "RAMMING_SPEED_MOVE"
+                            }
+                        },
+                        {
+                            "label": "33%, ≤1",
+                            "node": {
+                                "name": "SWIPE_MOVE"
+                            }
+                        },
+                        {
+                            "label": "33%, ≤1",
+                            "node": {
+                                "name": "STOMP_MOVE"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "RAMMING_SPEED_MOVE_2",
+                    "moveName": "RAMMING_SPEED_MOVE",
+                    "followUpState": "random1"
+                }
+            ]
+        }
+    ]
 }

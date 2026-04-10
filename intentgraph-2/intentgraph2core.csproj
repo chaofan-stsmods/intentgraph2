@@ -1,0 +1,30 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.5.1">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>IntentGraph2</RootNamespace>
+    <Nullable>enable</Nullable>
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Antlr4BuildTasks" Version="12.14.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Antlr4 Include="intentgraph2\src\Antlr\Rule.g4">
+      <Package>IntentGraph2.Antlr</Package>
+    </Antlr4>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>E:\Games\steamlib\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="sts2">
+      <HintPath>E:\Games\steamlib\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;E:\Games\steamlib\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;E:\Games\steamlib\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\publish\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(ProjectDir)\publish\&quot; /Y" />
+  </Target>
+</Project>

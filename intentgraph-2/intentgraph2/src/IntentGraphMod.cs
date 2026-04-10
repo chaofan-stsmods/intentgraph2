@@ -18,7 +18,6 @@ using Path = System.IO.Path;
 
 namespace IntentGraph2;
 
-[ModInitializer(nameof(InitializeMod))]
 public class IntentGraphMod
 {
     private static readonly JsonSerializerOptions SerializeOptions = new JsonSerializerOptions
@@ -130,34 +129,48 @@ public class IntentGraphMod
     {
         LogInfo($"Searching intent definitions for mod {modId}");
 
-        var file = $"res://{modId}/intentgraph.json";
-        if (FileAccess.FileExists(file))
+        try
         {
-            LogInfo("Loading intent definitions from " + file);
-            using var fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
-            var asText = fileAccess.GetAsText();
-            var intents = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
-            foreach (var kv in intents)
+            var file = $"res://{modId}/intentgraph.json";
+            if (FileAccess.FileExists(file))
             {
-                IntentDefinitions[kv.Key] = kv.Value;
-            }
-        }
-
-        // version-specific intent definitions, if exist
-        if (ReleaseInfoManager.Instance.ReleaseInfo != null)
-        {
-            var file2 = $"res://{modId}/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json";
-            if (FileAccess.FileExists(file2))
-            {
-                LogInfo("Loading intent definitions from " + file2);
-                using var fileAccess2 = FileAccess.Open(file2, FileAccess.ModeFlags.Read);
-                var asText2 = fileAccess2.GetAsText();
-                var intents2 = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText2, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
-                foreach (var kv in intents2)
+                LogInfo("Loading intent definitions from " + file);
+                using var fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
+                var asText = fileAccess.GetAsText();
+                var intents = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
+                foreach (var kv in intents)
                 {
                     IntentDefinitions[kv.Key] = kv.Value;
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            LogInfo($"Failed to load intent definitions for mod {modId}: {ex}");
+        }
+
+        try
+        {
+            // version-specific intent definitions, if exist
+            if (ReleaseInfoManager.Instance.ReleaseInfo != null)
+            {
+                var file2 = $"res://{modId}/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json";
+                if (FileAccess.FileExists(file2))
+                {
+                    LogInfo("Loading intent definitions from " + file2);
+                    using var fileAccess2 = FileAccess.Open(file2, FileAccess.ModeFlags.Read);
+                    var asText2 = fileAccess2.GetAsText();
+                    var intents2 = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText2, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
+                    foreach (var kv in intents2)
+                    {
+                        IntentDefinitions[kv.Key] = kv.Value;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            LogInfo($"Failed to load version-specific intent definitions for mod {modId}: {ex}");
         }
     }
 }

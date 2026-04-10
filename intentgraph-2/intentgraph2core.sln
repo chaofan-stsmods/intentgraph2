@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.37027.9 d17.14
+VisualStudioVersion = 17.14.37027.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "intentgraph2", "intentgraph2.csproj", "{FC815489-2FAF-46CF-A60A-72A011A0679E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "intentgraph2core", "intentgraph2core.csproj", "{FC815489-2FAF-46CF-A60A-72A011A0679E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "intentgraph2baselib", "..\intentgraph2baselib\intentgraph2baselib.csproj", "{82EB2E77-ED3C-0AD4-0901-490BFE9334C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "intentgraph2test", "..\intentgraph2test\intentgraph2test.csproj", "{E69EA520-07FA-445D-A56D-8C807F8F6041}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "intentgraph2entry", "..\intentgraph2entry\intentgraph2entry.csproj", "{B01B37F2-0947-4FF2-9FD2-054D16744EEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +30,18 @@ Global
 		{82EB2E77-ED3C-0AD4-0901-490BFE9334C5}.ExportDebug|Any CPU.Build.0 = Release|Any CPU
 		{82EB2E77-ED3C-0AD4-0901-490BFE9334C5}.ExportRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{82EB2E77-ED3C-0AD4-0901-490BFE9334C5}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
+		{E69EA520-07FA-445D-A56D-8C807F8F6041}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E69EA520-07FA-445D-A56D-8C807F8F6041}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E69EA520-07FA-445D-A56D-8C807F8F6041}.ExportDebug|Any CPU.ActiveCfg = Release|Any CPU
+		{E69EA520-07FA-445D-A56D-8C807F8F6041}.ExportDebug|Any CPU.Build.0 = Release|Any CPU
+		{E69EA520-07FA-445D-A56D-8C807F8F6041}.ExportRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{E69EA520-07FA-445D-A56D-8C807F8F6041}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
+		{B01B37F2-0947-4FF2-9FD2-054D16744EEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B01B37F2-0947-4FF2-9FD2-054D16744EEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B01B37F2-0947-4FF2-9FD2-054D16744EEF}.ExportDebug|Any CPU.ActiveCfg = Release|Any CPU
+		{B01B37F2-0947-4FF2-9FD2-054D16744EEF}.ExportDebug|Any CPU.Build.0 = Release|Any CPU
+		{B01B37F2-0947-4FF2-9FD2-054D16744EEF}.ExportRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{B01B37F2-0947-4FF2-9FD2-054D16744EEF}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,93 +1,93 @@
 {
-	"MegaCrit.Sts2.Core.Models.Monsters.CeremonialBeast": [
-		{
-			"secondaryInitialStates": [
-				"STUN_MOVE"
-			]
-		}
-	],
-	"MegaCrit.Sts2.Core.Models.Monsters.TestSubject": [
-		{
-			"secondaryInitialStates": [
-				"RESPAWN_MOVE"
-			],
-			"moveReplacements": {
-				"MULTI_CLAW_MOVE": [
-					{
-						"timesText": "T"
-					}
-				]
-			},
-			"graphPatch": {
-				"labels": [
-					{
-						"x": 3.5,
-						"y": 0.8,
-						"text": "text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE"
-					}
-				]
-			}
-		}
-	],
-	"MegaCrit.Sts2.Core.Models.Monsters.TerrorEel": [
-		{
-			"graphPatch": {
-				"width": 3.22,
-				"height": 2.5,
-				"moves": [
-					{
-						"x": 0,
-						"y": 1.5,
-						"id": "STUN_MOVE"
-					},
-					{
-						"x": 1.5,
-						"y": 1.5,
-						"id": "TERROR_MOVE"
-					}
-				],
-				"arrows": [
-					{
-						"path": [0, 1, 2, 1.5]
-					},
-					{
-						"path": [1, 2, 1.5, 1.25, 0.5, 1]
-					}
-				]
-			}
-		}
-	],
-	"MegaCrit.Sts2.Core.Models.Monsters.HauntedShip": [
-		{
-			"stateMachine": [
-				{
-					"name": "HAUNT_MOVE",
-					"isInitialState": true,
-					"followUpState": "RAMMING_SPEED_MOVE"
-				},
-				{
-					"name": "RAMMING_SPEED_MOVE",
-					"followUpState": "random1"
-				},
-				{
-					"name": "random1",
-					"followUpState": "RAMMING_SPEED_MOVE",
-					"children": [
-						{
-							"label": "50%",
-							"node": {
-								"name": "SWIPE_MOVE"
-							}
-						},
-						{
-							"label": "50%",
-							"node": {
-								"name": "STOMP_MOVE"
-							}
-						}
-					]
-				}
-			]
-		}
-	]
+    "MegaCrit.Sts2.Core.Models.Monsters.CeremonialBeast": [
+        {
+            "secondaryInitialStates": [
+                "STUN_MOVE"
+            ]
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.TestSubject": [
+        {
+            "secondaryInitialStates": [
+                "RESPAWN_MOVE"
+            ],
+            "moveReplacements": {
+                "MULTI_CLAW_MOVE": [
+                    {
+                        "timesText": "T"
+                    }
+                ]
+            },
+            "graphPatch": {
+                "labels": [
+                    {
+                        "x": 3.5,
+                        "y": 0.8,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE"
+                    }
+                ]
+            }
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.TerrorEel": [
+        {
+            "graphPatch": {
+                "width": 3.22,
+                "height": 2.5,
+                "moves": [
+                    {
+                        "x": 0,
+                        "y": 1.5,
+                        "id": "STUN_MOVE"
+                    },
+                    {
+                        "x": 1.5,
+                        "y": 1.5,
+                        "id": "TERROR_MOVE"
+                    }
+                ],
+                "arrows": [
+                    {
+                        "path": [0, 1, 2, 1.5]
+                    },
+                    {
+                        "path": [1, 2, 1.5, 1.25, 0.5, 1]
+                    }
+                ]
+            }
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.HauntedShip": [
+        {
+            "stateMachine": [
+                {
+                    "name": "HAUNT_MOVE",
+                    "isInitialState": true,
+                    "followUpState": "RAMMING_SPEED_MOVE"
+                },
+                {
+                    "name": "RAMMING_SPEED_MOVE",
+                    "followUpState": "random1"
+                },
+                {
+                    "name": "random1",
+                    "followUpState": "RAMMING_SPEED_MOVE",
+                    "children": [
+                        {
+                            "label": "50%",
+                            "node": {
+                                "name": "SWIPE_MOVE"
+                            }
+                        },
+                        {
+                            "label": "50%",
+                            "node": {
+                                "name": "STOMP_MOVE"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }

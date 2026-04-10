@@ -16,7 +16,7 @@ config/icon="uid://hjenw0qseag6"
 
 [dotnet]
 
-project/assembly_name="intentgraph2"
+project/assembly_name="intentgraph2core"
 
 [file_customization]
 

@@ -4,22 +4,17 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>IntentGraph2.BaseLib</RootNamespace>
+    <AssemblyName>intentgraph2</AssemblyName>
     <IsGodotToolsProject>true</IsGodotToolsProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\intentgraph-2\intentgraph2core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="BaseLib">
-      <HintPath>E:\Games\steamlib\steamapps\common\Slay the Spire 2\mods\BaseLib\BaseLib.dll</HintPath>
+    <Reference Include="sts2">
+      <HintPath>E:\Games\steamlib\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;E:\Games\steamlib\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\..\intentgraph-2\publish\&quot; /Y" />
   </Target>
-
 </Project>
