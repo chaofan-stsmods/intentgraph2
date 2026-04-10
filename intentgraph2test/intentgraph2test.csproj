@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\intentgraph-2\intentgraph2core.csproj" />
+    <ProjectReference Include="..\intentgraph2\intentgraph2core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,6 +7,9 @@
     <Nullable>enable</Nullable>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
   </PropertyGroup>
+  <Target Name="PrintMyProperties" BeforeTargets="BeforeBuild">
+    <Message Importance="High" Text="IntermediateOutputPath: $(IntermediateOutputPath)" />
+</Target>
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
     <PackageReference Include="Antlr4BuildTasks" Version="12.14.0" />
