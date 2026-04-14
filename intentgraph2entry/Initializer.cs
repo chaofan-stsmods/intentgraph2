@@ -1,6 +1,7 @@
 ﻿using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Modding;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
 namespace IntentGraph2.Initializer;
@@ -11,6 +12,7 @@ public class Initializer
     public static void Initialize()
     {
         LogInfo("IntentGraph entry initialize");
+        Libgcc();
 
         LoadDll("Antlr4.Runtime.Standard");
         var coreAssembly = LoadDll("intentgraph2core");
@@ -50,5 +52,26 @@ public class Initializer
     private static void LogInfo(string message)
     {
         Log.Info($"[IntentGraph] {message}");
+    }
+
+    //Hopefully temporary fix for linux
+    [DllImport("libdl.so.2")]
+    static extern IntPtr dlopen(string filename, int flags);
+
+    [DllImport("libdl.so.2")]
+    static extern IntPtr dlerror();
+
+    private static IntPtr _holder;
+    private static void Libgcc()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            LogInfo("Running on Linux, manually dlopen libgcc for Harmony");
+            _holder = dlopen("libgcc_s.so.1", 2 | 256);
+            if (_holder == IntPtr.Zero)
+            {
+                LogInfo("Or Nor: " + Marshal.PtrToStringAnsi(dlerror()));
+            }
+        }
     }
 }

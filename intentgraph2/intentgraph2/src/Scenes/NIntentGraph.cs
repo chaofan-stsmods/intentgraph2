@@ -1,9 +1,13 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Patches;
+using MegaCrit.Sts2.Core.Localization;
+using MegaCrit.Sts2.Core.Localization.Fonts;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
+using MegaCrit.Sts2.Core.TestSupport;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace IntentGraph2.Scenes;
@@ -58,6 +62,7 @@ public partial class NIntentGraph : Control
     private Texture2D? groupBorderTexture;
     private Dictionary<string, Texture2D> intentTextures = new Dictionary<string, Texture2D>();
     private Font? font;
+    private Font? labelFont;
 
     private Graph? graph;
 
@@ -74,7 +79,16 @@ public partial class NIntentGraph : Control
 
     public override void _Ready()
     {
-        this.font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
+        this.labelFont = this.font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
+
+        if (LocManager.Instance.Language == "zhs")
+        {
+            this.labelFont = ResourceLoader.Load<Font>("res://intentgraph2/themes/kreon_bold_glyph_space_one_zhs.tres");
+        }
+        else if (!Engine.IsEditorHint() && !TestMode.IsOn && FontManager.NeedsFontSubstitution(LocManager.Instance.Language))
+        {
+            this.labelFont = FontManager.GetSubstituteFont(LocManager.Instance.Language, FontType.Bold);
+        }
     }
 
     public override void _Input(InputEvent evt)
@@ -268,6 +282,8 @@ public partial class NIntentGraph : Control
 
     private void DrawLabel(Models.Label label)
     {
+        Debug.Assert(labelFont != null, "labelFont is not initialized");
+
         var text = label.Text;
         var fontSize = 18;
         if (!string.IsNullOrEmpty(text))
@@ -275,17 +291,17 @@ public partial class NIntentGraph : Control
             var textPosition = new Vector2(label.X * GridSize, label.Y * GridSize);
             if (label.Align == "right")
             {
-                var textSize = font.GetStringSize(text, fontSize: fontSize);
+                var textSize = labelFont.GetStringSize(text, fontSize: fontSize);
                 textPosition.X -= textSize.X;
             }
             else if (label.Align != "left")
             {
-                var textSize = font.GetStringSize(text, fontSize: fontSize);
+                var textSize = labelFont.GetStringSize(text, fontSize: fontSize);
                 textPosition.X -= textSize.X / 2;
             }
 
-            DrawStringOutline(font, textPosition, text, fontSize: fontSize, size: 12, modulate: new Color(0, 0, 0, 0.5f));
-            DrawString(font, textPosition, text, fontSize: fontSize);
+            DrawStringOutline(labelFont, textPosition, text, fontSize: fontSize, size: 12, modulate: new Color(0, 0, 0, 0.5f));
+            DrawString(labelFont, textPosition, text, fontSize: fontSize);
         }
     }
 

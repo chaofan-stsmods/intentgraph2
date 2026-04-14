@@ -1,0 +1,9 @@
+[gd_resource type="FontVariation" load_steps=3 format=3 uid="uid://oas2hc9dsx91"]
+
+[ext_resource type="FontVariation" uid="uid://ciql5khgewwbm" path="res://themes/kreon_bold_glyph_space_two.tres" id="1_isd23"]
+[ext_resource type="FontFile" uid="uid://bgo5h1rnqi6op" path="res://fonts/zhs/NotoSansMonoCJKsc-Regular.otf" id="2_cryh1"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_cryh1")])
+base_font = ExtResource("1_isd23")
+spacing_glyph = 1
