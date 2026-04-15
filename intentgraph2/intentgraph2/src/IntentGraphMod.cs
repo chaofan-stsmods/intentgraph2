@@ -3,17 +3,21 @@ using Godot.Bridge;
 using HarmonyLib;
 using IntentGraph2.Crossovers;
 using IntentGraph2.Models;
+using IntentGraph2.Utils;
 using MegaCrit.Sts2.Core.Debug;
-using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Modding;
+using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Nodes.Debug;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using File = System.IO.File;
 using Path = System.IO.Path;
 
 namespace IntentGraph2;
@@ -29,30 +33,32 @@ public class IntentGraphMod
         }
     };
 
+    public const string ModId = "intentgraph2";
+
     public static Dictionary<string, string> IntentGraphStrings = new Dictionary<string, string>();
     public static Dictionary<string, IntentDefinitionList> IntentDefinitions = new Dictionary<string, IntentDefinitionList>();
 
-    public const string ModId = "intentgraph2";
+    public static readonly ConditionalWeakTable<MonsterModel, Graph> GeneratedGraphs = new();
 
     private static IBaseLibHelper? baseLibHelper;
 
     public static void InitializeMod()
     {
-        LogInfo("IntentGraphMod initialize");
+        IgLogger.Info("IntentGraphMod initialize");
         var assembly = typeof(IntentGraphMod).Assembly;
 
         ScriptManagerBridge.LookupScriptsInAssembly(assembly);
 
-        LogInfo("Patching...");
+        IgLogger.Info("Patching...");
         var harmony = new Harmony("chaofan.sts2.intentgraph2");
         harmony.PatchAll(assembly);
 
-        LogInfo("IntentGraphMod initialize done.");
+        IgLogger.Info("IntentGraphMod initialize done.");
     }
 
     public static void PostInitializeMod()
     {
-        LogInfo("IntentGraphMod post initialize");
+        IgLogger.Info("IntentGraphMod post initialize");
 
         if (GetLoadedMods().Any(m => m.manifest?.id == "BaseLib"))
         {
@@ -70,17 +76,17 @@ public class IntentGraphMod
                 }
                 else
                 {
-                    LogInfo("Failed to get assembly load context for IntentGraphMod.");
+                    IgLogger.Warn("Failed to get assembly load context for IntentGraphMod.");
                 }
             }
             catch (Exception ex)
             {
-                LogInfo("Failed to load BaseLib helper: " + ex);
+                IgLogger.Warn("Failed to load BaseLib helper: " + ex);
             }
         }
 
         LoadIntentDefinitions();
-        LogInfo("IntentGraphMod post initialize done.");
+        IgLogger.Info("IntentGraphMod post initialize done.");
     }
 
     public static void LoadIntentDefinitions()
@@ -96,6 +102,8 @@ public class IntentGraphMod
                 LoadIntentDefinitionForMod(mod.manifest.id);
             }
         }
+
+        LoadIntentDefinitionForDev();
     }
 
     public static Key GetToggleHotKey()
@@ -103,12 +111,7 @@ public class IntentGraphMod
         return baseLibHelper?.Config.ToggleIntentGraphKey ?? Key.F1;
     }
 
-    public static void LogInfo(string message)
-    {
-        Log.Info($"[IntentGraph] {message}");
-    }
-
-    public static IEnumerable<Mod> GetLoadedMods()
+    private static IEnumerable<Mod> GetLoadedMods()
     {
         var loadedMods1 = typeof(ModManager).GetProperty("LoadedMods", BindingFlags.Static | BindingFlags.Public)?.GetValue(null);
         if (loadedMods1 != null)
@@ -125,16 +128,33 @@ public class IntentGraphMod
         return Enumerable.Empty<Mod>();
     }
 
+    public static void LoadIntentStrings(string language)
+    {
+        IntentGraphStrings.Clear();
+
+        LoadIntentStringsFromMod(ModId, language);
+
+        foreach (var mod in GetLoadedMods())
+        {
+            if (mod?.manifest?.id != null && mod.manifest.id != ModId)
+            {
+                LoadIntentStringsFromMod(mod.manifest.id, language);
+            }
+        }
+
+        LoadIntentStringsForDev(language);
+    }
+
     private static void LoadIntentDefinitionForMod(string modId)
     {
-        LogInfo($"Searching intent definitions for mod {modId}");
+        IgLogger.Info($"Searching intent definitions for mod {modId}");
 
         try
         {
             var file = $"res://{modId}/intentgraph.json";
             if (FileAccess.FileExists(file))
             {
-                LogInfo("Loading intent definitions from " + file);
+                IgLogger.Info("Loading intent definitions from " + file);
                 using var fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
                 var asText = fileAccess.GetAsText();
                 var intents = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
@@ -146,7 +166,7 @@ public class IntentGraphMod
         }
         catch (Exception ex)
         {
-            LogInfo($"Failed to load intent definitions for mod {modId}: {ex}");
+            IgLogger.Warn($"Failed to load intent definitions for mod {modId}: {ex}");
         }
 
         try
@@ -157,7 +177,7 @@ public class IntentGraphMod
                 var file2 = $"res://{modId}/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json";
                 if (FileAccess.FileExists(file2))
                 {
-                    LogInfo("Loading intent definitions from " + file2);
+                    IgLogger.Info("Loading intent definitions from " + file2);
                     using var fileAccess2 = FileAccess.Open(file2, FileAccess.ModeFlags.Read);
                     var asText2 = fileAccess2.GetAsText();
                     var intents2 = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText2, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
@@ -170,7 +190,110 @@ public class IntentGraphMod
         }
         catch (Exception ex)
         {
-            LogInfo($"Failed to load version-specific intent definitions for mod {modId}: {ex}");
+            IgLogger.Warn($"Failed to load version-specific intent definitions for mod {modId}: {ex}");
+        }
+    }
+
+    private static void LoadIntentDefinitionForDev()
+    {
+        var devIntentFile = Path.Join(Path.GetDirectoryName(typeof(ModManager).Assembly.Location), "..", "intentgraph-intents-dev.json");
+        if (File.Exists(devIntentFile))
+        {
+            IgLogger.Info("Loading intent definitions from " + devIntentFile);
+            try
+            {
+                var asText = File.ReadAllText(devIntentFile);
+                var intents = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
+                foreach (var kv in intents)
+                {
+                    IntentDefinitions[kv.Key] = kv.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                IgLogger.Warn($"Failed to load intent definitions from {devIntentFile}: {ex}");
+            }
+        }
+    }
+
+    private static void LoadIntentStringsFromMod(string modId, string language)
+    {
+        IgLogger.Info($"Searching intent strings for mod {modId}, language {language}");
+
+        try
+        {
+            var file = $"res://{modId}/localization/{language}/intentgraph.json";
+            if (!FileAccess.FileExists(file))
+            {
+                file = $"res://{modId}/localization/eng/intentgraph.json";
+            }
+
+            if (FileAccess.FileExists(file))
+            {
+                IgLogger.Info("Loading intent strings from " + file);
+                using var fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
+                var asText = fileAccess.GetAsText();
+                var strings = JsonSerializer.Deserialize<Dictionary<string, string>>(asText) ?? new Dictionary<string, string>();
+                foreach (var kvp in strings)
+                {
+                    IntentGraphStrings[kvp.Key] = kvp.Value;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            IgLogger.Warn($"Failed to load intent strings for mod {modId}, language {language}: {ex}");
+        }
+
+        try
+        {
+            // version-specific strings, if exist
+            if (ReleaseInfoManager.Instance.ReleaseInfo != null)
+            {
+                var file2 = $"res://{modId}/localization/{language}/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json";
+                if (!FileAccess.FileExists(file2))
+                {
+                    file2 = $"res://{modId}/localization/eng/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json";
+                }
+
+                if (FileAccess.FileExists(file2))
+                {
+                    IgLogger.Info("Loading intent strings from " + file2);
+                    using var fileAccess2 = FileAccess.Open(file2, FileAccess.ModeFlags.Read);
+                    var asText2 = fileAccess2.GetAsText();
+                    var strings2 = JsonSerializer.Deserialize<Dictionary<string, string>>(asText2) ?? new Dictionary<string, string>();
+                    foreach (var kvp in strings2)
+                    {
+                        IntentGraphStrings[kvp.Key] = kvp.Value;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            IgLogger.Warn($"Failed to load version-specific intent strings for mod {modId}, language {language}: {ex}");
+        }
+    }
+
+    private static void LoadIntentStringsForDev(string language)
+    {
+        var devIntentStringFile = Path.Join(Path.GetDirectoryName(typeof(ModManager).Assembly.Location), "..", $"intentgraph-strings-{language}-dev.json");
+        if (File.Exists(devIntentStringFile))
+        {
+            IgLogger.Info("Loading intent strings from " + devIntentStringFile);
+            try
+            {
+                var asText = File.ReadAllText(devIntentStringFile);
+                var strings = JsonSerializer.Deserialize<Dictionary<string, string>>(asText) ?? new Dictionary<string, string>();
+                foreach (var kvp in strings)
+                {
+                    IntentGraphStrings[kvp.Key] = kvp.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                IgLogger.Warn($"Failed to load intent strings from {devIntentStringFile}: {ex}");
+            }
         }
     }
 }

@@ -1,15 +1,15 @@
-## How to add intent graph to your mod
+## How to add intent graphs to your mod
 
-You need add following files in your mod pck:
+You need to add the following files to your mod PCK:
 
-- `{yourmodid}/intentgraph.json` - main intent graph file, used to define intent graph for monsters.
-- `{yourmodid}/localization/{language}/intentgraph.json` - localization file for intent graph, used to define text for conditions and intent graphs.
+- `{yourmodid}/intentgraph.json` - the main intent graph file, used to define intent graphs for monsters.
+- `{yourmodid}/localization/{language}/intentgraph.json` - the localization file for intent graphs, used to define text for conditions and intent graphs.
 
-Content of these files will be described in later sections.
+The contents of these files are described in later sections.
 
 ## Automatic generation and condition handling
 
-In most cases you don't need to manually add intent graph to your mod. It can be generated automatically. An exception is that if you use `ConditionalBranchState`, you need to add text to describe the condition. This can be done by adding a localization file at `{yourmodid}/localization/{language}/intentgraph.json`. Text for conditions is like:
+In most cases, you don't need to manually add an intent graph to your mod. It can be generated automatically. The exception is that if you use `ConditionalBranchState`, you need to add text describing the condition. This can be done by adding a localization file at `{yourmodid}/localization/{language}/intentgraph.json`. Condition text uses the following format:
 
 ```json
 {
@@ -19,11 +19,11 @@ In most cases you don't need to manually add intent graph to your mod. It can be
 }
 ```
 
-This can also be used to override default text of `RandomBranchState`, using same key pattern.
+This can also be used to override the default text of `RandomBranchState` using the same key pattern.
 
 ## Manually adding or modifying generated intent graph
 
-If you want to manually add or modify generated intent graph, you need to add a json file to describe the intent graph. The file should be placed at `{yourmodid}/intentgraph.json`. The content of the file should be like:
+If you want to manually add or modify a generated intent graph, you need to add a JSON file that describes it. The file should be placed at `{yourmodid}/intentgraph.json`. The content of the file should look like this:
 
 ```json
 {
@@ -38,11 +38,11 @@ If you want to manually add or modify generated intent graph, you need to add a 
 }
 ```
 
-Here're some use cases for manually adding or modifying generated intent graph:
+Here're some use cases for manually adding or modifying a generated intent graph:
 
 ### Secondary initial state
 
-Your monster may have multiple forms triggered by certain buff or other condition, not by state machine transitions. In this case you can add secondary initial states. The generater will generate intent graphs for the secondary initial states below the initial state.
+Your monster may have multiple forms triggered by a certain buff or other condition rather than by state machine transitions. In this case, you can add secondary initial states. The generator will generate intent graphs for the secondary initial states below the initial state.
 
 Here's an example of the content in `intentgraph.json` for this use case:
 
@@ -59,11 +59,11 @@ Here's an example of the content in `intentgraph.json` for this use case:
 }
 ```
 
-### Overwriting whole intent graph
+### Overwriting the whole intent graph
 
 You can also overwrite the whole intent graph. This is useful when the generated intent graph is not good enough, or you want to add some custom nodes that can't be generated.
 
-It's suggested to use `stateMachine` property to define overwritten intent graph:
+It's recommended to use the `stateMachine` property to define the overwritten intent graph:
 
 ```json
 {
@@ -78,9 +78,9 @@ It's suggested to use `stateMachine` property to define overwritten intent graph
                     "moveName": "HAUNT_MOVE",
                     // Whether this node is an initial state.
                     "isInitialState": true,
-                    // Optional, if there're multiple initial states, smaller priority is shown first.
+                    // Optional. If there are multiple initial states, the lower priority is shown first.
                     "initialStatePriority": 0,
-                    // Node name of next state.
+                    // Name of the next state node.
                     "followUpState": "RAMMING_SPEED_MOVE"
                 },
                 {
@@ -93,7 +93,7 @@ It's suggested to use `stateMachine` property to define overwritten intent graph
                     "children": [
                         {
                             "label": "50%",
-                            // Same as other nodes. It can have its own follow up state and children.
+                            // Same as other nodes. It can have its own follow-up state and children.
                             "node": {
                                 "name": "SWIPE_MOVE"
                             }
@@ -112,7 +112,7 @@ It's suggested to use `stateMachine` property to define overwritten intent graph
 }
 ```
 
-Alternatively, you can use `graph` property to accurately define the graph. It means you can set position of every icon, text or arrow. When `graph` is used, the `stateMachine` will be ignored. Here's an example:
+Alternatively, you can use the `graph` property to define the graph precisely. This lets you set the position of every icon, text label, or arrow. When `graph` is used, `stateMachine` is ignored. Here is an example:
 
 ```json
 {
@@ -126,11 +126,11 @@ Alternatively, you can use `graph` property to accurately define the graph. It m
                     // Position on the graph, icons are 1 unit high and wide.
 					"x": 0,
 					"y": 0,
-                    // State ID defined in the monster model. If it contains multiple intents, this create multiple icons.
+                    // State ID defined in the monster model. If it contains multiple intents, this creates multiple icons.
 					"id": "RAMMING_SPEED_MOVE"
 				}
 			],
-            // It's suggested to use moves instead of icons. So you don't need to change damage values for different ascensions.
+            // It's recommended to use moves instead of icons, so you don't need to change damage values for different ascensions.
             "icons": [
                 {
                     "x": 0,
@@ -180,14 +180,14 @@ Alternatively, you can use `graph` property to accurately define the graph. It m
 }
 ```
 
-### Patching intent graph
+### Patching an intent graph
 
-You can also patch the generated intent graph. This is useful when you just want to add some texts, icons, or arrows, but don't want to define the whole graph.
-It's in same format as `graph`, but the property name is `graphPatch`. It can be used together with `stateMachine`.
+You can also patch the generated intent graph. This is useful when you just want to add some text, icons, or arrows but don't want to define the whole graph.
+It uses the same format as `graph`, but the property name is `graphPatch`. It can be used together with `stateMachine`.
 
 ### Replace values of an intent
 
-A monster may have dynamic values for its intents. For example, it attacks 1 more time after every 2 turns. You may want to replace its value and add descriptions for it. It can be done by `moveReplacements` property. Here's an example:
+A monster may have dynamic values for its intents. For example, it may attack one more time every two turns. You may want to replace its value and add a description for it. This can be done with the `moveReplacements` property. Here is an example:
 
 ```json
 {
@@ -198,7 +198,7 @@ A monster may have dynamic values for its intents. For example, it attacks 1 mor
                 "MULTI_CLAW_MOVE": [
                     // Each object is related to an intent of the state. You can put `null` here to skip an intent.
                     {
-                        // Both are optional, you can only replace one of them needed.
+                        // Both are optional; replace only the one you need.
                         "valueText": "N",
                         "timesText": "T"
                     }
@@ -221,14 +221,14 @@ A monster may have dynamic values for its intents. For example, it attacks 1 mor
 
 ## Different intent graphs for different conditions
 
-Intent graph of a monster can be different for different ascensions or when in different monster slots. You can set `condition` property to choose which graph to show. The **last** graph that matches the condition will be shown. Here's an example:
+The intent graph of a monster can be different for different ascensions or when it appears in different monster slots. You can set the `condition` property to choose which graph to show. The **last** graph that matches the condition will be shown. Here is an example:
 
 ```json
 {
     "MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat": [
         {
             // Default graph
-        }
+        },
         {
             "condition": "ascension >= 9",
             // Graph definition
@@ -241,9 +241,10 @@ Intent graph of a monster can be different for different ascensions or when in d
 }
 ```
 
-You may only use `true`, `false`, or number literals in condition, and supported operators are `(`, `)`, `==`, `!=`, `>`, `<`, `>=`, `<=`, `&&`, and `||`.
+You may only use `true`, `false`, or number literals in a condition, and the supported operators are `(`, `)`, `==`, `!=`, `>`, `<`, `>=`, `<=`, `&&`, and `||`.
 
 Supported variables are:
 - `ascension`: current ascension level.
-- `slotIndex`: current monster slot index, starts from `0`.
-- `act`: current act number, starts from `0`. Underdocks is `0`, Hive is `1`, Glory is `2`, etc.
+- `slotIndex`: current monster slot index, starting at `0`.
+- `act`: current act number, starting at `0`. Underdocks is `0`, Hive is `1`, Glory is `2`, etc.
+- `m.{field or property name}`: a field or property of the monster model. Note that this is only read after the monster is added to combat.

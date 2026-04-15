@@ -1,3 +1,4 @@
+using IntentGraph2.Utils;
 using IntentGraph2.Utils.Rule;
 using MegaCrit.Sts2.Core.Models;
 using System;
@@ -27,7 +28,7 @@ public class IntentDefinitionList : List<IntentDefinition>
             }
             catch (Exception ex)
             {
-                IntentGraphMod.LogInfo($"Error parsing condition '{def.Condition}' for monster '{monster.Id}': {ex.Message}");
+                IgLogger.Warn($"Error parsing condition '{def.Condition}' for monster '{monster.Id}': {ex.Message}");
             }
         }
 

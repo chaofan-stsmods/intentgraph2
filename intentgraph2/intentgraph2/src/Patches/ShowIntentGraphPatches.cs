@@ -2,7 +2,6 @@ using Godot;
 using HarmonyLib;
 using IntentGraph2.Scenes;
 using IntentGraph2.Utils;
-using MegaCrit.Sts2.addons.mega_text;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Localization.Fonts;
@@ -55,7 +54,7 @@ public class ShowIntentGraphPatches
             }
 
             var creature = __instance.Entity;
-            if (creature.Monster == null || !MonsterSetupPatch.GeneratedGraphs.TryGetValue(creature.Monster, out var graph))
+            if (creature.Monster == null || !IntentGraphMod.GeneratedGraphs.TryGetValue(creature.Monster, out var graph))
             {
                 return;
             }
