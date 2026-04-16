@@ -14,6 +14,11 @@ config/name="intentgraph2"
 config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
 config/icon="uid://hjenw0qseag6"
 
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
+
 [dotnet]
 
 project/assembly_name="intentgraph2core"

@@ -69,6 +69,6 @@ public class StateMachineNode
     public string? FollowUpState { get; set; }
 }
 
-public record class StateMachinNodeChildren(string Label, StateMachineNode Node);
+public record class StateMachinNodeChildren(string Label = "", StateMachineNode? Node = null);
 
 public record class MoveReplacement(string? ValueText, string? TimesText);

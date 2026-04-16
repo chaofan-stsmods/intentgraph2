@@ -16,7 +16,7 @@ public class IntentGraphGenerator
 {
     private const float IconPaddingInMove = -0.28f;
 
-    public static Graph? GenerateGraph(MonsterModel? monster)
+    public static Graph? GenerateGraph(MonsterModel? monster, IntentDefinition? overwriteIntentDefinition = null, IReadOnlyDictionary<string, string>? overwriteIntentStrings = null)
     {
         if (monster?.MoveStateMachine == null)
         {
@@ -26,29 +26,34 @@ public class IntentGraphGenerator
         var stateMachine = monster.MoveStateMachine;
         var initialState = stateMachine.GetInitialState();
 
-        var intentDefinitionList = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
-        var intentDefinition = intentDefinitionList?.FindFirstMatchCondition(monster);
+        var intentDefinition = overwriteIntentDefinition;
+        if (intentDefinition == null)
+        {
+            var intentDefinitionList = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
+            intentDefinition = intentDefinitionList?.FindFirstMatchCondition(monster);
+        }
+
         if (intentDefinition?.Graph != null)
         {
-            return MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph, intentDefinition);
+            return MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph, intentDefinition, overwriteIntentStrings);
         }
 
         var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
         List<MonsterStateNode> stateNodes;
         if (intentDefinition?.StateMachine != null)
         {
-            stateNodes = ToMonsterStateNodeList(stateMachine, intentDefinition.StateMachine, font);
+            stateNodes = ToMonsterStateNodeList(stateMachine, intentDefinition.StateMachine, font, overwriteIntentStrings);
         }
         else
         {
-            stateNodes = ToMonsterStateNodeList(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition?.SecondaryInitialStates);
+            stateNodes = ToMonsterStateNodeList(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition?.SecondaryInitialStates, overwriteIntentStrings);
         }
 
         var graph = StateNodesToGraph(stateNodes, intentDefinition);
 
         if (intentDefinition?.GraphPatch != null)
         {
-            var patch = MakeGraphFromIntentDefinition(stateMachine, intentDefinition.GraphPatch, intentDefinition);
+            var patch = MakeGraphFromIntentDefinition(stateMachine, intentDefinition.GraphPatch, intentDefinition, overwriteIntentStrings);
             graph.Width = Math.Max(graph.Width, patch.Width);
             graph.Height = Math.Max(graph.Height, patch.Height);
             graph.Icons.AddRange(patch.Icons);
@@ -66,7 +71,7 @@ public class IntentGraphGenerator
         return graph;
     }
 
-    private static Graph MakeGraphFromIntentDefinition(MonsterMoveStateMachine stateMachine, Graph graph, IntentDefinition intentDefinition)
+    private static Graph MakeGraphFromIntentDefinition(MonsterMoveStateMachine stateMachine, Graph graph, IntentDefinition intentDefinition, IReadOnlyDictionary<string, string>? overwriteIntentStrings)
     {
         var result = new Graph
         {
@@ -79,7 +84,7 @@ public class IntentGraphGenerator
 
         foreach (var label in graph.Labels)
         {
-            result.Labels.Add(new Models.Label(label.X, label.Y, IntentGraphMod.IntentGraphStrings.GetValueOrDefault(label.Text, label.Text), label.Align));
+            result.Labels.Add(new Models.Label(label.X, label.Y, GetIntentString(label.Text, label.Text, overwriteIntentStrings), label.Align));
         }
 
         foreach (var move in graph.Moves)
@@ -96,7 +101,7 @@ public class IntentGraphGenerator
         return result;
     }
 
-    private static List<MonsterStateNode> ToMonsterStateNodeList(MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, Font font)
+    private static List<MonsterStateNode> ToMonsterStateNodeList(MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, Font font, IReadOnlyDictionary<string, string>? overwriteIntentStrings)
     {
         var existingNodes = new Dictionary<string, MonsterStateNode>();
         var initialStates = new List<(int, MonsterStateNode)>();
@@ -105,7 +110,7 @@ public class IntentGraphGenerator
         {
             if (node.IsInitialState)
             {
-                var stateNode = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, node, existingNodes, parent: null);
+                var stateNode = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, node, existingNodes, parent: null, overwriteIntentStrings);
                 if (stateNode != null)
                 {
                     initialStates.Add((node.InitialStatePriority, stateNode));
@@ -116,7 +121,7 @@ public class IntentGraphGenerator
         return initialStates.OrderBy(t => t.Item1).Select(t => t.Item2).ToList();
     }
 
-    private static MonsterStateNode? ToMonsterStateNode(Font font, MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, StateMachineNode? node, Dictionary<string, MonsterStateNode> existingNodes, MonsterStateNode? parent)
+    private static MonsterStateNode? ToMonsterStateNode(Font font, MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, StateMachineNode? node, Dictionary<string, MonsterStateNode> existingNodes, MonsterStateNode? parent, IReadOnlyDictionary<string, string>? overwriteIntentStrings)
     {
         if (node == null)
         {
@@ -153,7 +158,7 @@ public class IntentGraphGenerator
 
             if (node.FollowUpState != null)
             {
-                result.NextState = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null);
+                result.NextState = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null, overwriteIntentStrings);
             }
 
             return result;
@@ -176,14 +181,15 @@ public class IntentGraphGenerator
             {
                 var childNode = node.Children[i].Node;
                 var text = node.Children[i].Label;
-                var childStateNode = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, childNode, existingNodes, parent: result);
+                text = GetIntentString(text, text, overwriteIntentStrings);
+                var childStateNode = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, childNode, existingNodes, parent: result, overwriteIntentStrings);
                 if (childStateNode != null)
                 {
                     children.Add((text, childStateNode));
                 }
             }
 
-            var longestText = node.Children.Select(c => font.GetStringSize(c.Label, fontSize: 18).X).DefaultIfEmpty(0).Max() / NIntentGraph.GridSize;
+            var longestText = children.Select(c => font.GetStringSize(c.label, fontSize: 18).X).DefaultIfEmpty(0).Max() / NIntentGraph.GridSize;
 
             result.Width = Math.Max(longestText, children.Select(c => c.node.Width).DefaultIfEmpty(1).Max()) + 0.2f; // 0.1 padding
             // 0.1 padding, 0.25 label, -0.15 for single move
@@ -192,7 +198,7 @@ public class IntentGraphGenerator
 
             if (node.FollowUpState != null)
             {
-                result.NextState = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null);
+                result.NextState = ToMonsterStateNode(font, stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null, overwriteIntentStrings);
             }
 
             result.NextStateCount = (result.NextState == null ? 0 : 1) + children.Select(c => c.node.NextStateCount).DefaultIfEmpty(0).Max();
@@ -201,7 +207,7 @@ public class IntentGraphGenerator
         }
     }
 
-    private static List<MonsterStateNode> ToMonsterStateNodeList(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState initialState, string[]? secondaryStates)
+    private static List<MonsterStateNode> ToMonsterStateNodeList(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState initialState, string[]? secondaryStates, IReadOnlyDictionary<string, string>? overwriteIntentStrings)
     {
         var existingNodes = new Dictionary<MonsterState, MonsterStateNode>();
 
@@ -215,13 +221,13 @@ public class IntentGraphGenerator
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == stateName);
             if (state != null)
             {
-                initialStateNode = ToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);
+                initialStateNode = ToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null, overwriteIntentStrings);
             }
         }
 
         if (initialStateNode == null)
         {
-            initialStateNode = ToMonsterStateNode(monsterName, font, stateMachine, initialState, existingNodes, parent: null);
+            initialStateNode = ToMonsterStateNode(monsterName, font, stateMachine, initialState, existingNodes, parent: null, overwriteIntentStrings);
         }
 
         SimplifyStateNodes(initialStateNode);
@@ -234,7 +240,7 @@ public class IntentGraphGenerator
                 var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == stateName);
                 if (state != null && !existingNodes.ContainsKey(state))
                 {
-                    var stateNode = ToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);
+                    var stateNode = ToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null, overwriteIntentStrings);
                     SimplifyStateNodes(stateNode);
                     result.Add(stateNode);
                 }
@@ -245,7 +251,7 @@ public class IntentGraphGenerator
     }
 
     [return: NotNullIfNotNull(nameof(state))]
-    private static MonsterStateNode? ToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState? state, Dictionary<MonsterState, MonsterStateNode> existingNodes, MonsterStateNode? parent)
+    private static MonsterStateNode? ToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState? state, Dictionary<MonsterState, MonsterStateNode> existingNodes, MonsterStateNode? parent, IReadOnlyDictionary<string, string>? overwriteIntentStrings)
     {
         if (state == null)
         {
@@ -273,7 +279,7 @@ public class IntentGraphGenerator
                 existingNodes[state] = result;
             }
 
-            result.NextState = ToMonsterStateNode(monsterName, font, stateMachine, moveState.FollowUpState, existingNodes, parent: null);
+            result.NextState = ToMonsterStateNode(monsterName, font, stateMachine, moveState.FollowUpState, existingNodes, parent: null, overwriteIntentStrings);
 
             return result;
         }
@@ -286,13 +292,13 @@ public class IntentGraphGenerator
                 var sumWeight = randomBranchState.States.Sum(s => s.GetWeight());
                 foreach (var s in randomBranchState.States)
                 {
-                    if (IntentGraphMod.IntentGraphStrings.TryGetValue($"branch.{monsterName}.{state.Id}.{s.stateId}", out var overwriteText))
+                    if (TryGetIntentString($"branch.{monsterName}.{state.Id}.{s.stateId}", overwriteIntentStrings, out var overwriteText))
                     {
                         texts.Add(overwriteText);
                     }
                     else
                     {
-                        texts.Add(MakeText(s, sumWeight));
+                        texts.Add(MakeText(s, sumWeight, overwriteIntentStrings));
                     }
                     states.Add(s.stateId);
                 }
@@ -306,7 +312,7 @@ public class IntentGraphGenerator
                     var evaluatedState = stateMachine.States.Values.FirstOrDefault(s => s.Id == evaluatedSstateName);
                     if (evaluatedState != null)
                     {
-                        return ToMonsterStateNode(monsterName, font, stateMachine, evaluatedState, existingNodes, parent);
+                        return ToMonsterStateNode(monsterName, font, stateMachine, evaluatedState, existingNodes, parent, overwriteIntentStrings);
                     }
                 }
 
@@ -319,7 +325,7 @@ public class IntentGraphGenerator
                     }
                 }
 
-                texts = states.Select(s => IntentGraphMod.IntentGraphStrings.GetValueOrDefault($"branch.{monsterName}.{state.Id}.{s}", "condition")).ToList();
+                texts = states.Select(s => GetIntentString($"branch.{monsterName}.{state.Id}.{s}", "condition", overwriteIntentStrings)).ToList();
             }
 
             var result = new MonsterStateNode
@@ -341,7 +347,7 @@ public class IntentGraphGenerator
                 var childState = stateMachine.States.Values.FirstOrDefault(s => s.Id == childStateId);
                 if (childState != null)
                 {
-                    var childStateNode = ToMonsterStateNode(monsterName, font, stateMachine, childState, existingNodes, parent: result);
+                    var childStateNode = ToMonsterStateNode(monsterName, font, stateMachine, childState, existingNodes, parent: result, overwriteIntentStrings);
                     if (childStateNode != null)
                     {
                         children.Add((text, childStateNode));
@@ -372,7 +378,7 @@ public class IntentGraphGenerator
         }
     }
 
-    private static string MakeText(RandomBranchState.StateWeight s, float sumWeight)
+    private static string MakeText(RandomBranchState.StateWeight s, float sumWeight, IReadOnlyDictionary<string, string>? overwriteIntentStrings)
     {
         var weight = s.GetWeight();
         var percentage = (int)(weight / sumWeight * 100);
@@ -381,9 +387,24 @@ public class IntentGraphGenerator
             MoveRepeatType.CanRepeatForever => "",
             MoveRepeatType.CanRepeatXTimes => ", ≤" + s.maxTimes,
             MoveRepeatType.CannotRepeat => ", ≤1",
-            MoveRepeatType.UseOnlyOnce => ", " + IntentGraphMod.IntentGraphStrings.GetValueOrDefault("ui.UseOnlyOnce"),
+            MoveRepeatType.UseOnlyOnce => ", " + GetIntentString("ui.UseOnlyOnce", "ui.UseOnlyOnce", overwriteIntentStrings),
             _ => ""
         });
+    }
+
+    private static bool TryGetIntentString(string key, IReadOnlyDictionary<string, string>? overwriteIntentStrings, [NotNullWhen(true)] out string? value)
+    {
+        if (overwriteIntentStrings != null && overwriteIntentStrings.TryGetValue(key, out value))
+        {
+            return true;
+        }
+
+        return IntentGraphMod.IntentGraphStrings.TryGetValue(key, out value);
+    }
+
+    private static string GetIntentString(string key, string fallbackValue, IReadOnlyDictionary<string, string>? overwriteIntentStrings)
+    {
+        return TryGetIntentString(key, overwriteIntentStrings, out var value) ? value : fallbackValue;
     }
 
     private static void SimplifyStateNodes(MonsterStateNode stateNode)
@@ -515,7 +536,7 @@ public class IntentGraphGenerator
     private static Graph StateNodesToGraph(List<MonsterStateNode> stateNodes, IntentDefinition? intentDefinition)
     {
         // Remove self loop if it's the only next state to avoid unnecessary arrow.
-        if (stateNodes.Count == 1 && stateNodes[0].NextState == stateNodes[0])
+        if (stateNodes.Count == 1 && stateNodes[0].NextState == stateNodes[0] && stateNodes[0].Children == null)
         {
             stateNodes[0].NextState = null;
             stateNodes[0].NextStateCount = 0;

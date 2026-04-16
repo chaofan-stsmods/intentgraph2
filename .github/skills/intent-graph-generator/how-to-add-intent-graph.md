@@ -92,6 +92,7 @@ It's recommended to use the `stateMachine` property to define the overwritten in
                     "followUpState": "RAMMING_SPEED_MOVE",
                     "children": [
                         {
+                            // This can also be key in the localization file
                             "label": "50%",
                             // Same as other nodes. It can have its own follow-up state and children.
                             "node": {
