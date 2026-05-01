@@ -10,7 +10,6 @@ using MegaCrit.Sts2.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text.Encodings.Web;
@@ -225,19 +224,7 @@ public class IntentGraphMod
 
     private static IEnumerable<Mod> GetLoadedMods()
     {
-        var loadedMods1 = typeof(ModManager).GetProperty("LoadedMods", BindingFlags.Static | BindingFlags.Public)?.GetValue(null);
-        if (loadedMods1 != null)
-        {
-            return (IEnumerable<Mod>)loadedMods1;
-        }
-
-        var loadedMods2 = typeof(ModManager).GetMethod("GetLoadedMods", BindingFlags.Static | BindingFlags.Public)?.Invoke(null, null);
-        if (loadedMods2 != null)
-        {
-            return (IEnumerable<Mod>)loadedMods2;
-        }
-
-        return Enumerable.Empty<Mod>();
+        return ModManager.GetLoadedMods();
     }
 
     private static void LoadIntentDefinitionForMod(string modId)

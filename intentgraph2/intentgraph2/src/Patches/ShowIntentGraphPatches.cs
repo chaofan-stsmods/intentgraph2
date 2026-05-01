@@ -35,6 +35,17 @@ public class ShowIntentGraphPatches
         }
     }
 
+    private static void RemoveCurrentIntentGraphPanel()
+    {
+        if (intentGraphPanel != null)
+        {
+            intentGraphPanel.QueueFreeSafely();
+            unregisterResizedEvent?.Invoke();
+            unregisterResizedEvent = null;
+            intentGraphPanel = null;
+        }
+    }
+
     [HarmonyPatch(typeof(NCreature), nameof(NCreature.ShowHoverTips))]
     public static class ShowHoverTipsPatch
     {
@@ -45,13 +56,7 @@ public class ShowIntentGraphPatches
                 return;
             }
 
-            if (intentGraphPanel != null)
-            {
-                intentGraphPanel.QueueFreeSafely();
-                unregisterResizedEvent?.Invoke();
-                unregisterResizedEvent = null;
-                intentGraphPanel = null;
-            }
+            RemoveCurrentIntentGraphPanel();
 
             var creature = __instance.Entity;
             if (creature.Monster == null || !IntentGraphMod.GeneratedGraphs.TryGetValue(creature.Monster, out var graph))
@@ -60,7 +65,7 @@ public class ShowIntentGraphPatches
             }
 
             var scene = PreloadManager.Cache.GetScene("res://intentgraph2/scenes/intent_graph_panel.tscn");
-            intentGraphPanel = scene.Instantiate<MarginContainer>(PackedScene.GenEditState.Disabled);
+            intentGraphPanel = scene.Instantiate<MarginContainer>();
             var monsterNameLabel = intentGraphPanel.GetNode<Label>("%MonsterName");
             monsterNameLabel.Text = creature.Name;
             monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Regular, "font");
@@ -73,6 +78,7 @@ public class ShowIntentGraphPatches
             unregisterResizedEvent = () =>
             {
                 __instance.Resized -= handleResized;
+                intentGraphPanel.Resized -= handleResized;
             };
 
             __instance.Resized += handleResized;
@@ -92,7 +98,6 @@ public class ShowIntentGraphPatches
             return () =>
             {
                 var parent = intentGraphPanel.GetParent();
-                // don't break because we want to find the last hover tip set which is most likely the one related to the current creature
                 var tipSet = (NHoverTipSet?)parent?.GetChildren().Last(c => c is NHoverTipSet);
 
                 var maxX = NGame.Instance!.GetViewportRect().Size.X - intentGraphPanel.Size.X;
@@ -128,13 +133,7 @@ public class ShowIntentGraphPatches
     {
         public static void Postfix(NCreature __instance)
         {
-            if (intentGraphPanel != null)
-            {
-                intentGraphPanel.QueueFreeSafely();
-                unregisterResizedEvent?.Invoke();
-                unregisterResizedEvent = null;
-                intentGraphPanel = null;
-            }
+            RemoveCurrentIntentGraphPanel();
         }
     }
 }

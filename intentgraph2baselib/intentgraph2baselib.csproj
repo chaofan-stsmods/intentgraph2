@@ -7,6 +7,7 @@
     <RootNamespace>IntentGraph2.BaseLib</RootNamespace>
     <IsGodotToolsProject>true</IsGodotToolsProject>
   </PropertyGroup>
+  <Import Project="..\common.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\intentgraph2\intentgraph2core.csproj" />
@@ -14,12 +15,12 @@
 
   <ItemGroup>
     <Reference Include="BaseLib">
-      <HintPath>E:\Games\steamlib\steamapps\common\Slay the Spire 2\mods\BaseLib\BaseLib.dll</HintPath>
+      <HintPath>$(Steamlib)\steamapps\common\Slay the Spire 2\mods\BaseLib\BaseLib.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;E:\Games\steamlib\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\..\intentgraph2\publish\&quot; /Y" />
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(Steamlib)\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\..\intentgraph2\publish\&quot; /Y" />
   </Target>
 
 </Project>

@@ -1,7 +1,0 @@
-{
-  "pck_name": "intentgraph2", 
-  "name": "Intent Graph", 
-  "author": "Chaofan", 
-  "description": "Show monster intent as a state machine.", 
-  "version": "0.1.0" 
-} 
