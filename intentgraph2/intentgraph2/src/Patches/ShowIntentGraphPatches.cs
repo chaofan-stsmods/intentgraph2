@@ -77,8 +77,15 @@ public class ShowIntentGraphPatches
 
             unregisterResizedEvent = () =>
             {
-                __instance.Resized -= handleResized;
-                intentGraphPanel.Resized -= handleResized;
+                try
+                {
+                    __instance.Resized -= handleResized;
+                    intentGraphPanel.Resized -= handleResized;
+                }
+                catch (Exception ex)
+                {
+                    IgLogger.Error("Error unregistering resized event handlers: " + ex);
+                }
             };
 
             __instance.Resized += handleResized;
