@@ -288,7 +288,8 @@ public class IntentGraphGenerator
 
         foreach (var stateId in stateMachine.States.Keys)
         {
-            if (!allNodes.Any(n => n.State?.Id == stateId))
+            // It's by design to resolve INIT_MOVE
+            if (stateId != "INIT_MOVE" && !allNodes.Any(n => n.State?.Id == stateId))
             {
                 missingStateId = stateId;
                 break;
