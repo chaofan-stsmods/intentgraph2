@@ -4,6 +4,7 @@ using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Logging;
 using System;
+using System.Diagnostics;
 
 namespace IntentGraph2.Patches;
 
@@ -14,6 +15,7 @@ public class MonsterSetupPatch
     {
         if (creature.IsMonster)
         {
+            var stopwatch = Stopwatch.StartNew();
             try
             {
                 var monster = creature.Monster;
@@ -27,6 +29,11 @@ public class MonsterSetupPatch
             catch (Exception ex)
             {
                 Log.Warn(ex.ToString());
+            }
+            finally
+            {
+                stopwatch.Stop();
+                IgLogger.Info($"Finished generating intent graph for monster: {creature.Name} in {stopwatch.ElapsedMilliseconds} ms.");
             }
         }
     }

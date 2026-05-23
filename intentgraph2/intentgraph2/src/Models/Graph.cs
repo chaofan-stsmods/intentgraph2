@@ -11,6 +11,7 @@ public class Graph
     public List<IconGroup> IconGroups { get; set; } = new();
     public List<Label> Labels { get; set; } = new();
     public List<Arrow> Arrows { get; set; } = new();
+    public string? Warning { get; set; }
 
     // Used in intents.json only
     public List<Move> Moves { get; set; } = new();

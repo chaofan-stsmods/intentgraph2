@@ -1,5 +1,7 @@
 {
 	"ui.UseOnlyOnce": "one use",
+	"ui.Outdated": "Outdated",
+	"ui.Incomplete": "Incomplete",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "Blocked",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.HEADBUTT_MOVE": "Otherwise",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.Fabricator.fabricateBranch.RAND": "Minion is 0~2",

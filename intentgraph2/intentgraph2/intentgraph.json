@@ -1,6 +1,7 @@
 {
     "MegaCrit.Sts2.Core.Models.Monsters.CeremonialBeast": [
         {
+            "upToDateCondition": "mm.hasMove_STUN_MOVE && mm.nextMoveOf_STUN_MOVE_is_BEAST_CRY_MOVE",
             "secondaryInitialStates": [
                 "STUN_MOVE"
             ]
@@ -8,6 +9,7 @@
     ],
     "MegaCrit.Sts2.Core.Models.Monsters.TestSubject": [
         {
+            "upToDateCondition": "mm.hasMove_MULTI_CLAW_MOVE && mm.hasMove_RESPAWN_MOVE && mm.nextMoveOf_RESPAWN_MOVE_is_REVIVE_BRANCH",
             "secondaryInitialStates": [
                 "RESPAWN_MOVE"
             ],
@@ -31,6 +33,7 @@
     ],
     "MegaCrit.Sts2.Core.Models.Monsters.TerrorEel": [
         {
+            "upToDateCondition": "mm.count == 4 && mm.nextMoveOf_CRASH_MOVE_is_THRASH_MOVE && mm.nextMoveOf_THRASH_MOVE_is_CRASH_MOVE && mm.nextMoveOf_STUN_MOVE_is_TERROR_MOVE && mm.nextMoveOf_TERROR_MOVE_is_CRASH_MOVE",
             "graphPatch": {
                 "width": 3.22,
                 "height": 2.5,

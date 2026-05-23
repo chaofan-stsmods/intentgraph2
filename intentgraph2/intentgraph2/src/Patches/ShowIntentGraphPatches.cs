@@ -91,6 +91,16 @@ public class ShowIntentGraphPatches
             __instance.Resized += handleResized;
             intentGraphPanel.Resized += handleResized;
 
+            if (graph.Warning != null)
+            {
+                var outdatedContainer = intentGraphPanel.GetNode<MarginContainer>("%OutdatedMarkContainer");
+                var outdatedLabel = outdatedContainer.GetNode<Label>("OutdatedMark");
+                outdatedContainer.Show();
+                outdatedLabel.Text = "⚠️" + graph.Warning;
+                outdatedLabel.ApplyLocaleFontSubstitution(FontType.Regular, "font");
+                outdatedLabel.ApplyLocaleFontSubstitution(FontType.Bold, "font");
+            }
+
             intentGraphPanel.ResetSize();
 
             NGame.Instance.HoverTipsContainer.AddChildSafely(intentGraphPanel);

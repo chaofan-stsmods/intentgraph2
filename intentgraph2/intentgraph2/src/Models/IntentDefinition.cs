@@ -16,12 +16,8 @@ public class IntentDefinitionList : List<IntentDefinition>
         {
             try
             {
-                if (def.ParsedCondition == null)
-                {
-                    def.ParsedCondition = IRule.Parse(def.Condition, new RuleContext(monster));
-                }
-
-                if (def.ParsedCondition?.GetBool() == true)
+                var rule = IRule.Parse(def.Condition, new RuleContext(monster));
+                if (rule?.GetBool() == true)
                 {
                     return def;
                 }
@@ -40,8 +36,7 @@ public class IntentDefinition
 {
     public string Condition { get; set; } = "true";
 
-    [JsonIgnore]
-    public IRule? ParsedCondition { get; set; }
+    public string? UpToDateCondition { get; set; }
 
     public string[]? SecondaryInitialStates { get; set; }
 

@@ -1,5 +1,7 @@
 {
 	"ui.UseOnlyOnce": "只能用1次",
+	"ui.Outdated": "已过时",
+	"ui.Incomplete": "不完整",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "被格挡",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.HEADBUTT_MOVE": "否则",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.Fabricator.fabricateBranch.RAND": "爪牙数为0~2",

@@ -870,7 +870,6 @@ public partial class NIntentGraphEditor : Control
 
         var source = IntentDefinitionEditorService.Clone(draftDefinitions[selectedVariantIndex]) ?? new IntentDefinition();
         source.Condition = string.IsNullOrWhiteSpace(conditionEdit?.Text) ? "true" : conditionEdit!.Text.Trim();
-        source.ParsedCondition = null;
 
         if (!TryDeserializeField(secondaryInitialStatesEdit?.Text, LocalizeText("ui.editor.field.secondary_initial_states", "secondaryInitialStates"), out string[]? secondaryInitialStates, out error))
         {
