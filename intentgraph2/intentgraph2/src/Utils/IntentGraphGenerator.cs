@@ -15,6 +15,7 @@ namespace IntentGraph2.Utils;
 
 public class IntentGraphGenerator
 {
+    private const string OtherwiseMark = "{otherwise}";
     private const float IconPaddingInMove = -0.28f;
 
     public static Graph? GenerateGraph(MonsterModel? monster, IntentDefinition? overwriteIntentDefinition = null, IReadOnlyDictionary<string, string>? overwriteIntentStrings = null)
@@ -373,6 +374,20 @@ public class IntentGraphGenerator
                     {
                         childCandidates.Add((s, GetIntentString($"branch.{monsterName}.{state.Id}.{s}", "condition", overwriteIntentStrings)));
                     }
+                }
+            }
+
+            // Move otherwise to last
+            var childCandidatesCount = childCandidates.Count;
+            for (int i = 0; i < childCandidatesCount; i++)
+            {
+                var child = childCandidates[i];
+                if (child.label == OtherwiseMark)
+                {
+                    childCandidates.RemoveAt(i);
+                    childCandidates.Add((child.state, GetIntentString("ui.Otherwise", "Otherwise", overwriteIntentStrings)));
+                    i--;
+                    childCandidatesCount--;
                 }
             }
 
