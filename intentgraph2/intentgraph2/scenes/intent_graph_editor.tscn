@@ -227,6 +227,10 @@ metadata/_tab_index = 0
 layout_mode = 2
 theme_override_constants/separation = 10
 
+[node name="ConditionLabel" type="Label" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection"]
+layout_mode = 2
+text = "Selection condition"
+
 [node name="ConditionEdit" type="LineEdit" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -241,6 +245,26 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 text = "Condition syntax is validated against the current monster."
+autowrap_mode = 3
+
+[node name="UpToDateConditionLabel" type="Label" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection"]
+layout_mode = 2
+text = "Up-to-date condition"
+
+[node name="UpToDateConditionEdit" type="LineEdit" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/caret_color = Color(0.98, 0.98, 0.98, 1)
+theme_override_constants/caret_width = 3
+theme_override_fonts/font = SubResource("SystemFont_hog8t")
+theme_override_font_sizes/font_size = 20
+placeholder_text = "Leave blank to skip outdated warnings."
+
+[node name="UpToDateConditionStatus" type="Label" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+text = "Leave blank to skip outdated warnings. Syntax is validated against the current monster."
 autowrap_mode = 3
 
 [node name="secondaryInitialStates JSON" type="MarginContainer" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs"]

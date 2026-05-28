@@ -43,6 +43,8 @@ public partial class NIntentGraphEditor : Control
     private Button? closeButton;
     private LineEdit? conditionEdit;
     private Godot.Label? conditionStatusLabel;
+    private LineEdit? upToDateConditionEdit;
+    private Godot.Label? upToDateConditionStatusLabel;
     private CodeEdit? secondaryInitialStatesEdit;
     private CodeEdit? stateMachineEdit;
     private CodeEdit? moveReplacementsEdit;
@@ -112,6 +114,8 @@ public partial class NIntentGraphEditor : Control
         closeButton = GetNode<Button>("%CloseButton");
         conditionEdit = GetNode<LineEdit>("%ConditionEdit");
         conditionStatusLabel = GetNode<Godot.Label>("%ConditionStatus");
+        upToDateConditionEdit = GetNode<LineEdit>("%UpToDateConditionEdit");
+        upToDateConditionStatusLabel = GetNode<Godot.Label>("%UpToDateConditionStatus");
         secondaryInitialStatesEdit = GetNode<CodeEdit>("%SecondaryInitialStatesEdit");
         stateMachineEdit = GetNode<CodeEdit>("%StateMachineEdit");
         moveReplacementsEdit = GetNode<CodeEdit>("%MoveReplacementsEdit");
@@ -139,6 +143,7 @@ public partial class NIntentGraphEditor : Control
         reloadButton.Pressed += OnReloadPressed;
         closeButton.Pressed += OnClosePressed;
         conditionEdit.TextChanged += _ => OnEditorFieldsChanged();
+        upToDateConditionEdit.TextChanged += _ => OnEditorFieldsChanged();
         secondaryInitialStatesEdit.TextChanged += OnEditorFieldsChanged;
         stateMachineEdit.TextChanged += OnEditorFieldsChanged;
         moveReplacementsEdit.TextChanged += OnEditorFieldsChanged;
@@ -154,6 +159,7 @@ public partial class NIntentGraphEditor : Control
         graphPatchEdit.CodeCompletionRequested += () => OnCodeCompletionRequested(graphPatchEdit, JsonEditorKind.GraphPatch);
         unsavedChangesDialog.Confirmed += OnUnsavedChangesConfirmed;
         RegisterEditableInput(conditionEdit);
+        RegisterEditableInput(upToDateConditionEdit);
         RegisterEditableInput(secondaryInitialStatesEdit);
         RegisterEditableInput(stateMachineEdit);
         RegisterEditableInput(moveReplacementsEdit);
@@ -255,7 +261,10 @@ public partial class NIntentGraphEditor : Control
         GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/Sidebar/StateIdsLabel").Text = LocalizeText("ui.editor.sidebar.state_ids", "State IDs");
         GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/Sidebar/StateIdHint").Text = LocalizeText("ui.editor.sidebar.state_ids_hint", "Click a state ID to insert it into the last focused editable field.");
 
+        GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection/ConditionLabel").Text = LocalizeText("ui.editor.condition.label", "Selection condition");
         conditionEdit!.PlaceholderText = LocalizeText("ui.editor.condition.placeholder", "true");
+        GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection/UpToDateConditionLabel").Text = LocalizeText("ui.editor.up_to_date_condition.label", "Up-to-date condition");
+        upToDateConditionEdit!.PlaceholderText = LocalizeText("ui.editor.up_to_date_condition.placeholder", "Leave blank to skip outdated warnings.");
         GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/secondaryInitialStates JSON/SecondaryInitialStatesSection/SecondaryInitialStatesHelp").Text = LocalizeText("ui.editor.help.secondary_initial_states", "Edit secondaryInitialStates as a JSON array of state ids.");
         GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/stateMachine JSON/StateMachineSection/StateMachineHelp").Text = LocalizeText("ui.editor.help.state_machine", "Edit the StateMachineNode array for this variant.");
         GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/moveReplacements JSON/MoveReplacementsSection/MoveReplacementHelp").Text = LocalizeText("ui.editor.help.move_replacements", "Edit move replacement overrides keyed by move id.");
@@ -280,6 +289,11 @@ public partial class NIntentGraphEditor : Control
         if (conditionStatusLabel != null && conditionStatusLabel.Text == "Condition syntax is validated against the current monster.")
         {
             conditionStatusLabel.Text = LocalizeText("ui.editor.condition.status.initial", "Condition syntax is validated against the current monster.");
+        }
+
+        if (upToDateConditionStatusLabel != null && upToDateConditionStatusLabel.Text == "Leave blank to skip outdated warnings. Syntax is validated against the current monster.")
+        {
+            upToDateConditionStatusLabel.Text = LocalizeText("ui.editor.up_to_date_condition.status.initial", "Leave blank to skip outdated warnings. Syntax is validated against the current monster.");
         }
 
         if (intentStringsStatusLabel != null && intentStringsStatusLabel.Text == "Editing dev intent strings for the current language.")
@@ -382,7 +396,7 @@ public partial class NIntentGraphEditor : Control
             : null;
         SetEditorsEnabled(definition != null);
 
-        if (conditionEdit == null || secondaryInitialStatesEdit == null || stateMachineEdit == null || moveReplacementsEdit == null || graphPatchEdit == null || readOnlySummaryEdit == null)
+        if (conditionEdit == null || upToDateConditionEdit == null || secondaryInitialStatesEdit == null || stateMachineEdit == null || moveReplacementsEdit == null || graphPatchEdit == null || readOnlySummaryEdit == null)
         {
             return;
         }
@@ -390,16 +404,19 @@ public partial class NIntentGraphEditor : Control
         if (definition == null)
         {
             conditionEdit.Text = string.Empty;
+            upToDateConditionEdit.Text = string.Empty;
             secondaryInitialStatesEdit.Text = string.Empty;
             stateMachineEdit.Text = string.Empty;
             moveReplacementsEdit.Text = string.Empty;
             graphPatchEdit.Text = string.Empty;
             readOnlySummaryEdit.Text = LocalizeText("ui.editor.message.no_variant_selected", "No variant selected. Add one to begin editing.");
             UpdateConditionStatus(null);
+            UpdateUpToDateConditionStatus(null);
             return;
         }
 
         conditionEdit.Text = definition.Condition ?? "true";
+        upToDateConditionEdit.Text = definition.UpToDateCondition ?? string.Empty;
         secondaryInitialStatesEdit.Text = definition.SecondaryInitialStates == null || definition.SecondaryInitialStates.Length == 0
             ? string.Empty
             : IntentDefinitionEditorService.SerializeJson(definition.SecondaryInitialStates);
@@ -414,6 +431,7 @@ public partial class NIntentGraphEditor : Control
             : IntentDefinitionEditorService.SerializeJson(definition.GraphPatch);
         readOnlySummaryEdit.Text = IntentDefinitionEditorService.BuildReadOnlySummary(definition);
         UpdateConditionStatus(definition.Condition);
+        UpdateUpToDateConditionStatus(definition.UpToDateCondition);
     }
 
     private void LoadIntentStringsIntoEditor()
@@ -459,6 +477,11 @@ public partial class NIntentGraphEditor : Control
         if (conditionEdit != null)
         {
             conditionEdit.Editable = enabled;
+        }
+
+        if (upToDateConditionEdit != null)
+        {
+            upToDateConditionEdit.Editable = enabled;
         }
 
         if (secondaryInitialStatesEdit != null)
@@ -834,6 +857,7 @@ public partial class NIntentGraphEditor : Control
                 ? LocalizeText("ui.editor.preview.no_graph_current_monster", "Preview generated no graph for the current monster.")
                 : LocalizeText("ui.editor.preview.updated_runtime", "Preview updated from current runtime graph.");
             UpdateConditionStatus(null);
+            UpdateUpToDateConditionStatus(null);
             return;
         }
 
@@ -845,6 +869,7 @@ public partial class NIntentGraphEditor : Control
 
         var definition = draftDefinitions[selectedVariantIndex];
         UpdateConditionStatus(definition.Condition);
+        UpdateUpToDateConditionStatus(definition.UpToDateCondition);
 
         try
         {
@@ -869,7 +894,8 @@ public partial class NIntentGraphEditor : Control
         }
 
         var source = IntentDefinitionEditorService.Clone(draftDefinitions[selectedVariantIndex]) ?? new IntentDefinition();
-        source.Condition = string.IsNullOrWhiteSpace(conditionEdit?.Text) ? "true" : conditionEdit!.Text.Trim();
+        source.Condition = NormalizeConditionText(conditionEdit?.Text);
+        source.UpToDateCondition = NormalizeOptionalRuleText(upToDateConditionEdit?.Text);
 
         if (!TryDeserializeField(secondaryInitialStatesEdit?.Text, LocalizeText("ui.editor.field.secondary_initial_states", "secondaryInitialStates"), out string[]? secondaryInitialStates, out error))
         {
@@ -895,7 +921,7 @@ public partial class NIntentGraphEditor : Control
         source.StateMachine = stateMachine;
         source.MoveReplacements = moveReplacements;
         source.GraphPatch = NormalizeGraphPatch(graphPatch);
-        if (validateCondition && !ValidateCondition(source.Condition, out error))
+        if (validateCondition && !ValidateVariantRuleExpressions(source, out error))
         {
             return false;
         }
@@ -919,8 +945,7 @@ public partial class NIntentGraphEditor : Control
     {
         for (int i = 0; i < draftDefinitions.Count; i++)
         {
-            var condition = string.IsNullOrWhiteSpace(draftDefinitions[i].Condition) ? "true" : draftDefinitions[i].Condition.Trim();
-            if (!ValidateCondition(condition, out error))
+            if (!ValidateVariantRuleExpressions(draftDefinitions[i], out error))
             {
                 error = $"Variant #{i + 1}: {error}";
                 return false;
@@ -931,7 +956,41 @@ public partial class NIntentGraphEditor : Control
         return true;
     }
 
+    private bool ValidateVariantRuleExpressions(IntentDefinition definition, out string error)
+    {
+        if (!ValidateCondition(definition.Condition, out error))
+        {
+            error = LocalizeText("ui.editor.error.rule_field", "{0}: {1}", LocalizeText("ui.editor.field.condition", "condition"), error);
+            return false;
+        }
+
+        if (!ValidateUpToDateCondition(definition.UpToDateCondition, out error))
+        {
+            error = LocalizeText("ui.editor.error.rule_field", "{0}: {1}", LocalizeText("ui.editor.field.up_to_date_condition", "upToDateCondition"), error);
+            return false;
+        }
+
+        return true;
+    }
+
     private bool ValidateCondition(string condition, out string error)
+    {
+        return ValidateRuleExpression(NormalizeConditionText(condition), LocalizeText("ui.editor.field.condition", "condition"), out error);
+    }
+
+    private bool ValidateUpToDateCondition(string? condition, out string error)
+    {
+        var normalizedCondition = NormalizeOptionalRuleText(condition);
+        if (normalizedCondition == null)
+        {
+            error = string.Empty;
+            return true;
+        }
+
+        return ValidateRuleExpression(normalizedCondition, LocalizeText("ui.editor.field.up_to_date_condition", "upToDateCondition"), out error);
+    }
+
+    private bool ValidateRuleExpression(string condition, string fieldName, out string error)
     {
         error = string.Empty;
         if (monster == null)
@@ -943,7 +1002,7 @@ public partial class NIntentGraphEditor : Control
         {
             if (IRule.Parse(condition, new RuleContext(monster)) == null)
             {
-                error = LocalizeText("ui.editor.condition.parse_error", "Condition could not be parsed.");
+                error = LocalizeText("ui.editor.rule.parse_error", "{0} could not be parsed.", fieldName);
                 return false;
             }
 
@@ -979,6 +1038,32 @@ public partial class NIntentGraphEditor : Control
         {
             conditionStatusLabel.Text = LocalizeText("ui.editor.condition.warning", "Condition warning: {0}", error);
             conditionStatusLabel.Modulate = new Color(1.0f, 0.7f, 0.65f);
+        }
+    }
+
+    private void UpdateUpToDateConditionStatus(string? condition)
+    {
+        if (upToDateConditionStatusLabel == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(condition))
+        {
+            upToDateConditionStatusLabel.Text = LocalizeText("ui.editor.up_to_date_condition.defaults_empty", "No up-to-date check. Outdated warnings are disabled.");
+            upToDateConditionStatusLabel.Modulate = Colors.White;
+            return;
+        }
+
+        if (ValidateUpToDateCondition(condition, out var error))
+        {
+            upToDateConditionStatusLabel.Text = LocalizeText("ui.editor.up_to_date_condition.valid", "Up-to-date condition syntax is valid.");
+            upToDateConditionStatusLabel.Modulate = new Color(0.7f, 0.95f, 0.75f);
+        }
+        else
+        {
+            upToDateConditionStatusLabel.Text = LocalizeText("ui.editor.up_to_date_condition.warning", "Up-to-date condition warning: {0}", error);
+            upToDateConditionStatusLabel.Modulate = new Color(1.0f, 0.7f, 0.65f);
         }
     }
 
@@ -1056,7 +1141,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildStateMachineCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node" })
+        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node", "horizontalLayout" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }
@@ -1216,6 +1301,16 @@ public partial class NIntentGraphEditor : Control
             .ToArray();
 
         return normalizedStateIds.Length == 0 ? null : normalizedStateIds;
+    }
+
+    private static string NormalizeConditionText(string? condition)
+    {
+        return NormalizeOptionalRuleText(condition) ?? "true";
+    }
+
+    private static string? NormalizeOptionalRuleText(string? condition)
+    {
+        return string.IsNullOrWhiteSpace(condition) ? null : condition.Trim();
     }
 
     private bool TryDeserializeField<T>(string? text, string fieldName, out T? value, out string error)

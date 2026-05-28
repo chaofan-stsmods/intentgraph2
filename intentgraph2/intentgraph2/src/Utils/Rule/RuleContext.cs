@@ -42,6 +42,11 @@ public class RuleContext : IRuleContext
                     var moveName = fieldName.Substring(8);
                     return stateMachine.States.Any(s => s.Key == moveName) ? 1 : 0;
                 }
+                else if (fieldName.StartsWith("startsWith_"))
+                {
+                    var moveName = fieldName.Substring(11);
+                    return stateMachine.GetInitialState().Id == moveName ? 1 : 0;
+                }
                 else if (fieldName.StartsWith("nextMoveOf_") && fieldName.Contains("_is_"))
                 {
                     var isIndex = fieldName.IndexOf("_is_");

@@ -35,6 +35,7 @@ public class IntentDefinitionEditorServiceTest : IDisposable
             new IntentDefinition
             {
                 Condition = "slotIndex == 1",
+                UpToDateCondition = "count > 0",
                 StateMachine =
                 [
                     new StateMachineNode
@@ -69,6 +70,7 @@ public class IntentDefinitionEditorServiceTest : IDisposable
         Assert.True(loaded.ContainsKey("Test.Monster"));
         Assert.Equal("ascension >= 9", loaded["Other.Monster"][0].Condition);
         Assert.Equal("slotIndex == 1", loaded["Test.Monster"][0].Condition);
+        Assert.Equal("count > 0", loaded["Test.Monster"][0].UpToDateCondition);
         Assert.Single(loaded["Test.Monster"][0].StateMachine!);
         Assert.Single(loaded["Test.Monster"][0].GraphPatch!.Labels);
 
@@ -76,9 +78,11 @@ public class IntentDefinitionEditorServiceTest : IDisposable
         Assert.Contains("\"graphPatch\"", rawText);
         Assert.Contains("\"stateMachine\"", rawText);
         Assert.Contains("\"moveReplacements\"", rawText);
+        Assert.Contains("\"upToDateCondition\"", rawText);
         Assert.Contains("\"valueText\"", rawText);
         Assert.DoesNotContain("\"GraphPatch\"", rawText);
         Assert.DoesNotContain("\"StateMachine\"", rawText);
+        Assert.DoesNotContain("\"UpToDateCondition\"", rawText);
     }
 
     [Fact]

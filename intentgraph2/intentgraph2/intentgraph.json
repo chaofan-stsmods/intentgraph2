@@ -59,5 +59,263 @@
                 ]
             }
         }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat": [
+        {
+            "condition": "true",
+            "upToDateCondition": "mm.count == 5 && mm.startsWith_RAND && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
+            "graphPatch": {
+                "labels": [
+                    {
+                        "y": 3.5,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
+                        "align": "left"
+                    },
+                    {
+                        "y": 3.8,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2",
+                        "align": "left"
+                    }
+                ],
+                "expand": true
+            },
+            "stateMachine": [
+                {
+                    "name": "cond",
+                    "isInitialState": true,
+                    "children": [
+                        {
+                            "label": "branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
+                            "node": {
+                                "name": "CALL_FOR_BACKUP_MOVE"
+                            }
+                        },
+                        {
+                            "label": "ui.Otherwise",
+                            "node": {
+                                "name": "RAND",
+                                "children": [
+                                    {
+                                        "label": "33%, ≤1",
+                                        "node": {
+                                            "name": "SCRATCH_MOVE"
+                                        }
+                                    },
+                                    {
+                                        "label": "33%, ≤1",
+                                        "node": {
+                                            "name": "DISEASE_BITE_MOVE"
+                                        }
+                                    },
+                                    {
+                                        "label": "33%, ⏱3",
+                                        "node": {
+                                            "name": "SCREECH_MOVE"
+                                        }
+                                    }
+                                ],
+                                "horizontalLayout": true
+                            }
+                        }
+                    ],
+                    "followUpState": "cond"
+                }
+            ]
+        },
+        {
+            "condition": "m.StarterMoveIndex == 0",
+            "upToDateCondition": "mm.count == 5 && mm.startsWith_SCRATCH_MOVE && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
+            "graphPatch": {
+                "labels": [
+                    {
+                        "y": 3.5,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
+                        "align": "left"
+                    },
+                    {
+                        "y": 3.8,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2",
+                        "align": "left"
+                    }
+                ],
+                "expand": true
+            },
+            "stateMachine": [
+                {
+                    "name": "SCRATCH_MOVE",
+                    "isInitialState": true,
+                    "followUpState": "cond"
+                },
+                {
+                    "name": "cond",
+                    "children": [
+                        {
+                            "label": "branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
+                            "node": {
+                                "name": "CALL_FOR_BACKUP_MOVE"
+                            }
+                        },
+                        {
+                            "label": "ui.Otherwise",
+                            "node": {
+                                "name": "RAND",
+                                "children": [
+                                    {
+                                        "label": "33%, ≤1",
+                                        "node": {
+                                            "name": "SCRATCH_MOVE"
+                                        }
+                                    },
+                                    {
+                                        "label": "33%, ≤1",
+                                        "node": {
+                                            "name": "DISEASE_BITE_MOVE"
+                                        }
+                                    },
+                                    {
+                                        "label": "33%, ⏱3",
+                                        "node": {
+                                            "name": "SCREECH_MOVE"
+                                        }
+                                    }
+                                ],
+                                "horizontalLayout": true
+                            }
+                        }
+                    ],
+                    "followUpState": "cond"
+                }
+            ]
+        },
+        {
+            "condition": "m.StarterMoveIndex == 1",
+            "upToDateCondition": "mm.count == 5 && mm.startsWith_DISEASE_BITE_MOVE && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
+            "graphPatch": {
+                "labels": [
+                    {
+                        "y": 3.5,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
+                        "align": "left"
+                    },
+                    {
+                        "y": 3.8,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2",
+                        "align": "left"
+                    }
+                ],
+                "expand": true
+            },
+            "stateMachine": [
+                {
+                    "name": "DISEASE_BITE_MOVE",
+                    "isInitialState": true,
+                    "followUpState": "cond"
+                },
+                {
+                    "name": "cond",
+                    "children": [
+                        {
+                            "label": "branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
+                            "node": {
+                                "name": "CALL_FOR_BACKUP_MOVE"
+                            }
+                        },
+                        {
+                            "label": "ui.Otherwise",
+                            "node": {
+                                "name": "RAND",
+                                "children": [
+                                    {
+                                        "label": "33%, ≤1",
+                                        "node": {
+                                            "name": "SCRATCH_MOVE"
+                                        }
+                                    },
+                                    {
+                                        "label": "33%, ≤1",
+                                        "node": {
+                                            "name": "DISEASE_BITE_MOVE"
+                                        }
+                                    },
+                                    {
+                                        "label": "33%, ⏱3",
+                                        "node": {
+                                            "name": "SCREECH_MOVE"
+                                        }
+                                    }
+                                ],
+                                "horizontalLayout": true
+                            }
+                        }
+                    ],
+                    "followUpState": "cond"
+                }
+            ]
+        },
+        {
+            "condition": "m.StarterMoveIndex == 2",
+            "upToDateCondition": "mm.count == 5 && mm.startsWith_SCREECH_MOVE && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
+            "graphPatch": {
+                "labels": [
+                    {
+                        "y": 3.5,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
+                        "align": "left"
+                    },
+                    {
+                        "y": 3.8,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2",
+                        "align": "left"
+                    }
+                ],
+                "expand": true
+            },
+            "stateMachine": [
+                {
+                    "name": "SCREECH_MOVE",
+                    "isInitialState": true,
+                    "followUpState": "cond"
+                },
+                {
+                    "name": "cond",
+                    "children": [
+                        {
+                            "label": "branch.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
+                            "node": {
+                                "name": "CALL_FOR_BACKUP_MOVE"
+                            }
+                        },
+                        {
+                            "label": "ui.Otherwise",
+                            "node": {
+                                "name": "RAND",
+                                "children": [
+                                    {
+                                        "label": "33%, ≤1",
+                                        "node": {
+                                            "name": "SCRATCH_MOVE"
+                                        }
+                                    },
+                                    {
+                                        "label": "33%, ≤1",
+                                        "node": {
+                                            "name": "DISEASE_BITE_MOVE"
+                                        }
+                                    },
+                                    {
+                                        "label": "33%, ⏱3",
+                                        "node": {
+                                            "name": "SCREECH_MOVE"
+                                        }
+                                    }
+                                ],
+                                "horizontalLayout": true
+                            }
+                        }
+                    ],
+                    "followUpState": "cond"
+                }
+            ]
+        }
     ]
 }

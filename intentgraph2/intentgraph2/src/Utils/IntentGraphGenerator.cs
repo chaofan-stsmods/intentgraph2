@@ -10,13 +10,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using static Godot.HttpRequest;
 
 namespace IntentGraph2.Utils;
 
 public class IntentGraphGenerator
 {
     private const string OtherwiseMark = "{otherwise}";
-    private const float IconPaddingInMove = -0.28f;
+    private const float IconPaddingInMove = -0.33f;
+    private const float IconGroupPadding = 0.1f;
+    private const float IconGroupLabelHeight = 0.25f;
+    private const float IconGroupSingleMovePadding = -0.15f;
 
     public static Graph? GenerateGraph(MonsterModel? monster, IntentDefinition? overwriteIntentDefinition = null, IReadOnlyDictionary<string, string>? overwriteIntentStrings = null)
     {
@@ -52,15 +56,15 @@ public class IntentGraphGenerator
             }
         }
 
+        var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
         Graph graph;
         if (intentDefinition?.Graph != null)
         {
-            graph = MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph, intentDefinition, overwriteIntentStrings);
+            graph = MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph, intentDefinition, font, overwriteIntentStrings);
             graph.Warning = warning;
             return graph;
         }
 
-        var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
         List<MonsterStateNode> stateNodes;
         if (intentDefinition?.StateMachine != null)
         {
@@ -86,7 +90,7 @@ public class IntentGraphGenerator
 
         if (intentDefinition?.GraphPatch != null)
         {
-            var patch = MakeGraphFromIntentDefinition(stateMachine, intentDefinition.GraphPatch, intentDefinition, overwriteIntentStrings);
+            var patch = MakeGraphFromIntentDefinition(stateMachine, intentDefinition.GraphPatch, intentDefinition, font, overwriteIntentStrings);
             graph.Width = Math.Max(graph.Width, patch.Width);
             graph.Height = Math.Max(graph.Height, patch.Height);
             graph.Icons.AddRange(patch.Icons);
@@ -104,7 +108,7 @@ public class IntentGraphGenerator
         return graph;
     }
 
-    private static Graph MakeGraphFromIntentDefinition(MonsterMoveStateMachine stateMachine, Graph graph, IntentDefinition intentDefinition, IReadOnlyDictionary<string, string>? overwriteIntentStrings)
+    private static Graph MakeGraphFromIntentDefinition(MonsterMoveStateMachine stateMachine, Graph graph, IntentDefinition intentDefinition, Font font, IReadOnlyDictionary<string, string>? overwriteIntentStrings)
     {
         var result = new Graph
         {
@@ -117,7 +121,17 @@ public class IntentGraphGenerator
 
         foreach (var label in graph.Labels)
         {
-            result.Labels.Add(new Models.Label(label.X, label.Y, GetIntentString(label.Text, label.Text, overwriteIntentStrings), label.Align));
+            var resolvedLabel = new Models.Label(label.X, label.Y, GetIntentString(label.Text, label.Text, overwriteIntentStrings), label.Align);
+            result.Labels.Add(resolvedLabel);
+            if (graph.Expand)
+            {
+                var labelWidth = font.GetStringSize(resolvedLabel.Text, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize;
+                result.Height = Math.Max(result.Height, label.Y);
+                if (label.Align != "right")
+                {
+                    result.Width = label.Align == "left" ? Math.Max(result.Width, label.X + labelWidth) : Math.Max(result.Width, label.X + labelWidth / 2);
+                }
+            }
         }
 
         foreach (var move in graph.Moves)
@@ -219,16 +233,14 @@ public class IntentGraphGenerator
                 if (childStateNode != null)
                 {
                     childStateNode.Label = text;
+                    childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(text, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
                     children.Add(childStateNode);
                 }
             }
 
-            var longestText = children.Select(c => font.GetStringSize(c.Label, fontSize: 18).X).DefaultIfEmpty(0).Max() / NIntentGraph.GridSize;
-
-            result.Width = Math.Max(longestText, children.Select(c => c.Width).DefaultIfEmpty(1).Max()) + 0.2f; // 0.1 padding
-            // 0.1 padding, 0.25 label, -0.15 for single move
-            result.Height = 0.25f * children.Count + children.Select(c => c.Height).Sum() + 0.2f - 0.15f * children.Where(c => c.Children == null).Count();
             result.Children = children;
+            result.HorizontalLayout = node.HorizontalLayout;
+            CalculateNodeSize(result);
 
             if (node.FollowUpState != null)
             {
@@ -413,6 +425,7 @@ public class IntentGraphGenerator
                     if (childStateNode != null)
                     {
                         childStateNode.Label = label;
+                        childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(label, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
                         children.Add(childStateNode);
                     }
                 }
@@ -428,12 +441,8 @@ public class IntentGraphGenerator
                 }
             }
 
-            var longestText = children.Select(c => font.GetStringSize(c.Label, fontSize: 18).X).DefaultIfEmpty(0).Max() / NIntentGraph.GridSize;
-
-            result.Width = Math.Max(longestText, children.Select(c => c.Width).DefaultIfEmpty(1).Max()) + 0.2f; // 0.1 padding
-            // 0.1 padding, 0.25 label, -0.15 for single move
-            result.Height = 0.25f * children.Count + children.Select(c => c.Height).Sum() + 0.2f - 0.15f * children.Where(c => c.Children == null).Count();
             result.Children = children;
+            CalculateNodeSize(result);
             result.NextState = nextStateOfChildren.Count == 1 ? nextStateOfChildren[0] : null;
             result.NextStateCount = (result.NextState == null ? 0 : 1) + children.Select(c => c.NextStateCount).DefaultIfEmpty(0).Max();
 
@@ -470,11 +479,14 @@ public class IntentGraphGenerator
         return TryGetIntentString(key, overwriteIntentStrings, out var value) ? value : fallbackValue;
     }
 
+    #region SimplifyStateNodes
+
     private static void SimplifyStateNodes(MonsterStateNode stateNode, HashSet<MonsterStateNode> allNodes)
     {
         var rootNodes = new List<MonsterStateNode>(allNodes.Where(n => n.Parent == null));
 
         MergeSameNodes(allNodes, rootNodes);
+        ChangeToHorizontalLayout(allNodes, rootNodes);
     }
 
     private static HashSet<MonsterStateNode> GetAllNodes(MonsterStateNode stateNode)
@@ -608,6 +620,38 @@ public class IntentGraphGenerator
         }
     }
 
+    private static void ChangeToHorizontalLayout(HashSet<MonsterStateNode> allNodes, List<MonsterStateNode> rootNodes)
+    {
+        foreach (var node in allNodes)
+        {
+            var children = node.Children;
+
+            // 3 or more children and each is small and don't have out arrows
+            if (children == null || children.Count <= 2 || node.Parent?.HorizontalLayout == true ||
+                children.Any(c => c.HorizontalLayout || c.NextState != null || c.Width > 1.5f))
+            {
+                continue;
+            }
+
+            // Intent graph is already too wide
+            if ((node.Parent == null || node.Parent.Width < children.Sum(c => c.Width)) && rootNodes.Count > 4)
+            {
+                continue;
+            }
+
+            node.HorizontalLayout = true;
+            CalculateNodeSize(node);
+            var n = node.Parent;
+            while (n != null)
+            {
+                CalculateNodeSize(n);
+                n = n.Parent;
+            }
+        }
+    }
+
+    #endregion
+
     private static Graph StateNodesToGraph(List<MonsterStateNode> stateNodes, IntentDefinition? intentDefinition)
     {
         // Remove self loop if it's the only next state to avoid unnecessary arrow.
@@ -692,17 +736,26 @@ public class IntentGraphGenerator
         }
         else
         {
-            float childY = y + 0.35f;
+            float childY = y + IconGroupLabelHeight + IconGroupPadding;
+            float childX = x + IconGroupPadding;
             for (int i = 0; i < stateNode.Children.Count; i++)
             {
                 var childNode = stateNode.Children[i];
-                graph.Labels.Add(new Models.Label(x + 0.1f, childY - 0.025f, childNode.Label ?? string.Empty));
-                if (childNode.Children == null)
+                graph.Labels.Add(new Models.Label(childX, childY - 0.04f, childNode.Label ?? string.Empty));
+                if (stateNode.HorizontalLayout)
                 {
-                    childY -= 0.15f; // reduce padding for single move child
+                    AddStateNodeToGraph(childNode, graph, context, childX, childY + (childNode.Children == null ? IconGroupSingleMovePadding : 0));
+                    childX += childNode.Width + IconGroupPadding;
                 }
-                AddStateNodeToGraph(childNode, graph, context, x + 0.1f, childY);
-                childY += childNode.Height + 0.25f;
+                else
+                {
+                    if (childNode.Children == null)
+                    {
+                        childY += IconGroupSingleMovePadding; // reduce padding for single move child
+                    }
+                    AddStateNodeToGraph(childNode, graph, context, childX, childY);
+                    childY += childNode.Height + IconGroupLabelHeight;
+                }
             }
 
             graph.IconGroups.Add(new IconGroup(x, y, stateNode.Width, stateNode.Height));
@@ -894,7 +947,7 @@ public class IntentGraphGenerator
                 arrowBottom,
                 nextStateNode.X + nextStateNode.Width / 2,
                 nextStateNode.Y + nextStateNode.Height]);
-        if (stateNode.Parent != null)
+        if (stateNode.Parent != null && stateNode.Children == null)
         {
             arrow.Path[1] -= 0.1f;
         }
@@ -1011,6 +1064,29 @@ public class IntentGraphGenerator
         yield break;
     }
 
+    private static void CalculateNodeSize(MonsterStateNode node)
+    {
+        var children = node.Children;
+        if (children == null)
+        {
+            return;
+        }
+
+        if (node.HorizontalLayout)
+        {
+            node.Width = children.Select(c => c.Width).Sum() + IconGroupPadding * (children.Count - 1) + IconGroupPadding * 2;
+            node.Height = children.Select(c => c.Height).DefaultIfEmpty(1).Max() + IconGroupLabelHeight + IconGroupPadding * 2 +
+                (children.All(c => c.Children == null) ? IconGroupSingleMovePadding : 0);
+        }
+        else
+        {
+            node.Width = children.Select(c => c.Width).DefaultIfEmpty(1).Max() + IconGroupPadding * 2;
+            node.Height = IconGroupLabelHeight * children.Count + IconGroupPadding * 2 +
+                children.Select(c => c.Height).Sum() +
+                IconGroupSingleMovePadding * children.Where(c => c.Children == null).Count();
+        }
+    }
+
     private class GraphGenerationContext
     {
         public int IndexOnGraph { get; set; }
@@ -1028,6 +1104,7 @@ public class IntentGraphGenerator
         public float Height { get; set; }
         public MonsterStateNode? Parent { get; set; }
         public List<MonsterStateNode>? Children { get; set; }
+        public bool HorizontalLayout { get; set; } // Whether child nodes are arranged horizontally.
         public string? Label { get; set; } // When it's a child
         public MonsterState? State { get; set; }
         public MonsterStateNode? NextState { get; set; }

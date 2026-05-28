@@ -42,7 +42,9 @@ The editor currently exposes these tabs:
 
 ### Meaning of each tab
 
-- `Condition`: rule expression used to select the variant.
+- `Condition`: now contains two rule-expression fields.
+- `Condition > Selection condition`: rule expression used to select the variant.
+- `Condition > Up-to-date condition`: optional rule expression used only to decide whether preview/runtime should mark the graph as outdated.
 - `secondaryInitialStates JSON`: editable `string[]` for additional graph roots.
 - `stateMachine JSON`: editable `StateMachineNode[]` override.
 - `moveReplacements JSON`: editable `Dictionary<string, MoveReplacement[]>`.
@@ -76,7 +78,7 @@ When the editor opens or reloads:
 When saving:
 
 1. The current variant is committed from the UI back into a draft `IntentDefinition`.
-2. All variant conditions are validated.
+2. All variant rule-expression fields are validated: `condition` and optional `upToDateCondition`.
 3. Current-language dev intent strings JSON is validated.
 4. Definitions are saved via `IntentDefinitionEditorService.SaveEditableDefinitions(...)`.
 5. Intent strings are saved via `IntentGraphMod.SaveIntentStringsToFile(...)`.
@@ -88,7 +90,8 @@ Preview is rendered with the existing `NIntentGraph` scene/control.
 
 - If a variant is selected, preview uses the draft `IntentDefinition` plus draft string overrides.
 - If no variant is selected, preview falls back to the monster's current runtime graph but still applies unsaved draft string overrides.
-- Invalid JSON or invalid conditions block preview and show an inline status message.
+- Invalid JSON or invalid rule expressions block preview and show an inline status message.
+- If `upToDateCondition` is present and evaluates to `false`, preview/runtime graph generation can attach the existing "Outdated" warning.
 
 Preview generation route:
 
@@ -117,6 +120,7 @@ Completion items now store `CodeEdit.CodeCompletionKind` directly rather than `i
 ## Normalization Rules
 
 - Empty or whitespace `Condition` becomes `true`.
+- Empty or whitespace `UpToDateCondition` becomes `null`.
 - Empty `secondaryInitialStates` becomes `null`.
 - `secondaryInitialStates` is trimmed, deduplicated, and nullified when empty.
 - Empty `graphPatch` becomes `null` if it contains only default values and no content.
@@ -140,6 +144,7 @@ Relevant tests are in `intentgraph2test/IntentDefinitionEditorServiceTest.cs`.
 Covered areas currently include:
 
 - saving merged definition overrides
+- `upToDateCondition` persistence in dev override JSON
 - loading dev overrides before runtime definitions
 - string dev file round-trip
 - read-only summary content

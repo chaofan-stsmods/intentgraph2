@@ -15,6 +15,9 @@ public class Graph
 
     // Used in intents.json only
     public List<Move> Moves { get; set; } = new();
+
+    // Used in intents.json only
+    public bool Expand { get; set; } = false;
 }
 
 public record class Icon(float X = 0, float Y = 0, IntentType IntentType = IntentType.Hidden, int? Value = null, int Times = 1, string ValueText = "", string TimesText = "");

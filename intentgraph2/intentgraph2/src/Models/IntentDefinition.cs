@@ -62,6 +62,8 @@ public class StateMachineNode
     public StateMachinNodeChildren[]? Children { get; set; }
 
     public string? FollowUpState { get; set; }
+
+    public bool HorizontalLayout { get; set; } = false;
 }
 
 public record class StateMachinNodeChildren(string Label = "", StateMachineNode? Node = null);

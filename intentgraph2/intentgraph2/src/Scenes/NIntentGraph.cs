@@ -15,6 +15,7 @@ namespace IntentGraph2.Scenes;
 public partial class NIntentGraph : Control
 {
     public const float GridSize = 80;
+    public const int LabelFontSize = 18;
 
     private const int ArrowWidth = 10;
     private const int ArrowEndLength = 15;
@@ -285,7 +286,7 @@ public partial class NIntentGraph : Control
         Debug.Assert(labelFont != null, "labelFont is not initialized");
 
         var text = label.Text;
-        var fontSize = 18;
+        var fontSize = LabelFontSize;
         if (!string.IsNullOrEmpty(text))
         {
             var textPosition = new Vector2(label.X * GridSize, label.Y * GridSize);
@@ -309,14 +310,18 @@ public partial class NIntentGraph : Control
     {
         groupBorderTexture ??= ResourceLoader.Load<Texture2D>("res://intentgraph2/images/ui/groupborder.png");
 
-        var position = new Vector2(iconGroup.X * GridSize, iconGroup.Y * GridSize);
+        var x = iconGroup.X * GridSize;
+        var y = iconGroup.Y * GridSize;
+        var width = iconGroup.Width * GridSize;
+        var height = iconGroup.Height * GridSize;
+        var position = new Vector2(x, y);
         DrawTextureRectRegion(groupBorderTexture, new Rect2(position, new Vector2(3, 3)), IconGroupLT);
-        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(3, 0), new Vector2(iconGroup.Width * GridSize - 6, 3)), IconGroupTop);
-        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(iconGroup.Width * GridSize - 3, 0), new Vector2(3, 3)), IconGroupTR);
-        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(0, 3), new Vector2(3, iconGroup.Height * GridSize - 6)), IconGroupLeft);
-        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(iconGroup.Width * GridSize - 3, 3), new Vector2(3, iconGroup.Height * GridSize - 6)), IconGroupRight);
-        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(0, iconGroup.Height * GridSize - 3), new Vector2(3, 3)), IconGroupBL);
-        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(3, iconGroup.Height * GridSize - 3), new Vector2(iconGroup.Width * GridSize - 6, 3)), IconGroupBottom);
-        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(iconGroup.Width * GridSize - 3, iconGroup.Height * GridSize - 3), new Vector2(3, 3)), IconGroupBR);
+        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(3, 0), new Vector2(width - 6, 3)), IconGroupTop);
+        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(width - 3, 0), new Vector2(3, 3)), IconGroupTR);
+        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(0, 3), new Vector2(3, height - 6)), IconGroupLeft);
+        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(width - 3, 3), new Vector2(3, height - 6)), IconGroupRight);
+        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(0, height - 3), new Vector2(3, 3)), IconGroupBL);
+        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(3, height - 3), new Vector2(width - 6, 3)), IconGroupBottom);
+        DrawTextureRectRegion(groupBorderTexture, new Rect2(position + new Vector2(width - 3, height - 3), new Vector2(3, 3)), IconGroupBR);
     }
 }
