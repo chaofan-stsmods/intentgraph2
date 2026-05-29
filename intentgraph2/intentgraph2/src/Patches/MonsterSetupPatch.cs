@@ -1,4 +1,5 @@
 using HarmonyLib;
+using IntentGraph2.Utils.GraphGenerator;
 using IntentGraph2.Utils;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;

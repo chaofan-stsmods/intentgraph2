@@ -1,4 +1,5 @@
 using Godot;
+using IntentGraph2.Utils.GraphGenerator;
 using IntentGraph2.Models;
 using IntentGraph2.Utils;
 using IntentGraph2.Utils.Rule;

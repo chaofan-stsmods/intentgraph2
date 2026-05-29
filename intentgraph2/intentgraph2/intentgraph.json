@@ -123,8 +123,8 @@
             ]
         },
         {
-            "condition": "m.StarterMoveIndex == 0",
-            "upToDateCondition": "mm.count == 5 && mm.startsWith_SCRATCH_MOVE && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
+            "condition": "mm.startsWith_SCRATCH_MOVE",
+            "upToDateCondition": "mm.count == 5 && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
             "graphPatch": {
                 "labels": [
                     {
@@ -188,8 +188,8 @@
             ]
         },
         {
-            "condition": "m.StarterMoveIndex == 1",
-            "upToDateCondition": "mm.count == 5 && mm.startsWith_DISEASE_BITE_MOVE && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
+            "condition": "mm.startsWith_DISEASE_BITE_MOVE",
+            "upToDateCondition": "mm.count == 5 && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
             "graphPatch": {
                 "labels": [
                     {
@@ -253,8 +253,8 @@
             ]
         },
         {
-            "condition": "m.StarterMoveIndex == 2",
-            "upToDateCondition": "mm.count == 5 && mm.startsWith_SCREECH_MOVE && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
+            "condition": "mm.startsWith_SCREECH_MOVE",
+            "upToDateCondition": "mm.count == 5 && mm.nextMoveOf_CALL_FOR_BACKUP_MOVE_is_RAND && mm.nextMoveOf_SCRATCH_MOVE_is_RAND && mm.nextMoveOf_DISEASE_BITE_MOVE_is_RAND && mm.nextMoveOf_SCREECH_MOVE_is_RAND",
             "graphPatch": {
                 "labels": [
                     {
