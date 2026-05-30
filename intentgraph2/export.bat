@@ -6,5 +6,8 @@ copy .\intentgraph2.json "E:\Games\steamlib\steamapps\common\Slay the Spire 2\mo
 cd ..\intentgraph2baselib
 dotnet publish
 
+cd ..\intentgraph2ritsulib
+dotnet publish
+
 cd ..\intentgraph2entry
 dotnet publish

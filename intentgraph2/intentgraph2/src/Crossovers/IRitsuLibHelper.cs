@@ -2,7 +2,7 @@ using IntentGraph2.Utils;
 
 namespace IntentGraph2.Crossovers;
 
-public interface IBaseLibHelper
+public interface IRitsuLibHelper
 {
     IntentGraphModConfig Config { get; }
 

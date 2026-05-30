@@ -3,7 +3,10 @@
 /android/
 
 *.pck
-/publish/
+intentgraph2/publish/
 .vs/
 *.user
 *.lscache
+
+bin/
+obj/

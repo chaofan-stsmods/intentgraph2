@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>IntentGraph2.BaseLib</RootNamespace>
+    <RootNamespace>IntentGraph2.RitsuLib</RootNamespace>
     <IsGodotToolsProject>true</IsGodotToolsProject>
   </PropertyGroup>
   <Import Project="..\common.props" />
@@ -14,12 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-	<AssemblyMetadata Include="RitsuLib.ModSettingsMirror.Mod.intentgraph2.DisableSources" Value="baselib,modconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="BaseLib">
-      <HintPath>$(Steamlib)\steamapps\common\Slay the Spire 2\mods\BaseLib\BaseLib.dll</HintPath>
+    <Reference Include="RitsuLib">
+      <HintPath>$(Steamlib)\steamapps\common\Slay the Spire 2\mods\RitsuLib\STS2-RitsuLib.dll</HintPath>
     </Reference>
   </ItemGroup>
 

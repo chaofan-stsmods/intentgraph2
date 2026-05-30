@@ -2,4 +2,7 @@
   <PropertyGroup>
     <Steamlib>E:\Games\steamlib</Steamlib>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="**\*.lscache" />
+  </ItemGroup>
 </Project>

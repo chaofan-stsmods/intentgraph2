@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "intentgraph2test", "..\inte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "intentgraph2entry", "..\intentgraph2entry\intentgraph2entry.csproj", "{B01B37F2-0947-4FF2-9FD2-054D16744EEF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "intentgraph2ritsulib", "..\intentgraph2ritsulib\intentgraph2ritsulib.csproj", "{D0FCC652-AC6F-4A05-BD6B-6709A53F5EAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,12 @@ Global
 		{B01B37F2-0947-4FF2-9FD2-054D16744EEF}.ExportDebug|Any CPU.Build.0 = Release|Any CPU
 		{B01B37F2-0947-4FF2-9FD2-054D16744EEF}.ExportRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{B01B37F2-0947-4FF2-9FD2-054D16744EEF}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
+		{D0FCC652-AC6F-4A05-BD6B-6709A53F5EAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0FCC652-AC6F-4A05-BD6B-6709A53F5EAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0FCC652-AC6F-4A05-BD6B-6709A53F5EAE}.ExportDebug|Any CPU.ActiveCfg = Release|Any CPU
+		{D0FCC652-AC6F-4A05-BD6B-6709A53F5EAE}.ExportDebug|Any CPU.Build.0 = Release|Any CPU
+		{D0FCC652-AC6F-4A05-BD6B-6709A53F5EAE}.ExportRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{D0FCC652-AC6F-4A05-BD6B-6709A53F5EAE}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

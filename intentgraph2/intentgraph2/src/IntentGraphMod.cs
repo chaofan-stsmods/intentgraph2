@@ -10,6 +10,7 @@ using MegaCrit.Sts2.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text.Encodings.Web;
@@ -43,6 +44,7 @@ public class IntentGraphMod
     public static readonly ConditionalWeakTable<MonsterModel, Graph> GeneratedGraphs = new();
 
     private static IBaseLibHelper? baseLibHelper;
+    private static IRitsuLibHelper? ritsuLibHelper;
 
     public static void InitializeMod()
     {
@@ -66,12 +68,9 @@ public class IntentGraphMod
         {
             try
             {
-                var currentAssembly = typeof(IntentGraphMod).Assembly;
-                var loadContext = AssemblyLoadContext.GetLoadContext(currentAssembly);
-                if (loadContext != null)
+                var assembly = LoadDll("intentgraph2baselib");
+                if (assembly != null)
                 {
-                    var helperAssemblyPath = Path.Join(Path.GetDirectoryName(currentAssembly.Location), "intentgraph2baselib.dll");
-                    var assembly = loadContext.LoadFromAssemblyPath(helperAssemblyPath);
                     var type = assembly.GetType("IntentGraph2.BaseLib.BaseLibHelper");
                     baseLibHelper = (IBaseLibHelper)type.CreateInstance();
                     baseLibHelper.RegisterConfig();
@@ -84,6 +83,28 @@ public class IntentGraphMod
             catch (Exception ex)
             {
                 IgLogger.Warn("Failed to load BaseLib helper: " + ex);
+            }
+        }
+
+        if (GetLoadedMods().Any(m => m.manifest?.id == "STS2-RitsuLib"))
+        {
+            try
+            {
+                var assembly = LoadDll("intentgraph2ritsulib");
+                if (assembly != null)
+                {
+                    var type = assembly.GetType("IntentGraph2.RitsuLib.RitsuLibHelper");
+                    ritsuLibHelper = (IRitsuLibHelper)type.CreateInstance();
+                    ritsuLibHelper.RegisterConfig();
+                }
+                else
+                {
+                    IgLogger.Warn("Failed to get assembly load context for IntentGraphMod.");
+                }
+            }
+            catch (Exception ex)
+            {
+                IgLogger.Warn("Failed to load RitsuLib helper: " + ex);
             }
         }
 
@@ -126,9 +147,22 @@ public class IntentGraphMod
         }
     }
 
-    public static Key GetToggleHotKey()
+    public static IEnumerable<Key> GetToggleHotKeys()
     {
-        return baseLibHelper?.Config.ToggleIntentGraphKey ?? Key.F1;
+        if (baseLibHelper != null)
+        {
+            yield return baseLibHelper.Config.ToggleIntentGraphKey;
+        }
+
+        if (ritsuLibHelper != null)
+        {
+            yield return ritsuLibHelper.Config.ToggleIntentGraphKey;
+        }
+
+        if (baseLibHelper == null && ritsuLibHelper == null)
+        {
+            yield return Key.F1;
+        }
     }
 
     public static void LoadIntentStrings(string language)
@@ -355,6 +389,31 @@ public class IntentGraphMod
         {
             IntentGraphStrings[kvp.Key] = kvp.Value;
         }
+    }
+
+    private static Assembly? LoadDll(string dllName)
+    {
+        try
+        {
+            var currentAssembly = typeof(IntentGraphMod).Assembly;
+            var loadContext = AssemblyLoadContext.GetLoadContext(currentAssembly);
+            if (loadContext != null)
+            {
+                var helperAssemblyPath = Path.Join(Path.GetDirectoryName(currentAssembly.Location), dllName + ".dll");
+                var assembly = loadContext.LoadFromAssemblyPath(helperAssemblyPath);
+                return assembly;
+            }
+            else
+            {
+                IgLogger.Info("Failed to get assembly load context for IntentGraphMod.");
+            }
+        }
+        catch (Exception ex)
+        {
+            IgLogger.Info($"Failed to load dll {dllName}: {ex}");
+        }
+
+        return null;
     }
 }
 
