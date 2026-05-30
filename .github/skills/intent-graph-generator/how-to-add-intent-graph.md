@@ -90,6 +90,9 @@ It's recommended to use the `stateMachine` property to define the overwritten in
                 {
                     "name": "random1",
                     "followUpState": "RAMMING_SPEED_MOVE",
+                    // Optional. Take effect only when children exists. If true, children are shown horizontally, otherwise vertically.
+                    // When children have their own follow-up states, it's not recommended to use horizontal layout. Arrows may look weird in this case.
+                    "horizontalLayout": false,
                     "children": [
                         {
                             // This can also be key in the localization file
@@ -249,3 +252,8 @@ Supported variables are:
 - `slotIndex`: current monster slot index, starting at `0`.
 - `act`: current act number, starting at `0`. Underdocks is `0`, Hive is `1`, Glory is `2`, etc.
 - `m.{field or property name}`: a field or property of the monster model. Note that this is only read after the monster is added to combat.
+- `mm.{name}`: a set of properties to get monster move related values.
+  * `mm.count`: the number of types of moves the monster has.
+  * `mm.hasMove_{moveId}`: whether the monster has a move with the given state ID.
+  * `mm.startsWith_{moveId}`: whether the first move of the monster is the given state ID.
+  * `mm.nextMoveOf_{moveId1}_is_{moveId2}`: whether the next move of the monster after `moveId1` is `moveId2`.
