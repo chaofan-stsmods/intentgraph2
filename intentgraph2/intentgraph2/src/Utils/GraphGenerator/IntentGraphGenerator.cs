@@ -67,17 +67,7 @@ public class IntentGraphGenerator
         }
         else
         {
-            string? missingStateId = null;
-            stateNodes = converter.FromMonsterMoveStateMachine(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition?.SecondaryInitialStates, ref missingStateId);
-            if (missingStateId != null && intentDefinition?.GraphPatch == null)
-            {
-                IgLogger.Warn($"State '{missingStateId}' is not included in the graph for monster '{monster.GetType().FullName}'.");
-                if (warning == null)
-                {
-                    // We can't show the warning because it's likely happen in base game.
-                    // warning = GetIntentString("ui.Incomplete", "Incomplete", overwriteIntentStrings);
-                }
-            }
+            stateNodes = converter.FromMonsterMoveStateMachine(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition, ref warning);
         }
 
         graph = layouter.StateNodesToGraph(stateNodes, intentDefinition);

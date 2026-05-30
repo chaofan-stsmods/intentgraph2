@@ -39,10 +39,12 @@ internal class MonsterStateNodeConverter
             }
         }
 
-        return initialStates.OrderBy(t => t.Item1).Select(t => t.Item2).ToList();
+        var result = initialStates.OrderBy(t => t.Item1).Select(t => t.Item2).ToList();
+        MonsterStateNodeSimplifier.FindAndSetSimpleLoops(result);
+        return result;
     }
 
-    public List<MonsterStateNode> FromMonsterMoveStateMachine(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState initialState, string[]? secondaryStates, ref string? missingStateId)
+    public List<MonsterStateNode> FromMonsterMoveStateMachine(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState initialState, IntentDefinition? intentDefinition, ref string? warning)
     {
         var existingNodes = new Dictionary<MonsterState, MonsterStateNode>();
 
@@ -69,6 +71,7 @@ internal class MonsterStateNodeConverter
         MonsterStateNodeSimplifier.SimplifyStateNodes(initialStateNode, allNodes);
         result.Add(initialStateNode);
 
+        var secondaryStates = intentDefinition?.SecondaryInitialStates;
         if (secondaryStates != null)
         {
             foreach (var stateName in secondaryStates)
@@ -93,11 +96,17 @@ internal class MonsterStateNodeConverter
             // It's by design to resolve INIT_MOVE
             if (stateId != "INIT_MOVE" && !allNodes.Any(n => n.State?.Id == stateId))
             {
-                missingStateId = stateId;
+                IgLogger.Warn($"State '{stateId}' is not included in the graph for monster '{monsterName}'.");
                 break;
             }
         }
 
+        if (warning == null && allNodes.Any(n => n.UnrecognizedStateType))
+        {
+            warning = localizer.GetOrElse("ui.Incomplete", "Incomplete");
+        }
+
+        MonsterStateNodeSimplifier.FindAndSetSimpleLoops(result);
         return result;
     }
 
@@ -221,6 +230,7 @@ internal class MonsterStateNodeConverter
         }
         else
         {
+            var unrecognizedStateType = false;
             var childCandidates = new List<(string state, string label)>();
             if (state is RandomBranchState randomBranchState)
             {
@@ -262,6 +272,10 @@ internal class MonsterStateNodeConverter
                     }
                 }
             }
+            else
+            {
+                unrecognizedStateType = true;
+            }
 
             // Move otherwise to last
             var childCandidatesCount = childCandidates.Count;
@@ -281,6 +295,7 @@ internal class MonsterStateNodeConverter
             {
                 State = state,
                 Parent = parent,
+                UnrecognizedStateType = unrecognizedStateType,
             };
 
             if (parent == null)

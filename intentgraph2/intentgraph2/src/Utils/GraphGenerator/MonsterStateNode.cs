@@ -17,6 +17,13 @@ internal class MonsterStateNode
     public MonsterState? State { get; set; }
     public MonsterStateNode? NextState { get; set; }
     public int NextStateCount { get; set; } // include children's next states
+    public bool UnrecognizedStateType { get; set; }
+    public bool SimpleLoopStart { get; set; }
+    public int SimpleLoopLength { get; set; }
+    public int SimpleLoopPrecessorCount { get; set; }
+
+    // Following are used for graph layout
+
     public float X { get; set; }
     public float Y { get; set; }
     public bool AddedToGraph { get; set; }
