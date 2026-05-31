@@ -13,15 +13,36 @@ public class BaseLibHelper : IBaseLibHelper
     {
         ModConfigRegistry.Register(IntentGraphMod.ModId, new HelperModConfig());
     }
+
+    public void SaveConfig()
+    {
+        ModConfig.SaveDebounced<HelperModConfig>();
+    }
 }
 
 public class HelperModConfig : SimpleModConfig
 {
-    internal static IntentGraphModConfig BaseConfig { get; set; } = new IntentGraphModConfig();
+    internal static IntentGraphModConfig BaseConfig { get; } = new IntentGraphModConfig();
 
     [ConfigSection("Display")]
-    public static bool ShowMonsterMoveNames { get => BaseConfig.ShowMonsterMoveNames; set => BaseConfig.ShowMonsterMoveNames = value; }
+    public static bool ShowMonsterMoveNames
+    {
+        get => BaseConfig.ShowMonsterMoveNames;
+        set
+        {
+            BaseConfig.ShowMonsterMoveNames = value;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.ShowMonsterMoveNames));
+        }
+    }
 
     [ConfigSection("Hotkey")]
-    public static Key ToggleIntentGraphKey { get => BaseConfig.ToggleIntentGraphKey; set => BaseConfig.ToggleIntentGraphKey = value; }
+    public static Key ToggleIntentGraphKey
+    {
+        get => BaseConfig.ToggleIntentGraphKey;
+        set
+        {
+            BaseConfig.ToggleIntentGraphKey = value;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.ToggleIntentGraphKey));
+        }
+    }
 }

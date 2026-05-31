@@ -109,6 +109,22 @@ public class IntentGraphMod
             }
         }
 
+        if (ritsuLibHelper != null && baseLibHelper != null)
+        {
+            baseLibHelper.Config.SetFrom(ritsuLibHelper.Config);
+            baseLibHelper.SaveConfig();
+            baseLibHelper.Config.OnUpdated += (sender, e) =>
+            {
+                ritsuLibHelper.Config.SetFrom(baseLibHelper.Config);
+                ritsuLibHelper.SaveConfig();
+            };
+            ritsuLibHelper.Config.OnUpdated += (sender, e) =>
+            {
+                baseLibHelper.Config.SetFrom(ritsuLibHelper.Config);
+                baseLibHelper.SaveConfig();
+            };
+        }
+
         LoadIntentDefinitions();
         IgLogger.Info("IntentGraphMod post initialize done.");
     }
@@ -159,24 +175,6 @@ public class IntentGraphMod
             return baseLibHelper.Config;
         }
         return defaultConfig;
-    }
-
-    public static IEnumerable<Key> GetToggleHotKeys()
-    {
-        if (ritsuLibHelper != null)
-        {
-            yield return ritsuLibHelper.Config.ToggleIntentGraphKey;
-        }
-
-        if (baseLibHelper != null)
-        {
-            yield return baseLibHelper.Config.ToggleIntentGraphKey;
-        }
-
-        if (baseLibHelper == null && ritsuLibHelper == null)
-        {
-            yield return Key.F1;
-        }
     }
 
     public static void LoadIntentStrings(string language)

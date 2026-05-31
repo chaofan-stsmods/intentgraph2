@@ -7,4 +7,6 @@ public interface IRitsuLibHelper
     IntentGraphModConfig Config { get; }
 
     void RegisterConfig();
+
+    void SaveConfig();
 }

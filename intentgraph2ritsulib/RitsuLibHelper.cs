@@ -31,14 +31,22 @@ public class RitsuLibHelper : IRitsuLibHelper
             SettingKey,
             SaveScope.Global,
             settings => settings.ToggleIntentGraphKey,
-            (settings, value) => settings.ToggleIntentGraphKey = value);
+            (settings, value) =>
+            {
+                settings.ToggleIntentGraphKey = value;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.ToggleIntentGraphKey));
+            });
 
         var showMonsterMoveNames = new ModSettingsValueBinding<IntentGraphModConfig, bool>(
             IntentGraphMod.ModId,
             SettingKey,
             SaveScope.Global,
             settings => settings.ShowMonsterMoveNames,
-            (settings, value) => settings.ShowMonsterMoveNames = value);
+            (settings, value) =>
+            {
+                settings.ShowMonsterMoveNames = value;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.ShowMonsterMoveNames));
+            });
 
         RitsuLibFramework.RegisterModSettings(IntentGraphMod.ModId, page =>
         {
@@ -63,5 +71,10 @@ public class RitsuLibHelper : IRitsuLibHelper
                     presentation: ModSettingsChoicePresentation.Dropdown);
             });
         });
+    }
+
+    public void SaveConfig()
+    {
+        RitsuLibFramework.GetDataStore(IntentGraphMod.ModId).Save(SettingKey);
     }
 }

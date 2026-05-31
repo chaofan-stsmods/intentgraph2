@@ -7,4 +7,6 @@ public interface IBaseLibHelper
     IntentGraphModConfig Config { get; }
 
     void RegisterConfig();
+
+    void SaveConfig();
 }
