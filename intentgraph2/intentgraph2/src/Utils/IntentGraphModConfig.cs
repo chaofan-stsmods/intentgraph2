@@ -9,6 +9,8 @@ public class IntentGraphModConfig
 
     public bool ShowMonsterMoveNames { get; set; } = false;
 
+    public bool UseAnimatedIntentIcon { get; set; } = true;
+
     public event EventHandler<string>? OnUpdated;
 
     public void NotifyUpdated(string propertyName)
@@ -20,5 +22,6 @@ public class IntentGraphModConfig
     {
         ToggleIntentGraphKey = config.ToggleIntentGraphKey;
         ShowMonsterMoveNames = config.ShowMonsterMoveNames;
+        UseAnimatedIntentIcon = config.UseAnimatedIntentIcon;
     }
 }

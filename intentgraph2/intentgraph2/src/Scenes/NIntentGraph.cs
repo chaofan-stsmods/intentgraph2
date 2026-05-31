@@ -20,6 +20,7 @@ public partial class NIntentGraph : Control
 
     private const int ArrowWidth = 10;
     private const int ArrowEndLength = 15;
+    private const int AnimatedIconFrameDurationMs = 80;
 
     private static readonly Dictionary<IntentType, string> IntentImageResourcePath = new Dictionary<IntentType, string>
     {
@@ -38,6 +39,38 @@ public partial class NIntentGraph : Control
         { IntentType.CardDebuff, "res://images/packed/intents/intent_card_debuff.png" },
         { IntentType.DeathBlow, "res://images/packed/intents/intent_death_blow.png" },
         { IntentType.Unknown, "res://images/packed/intents/intent_unknown.png" },
+    };
+
+    private static readonly Dictionary<IntentType, string> IntentImageAnimationResourcePath = new Dictionary<IntentType, string>
+    {
+        { IntentType.Buff, "res://images/packed/intents/buff/intent_buff_{0:00}.png" },
+        { IntentType.Debuff, "res://images/packed/intents/debuff/intent_megadebuff_{0:00}.png" },
+        { IntentType.DebuffStrong, "res://images/packed/intents/debuff/intent_megadebuff_{0:00}.png" },
+        { IntentType.Defend, "res://images/packed/intents/defend/intent_defend_{0:00}.png" },
+        { IntentType.Escape, "res://images/packed/intents/escape/intent_escape_{0:00}.png" },
+        { IntentType.Heal, "res://images/packed/intents/heal/intent_heal_{0:00}.png" },
+        { IntentType.Summon, "res://images/packed/intents/summon/intent_summon_{0:00}.png" },
+        { IntentType.Sleep, "res://images/packed/intents/sleep/intent_sleep_{0:00}.png" },
+        { IntentType.Stun, "res://images/packed/intents/stun/intent_stunned_{0:00}.png" },
+        { IntentType.StatusCard, "res://images/packed/intents/status/intent_statuscard_{0:00}.png" },
+        { IntentType.CardDebuff, "res://images/packed/intents/card_debuff/intent_carddebuff_{0:00}.png" },
+        { IntentType.Unknown, "res://images/packed/intents/unknown/intent_unknown_{0:00}.png" },
+    };
+
+    private static readonly Dictionary<IntentType, int> IntentImageAnimationFrameCounts = new Dictionary<IntentType, int>
+    {
+        { IntentType.Buff, 30 },
+        { IntentType.Debuff, 11 },
+        { IntentType.DebuffStrong, 11 },
+        { IntentType.Defend, 45 },
+        { IntentType.Escape, 40 },
+        { IntentType.Heal, 45 },
+        { IntentType.Summon, 25 },
+        { IntentType.Sleep, 16 },
+        { IntentType.Stun, 16 },
+        { IntentType.StatusCard, 19 },
+        { IntentType.CardDebuff, 15 },
+        { IntentType.Unknown, 30 },
     };
 
     private static readonly Rect2 IconGroupLT = new Rect2(0, 0, 3, 3);
@@ -98,6 +131,14 @@ public partial class NIntentGraph : Control
         if (evt is InputEventKey evtKey && evtKey.IsPressed() && IntentGraphMod.GetConfig().ToggleIntentGraphKey == evtKey.Keycode)
         {
             ShowIntentGraphPatches.ToggleIntentGraphVisibility();
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        if (graph != null && Visible && IntentGraphMod.GetConfig().UseAnimatedIntentIcon)
+        {
+            QueueRedraw();
         }
     }
 
@@ -180,13 +221,36 @@ public partial class NIntentGraph : Control
         }
         else
         {
-            if (!intentTextures.TryGetValue(icon.IntentType.ToString(), out var texture))
+            if (!TryGetAnimatedIntentTexture(icon.IntentType, out var texture)
+                && !intentTextures.TryGetValue(icon.IntentType.ToString(), out texture))
             {
                 texture = intentTextures[icon.IntentType.ToString()] = ResourceLoader.Load<Texture2D>(IntentImageResourcePath[icon.IntentType]);
             }
 
             DrawTextureRect(texture, new Rect2(icon.X * GridSize + 4, icon.Y * GridSize, 72, 72), false);
         }
+    }
+
+    private bool TryGetAnimatedIntentTexture(IntentType intentType, out Texture2D? texture)
+    {
+        texture = null;
+
+        if (!IntentGraphMod.GetConfig().UseAnimatedIntentIcon
+            || !IntentImageAnimationFrameCounts.TryGetValue(intentType, out int frameCount)
+            || frameCount <= 0
+            || !IntentImageAnimationResourcePath.TryGetValue(intentType, out string? animationPathFormat))
+        {
+            return false;
+        }
+
+        var frame = (int)((Time.GetTicksMsec() / AnimatedIconFrameDurationMs) % (ulong)frameCount);
+        var textureKey = $"{intentType}_{frame}";
+        if (!intentTextures.TryGetValue(textureKey, out texture))
+        {
+            texture = intentTextures[textureKey] = ResourceLoader.Load<Texture2D>(string.Format(animationPathFormat, frame));
+        }
+
+        return texture != null;
     }
 
     private void DrawArrow(Arrow arrow)

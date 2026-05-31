@@ -43,7 +43,7 @@ public class IntentGraphMod
 
     public static readonly ConditionalWeakTable<MonsterModel, Graph> GeneratedGraphs = new();
 
-    private static IntentGraphModConfig defaultConfig;
+    private static IntentGraphModConfig defaultConfig = new IntentGraphModConfig();
     private static IBaseLibHelper? baseLibHelper;
     private static IRitsuLibHelper? ritsuLibHelper;
 

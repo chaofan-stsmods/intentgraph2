@@ -35,6 +35,16 @@ public class HelperModConfig : SimpleModConfig
         }
     }
 
+    public static bool UseAnimatedIntentIcon
+    {
+        get => BaseConfig.UseAnimatedIntentIcon;
+        set
+        {
+            BaseConfig.UseAnimatedIntentIcon = value;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.UseAnimatedIntentIcon));
+        }
+    }
+
     [ConfigSection("Hotkey")]
     public static Key ToggleIntentGraphKey
     {

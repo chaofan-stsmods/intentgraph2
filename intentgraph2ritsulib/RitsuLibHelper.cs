@@ -48,6 +48,17 @@ public class RitsuLibHelper : IRitsuLibHelper
                 settings.NotifyUpdated(nameof(IntentGraphModConfig.ShowMonsterMoveNames));
             });
 
+        var useAnimatedIntentIcon = new ModSettingsValueBinding<IntentGraphModConfig, bool>(
+            IntentGraphMod.ModId,
+            SettingKey,
+            SaveScope.Global,
+            settings => settings.UseAnimatedIntentIcon,
+            (settings, value) =>
+            {
+                settings.UseAnimatedIntentIcon = value;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.UseAnimatedIntentIcon));
+            });
+
         RitsuLibFramework.RegisterModSettings(IntentGraphMod.ModId, page =>
         {
             page.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_title", "Intent Graph"));
@@ -60,6 +71,10 @@ public class RitsuLibHelper : IRitsuLibHelper
                     "show_monster_move_names",
                     ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title", "Show Monster Move Names"),
                     showMonsterMoveNames);
+                section.AddToggle(
+                    "use_animated_intent_icon",
+                    ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title", "Use Animated Intent Icon"),
+                    useAnimatedIntentIcon);
             });
             page.AddSection("hotkey", section =>
             {
