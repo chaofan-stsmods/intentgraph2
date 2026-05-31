@@ -68,7 +68,7 @@ internal class MonsterStateNodeConverter
         }
 
         var allNodes = initialStateNode.GetAllNodes();
-        MonsterStateNodeSimplifier.SimplifyStateNodes(initialStateNode, allNodes);
+        MonsterStateNodeSimplifier.SimplifyStateNodes(initialStateNode, allNodes, this);
         result.Add(initialStateNode);
 
         var secondaryStates = intentDefinition?.SecondaryInitialStates;
@@ -81,7 +81,7 @@ internal class MonsterStateNodeConverter
                 {
                     var stateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);
                     var secondaryAllNodes = stateNode.GetAllNodes();
-                    MonsterStateNodeSimplifier.SimplifyStateNodes(stateNode, secondaryAllNodes);
+                    MonsterStateNodeSimplifier.SimplifyStateNodes(stateNode, secondaryAllNodes, this);
                     foreach (var item in secondaryAllNodes)
                     {
                         allNodes.Add(item);
@@ -108,6 +108,20 @@ internal class MonsterStateNodeConverter
 
         MonsterStateNodeSimplifier.FindAndSetSimpleLoops(result);
         return result;
+    }
+
+    public string MakeText(RandomBranchState.StateWeight s, float sumWeight)
+    {
+        var weight = s.GetWeight();
+        var percentage = (int)(weight / sumWeight * 100);
+        return percentage + "%" + (s.cooldown > 0 ? ", ⏱" + s.cooldown : s.repeatType switch
+        {
+            MoveRepeatType.CanRepeatForever => "",
+            MoveRepeatType.CanRepeatXTimes => ", ≤" + s.maxTimes,
+            MoveRepeatType.CannotRepeat => ", ≤1",
+            MoveRepeatType.UseOnlyOnce => ", " + localizer.GetOrElse("ui.UseOnlyOnce", "one use"),
+            _ => ""
+        });
     }
 
     private MonsterStateNode? StateMachineNodeToMonsterStateNode(Font font, MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, StateMachineNode? node, Dictionary<string, MonsterStateNode> existingNodes, MonsterStateNode? parent)
@@ -231,23 +245,26 @@ internal class MonsterStateNodeConverter
         else
         {
             var unrecognizedStateType = false;
-            var childCandidates = new List<(string state, string label)>();
+            var childCandidates = new List<(string state, string label, bool overwriteLabel)>();
             if (state is RandomBranchState randomBranchState)
             {
                 var sumWeight = randomBranchState.States.Sum(s => s.GetWeight());
                 foreach (var s in randomBranchState.States)
                 {
                     string label;
+                    bool overwriteLabel;
                     if (localizer.TryGet($"branch.{monsterName}.{state.Id}.{s.stateId}", out var overwriteText))
                     {
                         label = overwriteText;
+                        overwriteLabel = true;
                     }
                     else
                     {
                         label = MakeText(s, sumWeight);
+                        overwriteLabel = false;
                     }
 
-                    childCandidates.Add((s.stateId, label));
+                    childCandidates.Add((s.stateId, label, overwriteLabel));
                 }
             }
             else if (state is ConditionalBranchState conditionalBranchState)
@@ -268,7 +285,7 @@ internal class MonsterStateNodeConverter
                 {
                     if (!childCandidates.Any(c => c.state == s))
                     {
-                        childCandidates.Add((s, localizer.GetOrElse($"branch.{monsterName}.{state.Id}.{s}", "condition")));
+                        childCandidates.Add((s, localizer.GetOrElse($"branch.{monsterName}.{state.Id}.{s}", "condition"), true));
                     }
                 }
             }
@@ -285,7 +302,7 @@ internal class MonsterStateNodeConverter
                 if (child.label == OtherwiseMark)
                 {
                     childCandidates.RemoveAt(i);
-                    childCandidates.Add((child.state, localizer.GetOrElse("ui.Otherwise", "Otherwise")));
+                    childCandidates.Add((child.state, localizer.GetOrElse("ui.Otherwise", "Otherwise"), child.overwriteLabel));
                     i--;
                     childCandidatesCount--;
                 }
@@ -306,7 +323,7 @@ internal class MonsterStateNodeConverter
             var children = new List<MonsterStateNode>();
             for (int i = 0; i < childCandidates.Count; i++)
             {
-                var (childStateId, label) = childCandidates[i];
+                var (childStateId, label, overwriteLabel) = childCandidates[i];
                 var childState = stateMachine.States.Values.FirstOrDefault(s => s.Id == childStateId);
                 if (childState != null)
                 {
@@ -314,6 +331,7 @@ internal class MonsterStateNodeConverter
                     if (childStateNode != null)
                     {
                         childStateNode.Label = label;
+                        childStateNode.IsLabelGenerated = !overwriteLabel;
                         childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(label, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
                         children.Add(childStateNode);
                     }
@@ -337,19 +355,5 @@ internal class MonsterStateNodeConverter
 
             return result;
         }
-    }
-
-    private string MakeText(RandomBranchState.StateWeight s, float sumWeight)
-    {
-        var weight = s.GetWeight();
-        var percentage = (int)(weight / sumWeight * 100);
-        return percentage + "%" + (s.cooldown > 0 ? ", ⏱" + s.cooldown : s.repeatType switch
-        {
-            MoveRepeatType.CanRepeatForever => "",
-            MoveRepeatType.CanRepeatXTimes => ", ≤" + s.maxTimes,
-            MoveRepeatType.CannotRepeat => ", ≤1",
-            MoveRepeatType.UseOnlyOnce => ", " + localizer.GetOrElse("ui.UseOnlyOnce", "one use"),
-            _ => ""
-        });
     }
 }

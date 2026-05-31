@@ -37,7 +37,7 @@ public class RitsuLibHelper : IRitsuLibHelper
         {
             page.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_title", "Intent Graph"));
             page.WithDescription(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_description", "Show monster intent as a state machine."));
-            page.WithModDisplayName(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_display_name", "Intent Graph"));
+            page.WithModDisplayName(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_title", "Intent Graph"));
             page.AddSection("hotkey", section =>
             {
                 section.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-HOTKEY.title", "Hotkey"));

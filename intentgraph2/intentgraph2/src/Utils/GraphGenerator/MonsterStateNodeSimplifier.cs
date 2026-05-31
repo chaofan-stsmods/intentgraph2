@@ -1,16 +1,18 @@
-using IntentGraph2.Utils.GraphGenerator;
-using System;
+using MegaCrit.Sts2.Core.MonsterMoves;
+using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace IntentGraph2.Utils.GraphGenerator;
 
 internal class MonsterStateNodeSimplifier
 {
-    public static void SimplifyStateNodes(MonsterStateNode stateNode, HashSet<MonsterStateNode> allNodes)
+    public static void SimplifyStateNodes(MonsterStateNode stateNode, HashSet<MonsterStateNode> allNodes, MonsterStateNodeConverter converter)
     {
-        var rootNodes = new List<MonsterStateNode>(allNodes.Where(n => n.Parent == null));
+        RemoveUnreachableNoRepeat(allNodes, converter);
 
+        var rootNodes = new List<MonsterStateNode>(allNodes.Where(n => n.Parent == null));
         MergeSameNodes(allNodes, rootNodes);
         ChangeToHorizontalLayout(allNodes, rootNodes);
     }
@@ -35,6 +37,7 @@ internal class MonsterStateNodeSimplifier
                 if (AreSameNode(nodeA, nodeB, existingSameNodes))
                 {
                     existingSameNodes.Add((nodeA, nodeB));
+                    IgLogger.Info($"MergeSameNodes detected same node {nodeA.State?.Id} and {nodeB.State?.Id}.");
                 }
             }
         }
@@ -124,6 +127,209 @@ internal class MonsterStateNodeSimplifier
         {
             exisitingSameNodes.Remove((a, b));
         }
+    }
+
+    private static void RemoveUnreachableNoRepeat(HashSet<MonsterStateNode> allNodes, MonsterStateNodeConverter converter)
+    {
+        bool modified;
+        do
+        {
+            modified = false;
+            var precessors = GetPrecessorDict(allNodes);
+
+            var nodesToRemove = new List<MonsterStateNode>();
+            foreach (var node in allNodes)
+            {
+                var parent = node.Parent;
+                if (parent == null || node.State is not MoveState moveState || node.Children != null ||
+                    parent.State is not RandomBranchState parentBranchState ||
+                    parent.Children == null || parent.Children.Any(c => !c.IsLabelGenerated))
+                {
+                    continue;
+                }
+
+                var stateWeight = parentBranchState.States.FirstOrDefault(s => s.stateId == moveState.Id);
+                if (stateWeight.stateId == null)
+                {
+                    continue;
+                }
+
+                if (TryRemoveNoRepeatNodePrecededBySame(node, precessors, nodesToRemove, converter, moveState, parentBranchState, stateWeight))
+                {
+                    modified = true;
+                }
+                else if (TryRemoveNoRepeatTextIfPrecededByOther(node, precessors, converter, stateWeight))
+                {
+                    modified = true;
+                }
+            }
+
+            foreach (var node in nodesToRemove)
+            {
+                allNodes.Remove(node);
+            }
+        }
+        while (modified);
+    }
+
+    private static Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> GetPrecessorDict(HashSet<MonsterStateNode> allNodes)
+    {
+        var precessors = new Dictionary<MonsterStateNode, HashSet<MonsterStateNode>>();
+        foreach (var node in allNodes)
+        {
+            if (node.NextState != null)
+            {
+                if (!precessors.ContainsKey(node.NextState))
+                {
+                    precessors[node.NextState] = new HashSet<MonsterStateNode>();
+                }
+                precessors[node.NextState].Add(node);
+            }
+        }
+
+        foreach (var node in allNodes)
+        {
+            var root = node;
+            while (root.Parent != null)
+            {
+                root = root.Parent;
+            }
+            if (root != node && precessors.TryGetValue(root, out var rootPrecessors))
+            {
+                precessors[node] = rootPrecessors;
+            }
+        }
+
+        return precessors;
+    }
+
+    private static bool TryRemoveNoRepeatNodePrecededBySame(
+        MonsterStateNode node,
+        Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> allPrecessors,
+        List<MonsterStateNode> nodesToRemove,
+        MonsterStateNodeConverter converter,
+        MoveState moveState,
+        RandomBranchState parentBranchState,
+        RandomBranchState.StateWeight stateWeight)
+    {
+        var parent = node.Parent;
+        if (stateWeight.repeatType != MoveRepeatType.CannotRepeat && stateWeight.repeatType != MoveRepeatType.UseOnlyOnce)
+        {
+            return false;
+        }
+
+        if (!allPrecessors.ContainsKey(node))
+        {
+            return false;
+        }
+
+        var precessors = allPrecessors[node];
+        if (precessors.Any(n => n.Children != null || n.State is not MoveState))
+        {
+            return false;
+        }
+
+        var distinctMoveStateIds = precessors.Select(n => n.State!.Id).Distinct().ToList();
+        if (distinctMoveStateIds.Count != 1 || distinctMoveStateIds[0] != moveState.Id)
+        {
+            return false;
+        }
+
+        Debug.Assert(parent?.Children != null, "TryRemoveNoRepeatNodePrecededBySame: parent?.Children != null");
+
+        nodesToRemove.Add(node);
+        parent.Children.Remove(node);
+        foreach (var (_, v) in allPrecessors)
+        {
+            v.Remove(node);
+        }
+
+        IgLogger.Info($"TryRemoveNoRepeatNodePrecededBySame removed node {node.State?.Id} in {parent.State?.Id}.");
+        if (parent.Children.Count == 1)
+        {
+            var onlyChild = parent.Children[0];
+            var parentPrecessors = allPrecessors[parent];
+            foreach (var precessor in parentPrecessors)
+            {
+                if (precessor.NextState == parent)
+                {
+                    precessor.NextState = onlyChild;
+                }
+            }
+            nodesToRemove.Add(parent);
+            onlyChild.Parent = parent.Parent;
+            onlyChild.Label = parent.Label;
+            onlyChild.IsLabelGenerated = parent.IsLabelGenerated;
+            if (onlyChild.NextState == null)
+            {
+                onlyChild.NextState = parent.NextState;
+                onlyChild.NextStateCount = onlyChild.NextState != null ? 1 : 0;
+                if (onlyChild.NextState != null)
+                {
+                    var nextStatePrecessors = allPrecessors[onlyChild.NextState];
+                    nextStatePrecessors.Add(onlyChild);
+                    nextStatePrecessors.Remove(parent);
+                }
+            }
+        }
+        else
+        {
+            var sumWeight = parentBranchState.States.Where(s => parent.Children.Any(c => c.State?.Id == s.stateId)).Sum(w => w.GetWeight());
+            foreach (var child in parent.Children)
+            {
+                var childStateWeight = parentBranchState.States.FirstOrDefault(s => s.stateId == child.State?.Id);
+                if (childStateWeight.stateId == null)
+                {
+                    continue;
+                }
+                child.Label = converter.MakeText(childStateWeight, sumWeight);
+                child.IsLabelGenerated = true;
+            }
+
+            var nextStateOfChildren = parent.Children.Select(c => c.NextState).Distinct().ToList();
+            if (nextStateOfChildren.Count == 1)
+            {
+                foreach (var child in parent.Children)
+                {
+                    child.NextState = null;
+                    child.NextStateCount = 0;
+                }
+                parent.NextState = nextStateOfChildren[0];
+            }
+
+            parent.NextStateCount = (parent.NextState == null ? 0 : 1) + parent.Children.Select(c => c.NextStateCount).DefaultIfEmpty(0).Max();
+            parent.CalculateNodeSize();
+        }
+
+        return true;
+    }
+
+    private static bool TryRemoveNoRepeatTextIfPrecededByOther(
+        MonsterStateNode node,
+        Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> allPrecessors,
+        MonsterStateNodeConverter converter,
+        RandomBranchState.StateWeight stateWeight)
+    {
+        var parent = node.Parent;
+        if (stateWeight.repeatType != MoveRepeatType.CannotRepeat)
+        {
+            return false;
+        }
+
+        if (allPrecessors.TryGetValue(node, out var precessors) &&
+            precessors.Any(n => n.Children != null || n.State is not MoveState || n.State.Id == node.State?.Id))
+        {
+            return false;
+        }
+
+        if (node.Label?.Contains("≤1") != true)
+        {
+            return false;
+        }
+
+        IgLogger.Info($"TryRemoveNoRepeatTextIfPrecededByOther removed repeat restriction on {node.State?.Id}.");
+        node.Label = node.Label?.Replace(", ≤1", string.Empty);
+        return true;
     }
 
     private static void ChangeToHorizontalLayout(HashSet<MonsterStateNode> allNodes, List<MonsterStateNode> rootNodes)

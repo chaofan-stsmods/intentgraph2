@@ -677,4 +677,15 @@ internal class IntentGraphLayouter
 
         yield break;
     }
+
+    private class GraphGenerationContext
+    {
+        public int IndexOnGraph { get; set; }
+        public float NextNodeX { get; set; }
+        public Dictionary<float, MonsterStateNode> HLineTargetNode { get; set; } = new();
+        public Dictionary<float, MonsterStateNode> VLineTargetNode { get; set; } = new();
+        public Dictionary<int, MonsterStateNode> IndexOnGraphToNode { get; set; } = new();
+        public IntentDefinition? IntentDefinition { get; init; }
+        public Dictionary<Arrow, MonsterStateNode> ArrowTarget { get; set; } = new();
+    }
 }
