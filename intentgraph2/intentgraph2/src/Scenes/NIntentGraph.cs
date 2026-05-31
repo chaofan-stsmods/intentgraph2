@@ -16,6 +16,7 @@ public partial class NIntentGraph : Control
 {
     public const float GridSize = 80;
     public const int LabelFontSize = 18;
+    public const float LabelLinePadding = 2;
 
     private const int ArrowWidth = 10;
     private const int ArrowEndLength = 15;
@@ -286,23 +287,30 @@ public partial class NIntentGraph : Control
         Debug.Assert(labelFont != null, "labelFont is not initialized");
 
         var text = label.Text;
-        var fontSize = LabelFontSize;
+        var fontSize = label.FontSize;
         if (!string.IsNullOrEmpty(text))
         {
             var textPosition = new Vector2(label.X * GridSize, label.Y * GridSize);
-            if (label.Align == "right")
+            var lines = text.Split('\n');
+            foreach (var line in lines)
             {
-                var textSize = labelFont.GetStringSize(text, fontSize: fontSize);
-                textPosition.X -= textSize.X;
-            }
-            else if (label.Align != "left")
-            {
-                var textSize = labelFont.GetStringSize(text, fontSize: fontSize);
-                textPosition.X -= textSize.X / 2;
-            }
+                var linePosition = textPosition;
+                if (label.Align == "right")
+                {
+                    var textSize = labelFont.GetStringSize(text, fontSize: fontSize);
+                    linePosition.X -= textSize.X;
+                }
+                else if (label.Align != "left")
+                {
+                    var textSize = labelFont.GetStringSize(text, fontSize: fontSize);
+                    linePosition.X -= textSize.X / 2;
+                }
 
-            DrawStringOutline(labelFont, textPosition, text, fontSize: fontSize, size: 12, modulate: new Color(0, 0, 0, 0.5f));
-            DrawString(labelFont, textPosition, text, fontSize: fontSize);
+                DrawStringOutline(labelFont, linePosition, line, fontSize: fontSize, size: 12, modulate: new Color(0, 0, 0, 0.5f));
+                DrawString(labelFont, linePosition, line, fontSize: fontSize);
+
+                textPosition.Y += fontSize + LabelLinePadding;
+            }
         }
     }
 

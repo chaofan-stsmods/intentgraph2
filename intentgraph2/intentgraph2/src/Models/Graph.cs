@@ -24,7 +24,7 @@ public record class Icon(float X = 0, float Y = 0, IntentType IntentType = Inten
 
 public record class IconGroup(float X = 0, float Y = 0, float Width = 1, float Height = 1);
 
-public record class Label(float X = 0, float Y = 0, string Text = "", string Align = "left");
+public record class Label(float X = 0, float Y = 0, string Text = "", string Align = "left", int FontSize = 18);
 
 public record class Arrow(float[] Path);
 

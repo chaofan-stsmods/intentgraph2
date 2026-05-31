@@ -43,6 +43,7 @@ public class IntentGraphMod
 
     public static readonly ConditionalWeakTable<MonsterModel, Graph> GeneratedGraphs = new();
 
+    private static IntentGraphModConfig defaultConfig;
     private static IBaseLibHelper? baseLibHelper;
     private static IRitsuLibHelper? ritsuLibHelper;
 
@@ -147,16 +148,29 @@ public class IntentGraphMod
         }
     }
 
-    public static IEnumerable<Key> GetToggleHotKeys()
+    public static IntentGraphModConfig GetConfig()
     {
+        if (ritsuLibHelper != null)
+        {
+            return ritsuLibHelper.Config;
+        }
         if (baseLibHelper != null)
         {
-            yield return baseLibHelper.Config.ToggleIntentGraphKey;
+            return baseLibHelper.Config;
         }
+        return defaultConfig;
+    }
 
+    public static IEnumerable<Key> GetToggleHotKeys()
+    {
         if (ritsuLibHelper != null)
         {
             yield return ritsuLibHelper.Config.ToggleIntentGraphKey;
+        }
+
+        if (baseLibHelper != null)
+        {
+            yield return baseLibHelper.Config.ToggleIntentGraphKey;
         }
 
         if (baseLibHelper == null && ritsuLibHelper == null)
@@ -248,7 +262,7 @@ public class IntentGraphMod
     {
         Directory.CreateDirectory(Path.GetDirectoryName(filePath) ?? ".");
 
-        var serializeOptions = new JsonSerializerOptions
+        var serializeOptions = new JsonSerializerOptions(SerializeOptions)
         {
             WriteIndented = true,
         };

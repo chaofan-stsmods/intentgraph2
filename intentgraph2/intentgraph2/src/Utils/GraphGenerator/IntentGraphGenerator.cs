@@ -12,7 +12,10 @@ public class IntentGraphGenerator
     public const float IconPaddingInMove = -0.33f;
     public const float IconGroupPadding = 0.1f;
     public const float IconGroupLabelHeight = 0.25f;
-    public const float IconGroupSingleMovePadding = -0.15f;
+
+    public static bool ShowMonsterMoveNames => IntentGraphMod.GetConfig().ShowMonsterMoveNames;
+
+    public static float IconGroupSingleMovePadding => ShowMonsterMoveNames ? 0 : -0.15f;
 
     public static Graph? GenerateGraph(MonsterModel? monster, IntentDefinition? overwriteIntentDefinition = null, IReadOnlyDictionary<string, string>? overwriteIntentStrings = null)
     {
@@ -50,7 +53,7 @@ public class IntentGraphGenerator
         }
 
         var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
-        var layouter = new IntentGraphLayouter(localizer);
+        var layouter = new IntentGraphLayouter(monster, localizer);
         Graph graph;
         if (intentDefinition?.Graph != null)
         {

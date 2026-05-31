@@ -67,12 +67,12 @@
             "graphPatch": {
                 "labels": [
                     {
-                        "y": 3.5,
+                        "y": 3.6,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
                         "align": "left"
                     },
                     {
-                        "y": 3.8,
+                        "y": 3.9,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2",
                         "align": "left"
                     }
@@ -128,12 +128,12 @@
             "graphPatch": {
                 "labels": [
                     {
-                        "y": 3.5,
+                        "y": 3.6,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
                         "align": "left"
                     },
                     {
-                        "y": 3.8,
+                        "y": 3.9,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2",
                         "align": "left"
                     }
@@ -193,12 +193,12 @@
             "graphPatch": {
                 "labels": [
                     {
-                        "y": 3.5,
+                        "y": 3.6,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
                         "align": "left"
                     },
                     {
-                        "y": 3.8,
+                        "y": 3.9,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2",
                         "align": "left"
                     }
@@ -258,12 +258,12 @@
             "graphPatch": {
                 "labels": [
                     {
-                        "y": 3.5,
+                        "y": 3.6,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE",
                         "align": "left"
                     },
                     {
-                        "y": 3.8,
+                        "y": 3.9,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2",
                         "align": "left"
                     }

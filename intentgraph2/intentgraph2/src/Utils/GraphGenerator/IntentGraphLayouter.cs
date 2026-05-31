@@ -1,6 +1,8 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Scenes;
+using MegaCrit.Sts2.Core.Localization;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 using System;
@@ -12,10 +14,12 @@ namespace IntentGraph2.Utils.GraphGenerator;
 
 internal class IntentGraphLayouter
 {
+    private readonly MonsterModel monster;
     private readonly IntentGraphLocalizer localizer;
 
-    public IntentGraphLayouter(IntentGraphLocalizer localizer)
+    public IntentGraphLayouter(MonsterModel monster, IntentGraphLocalizer localizer)
     {
+        this.monster = monster;
         this.localizer = localizer;
     }
 
@@ -32,12 +36,13 @@ internal class IntentGraphLayouter
 
         foreach (var label in graph.Labels)
         {
-            var resolvedLabel = new Models.Label(label.X, label.Y, localizer.GetOrElse(label.Text, label.Text), label.Align);
+            var resolvedLabel = new Models.Label(label.X, label.Y, localizer.GetOrElse(label.Text, label.Text), label.Align, label.FontSize);
             result.Labels.Add(resolvedLabel);
             if (graph.Expand)
             {
-                var labelWidth = font.GetStringSize(resolvedLabel.Text, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize;
-                result.Height = Math.Max(result.Height, label.Y);
+                var lines = resolvedLabel.Text.Split('\n');
+                var labelWidth = lines.Select(l => font.GetStringSize(l, fontSize: resolvedLabel.FontSize).X).Max() / NIntentGraph.GridSize;
+                result.Height = Math.Max(result.Height, label.Y + (label.FontSize + NIntentGraph.LabelLinePadding) * (lines.Length - 1) / NIntentGraph.GridSize);
                 if (label.Align != "right")
                 {
                     result.Width = label.Align == "left" ? Math.Max(result.Width, label.X + labelWidth) : Math.Max(result.Width, label.X + labelWidth / 2);
@@ -50,7 +55,7 @@ internal class IntentGraphLayouter
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == move.Id);
             if (state != null && state is MoveState moveState)
             {
-                AddIcons(moveState, result.Icons, move.X, move.Y, intentDefinition);
+                AddIcons(moveState, result, move.X, move.Y, intentDefinition);
             }
         }
 
@@ -152,7 +157,7 @@ internal class IntentGraphLayouter
         {
             if (stateNode.State is MoveState moveState)
             {
-                AddIcons(moveState, graph.Icons, x, y, context.IntentDefinition);
+                AddIcons(moveState, graph, x, y, context.IntentDefinition);
             }
         }
         else
@@ -196,9 +201,10 @@ internal class IntentGraphLayouter
         }
     }
 
-    private void AddIcons(MoveState moveState, List<Icon> iconList, float x, float y, IntentDefinition? intentDefinition)
+    private void AddIcons(MoveState moveState, Graph graph, float x, float y, IntentDefinition? intentDefinition)
     {
         var intents = moveState.Intents;
+        var iconList = graph.Icons;
         MoveReplacement[]? replacements = null;
         intentDefinition?.MoveReplacements?.TryGetValue(moveState.Id, out replacements);
         for (int i = 0; i < intents.Count; i++)
@@ -220,6 +226,59 @@ internal class IntentGraphLayouter
                 iconList.Add(new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType));
             }
         }
+
+        if (ShowMonsterMoveNames)
+        {
+            AddMoveName(moveState, graph, x, y);
+        }
+    }
+
+    private void AddMoveName(MoveState moveState, Graph graph, float x, float y)
+    {
+        var locTable = LocManager.Instance.GetTable("monsters");
+        var monsterName = monster.Id.Entry;
+        if (monsterName.StartsWith("DECIMILLIPEDE_SEGMENT_"))
+        {
+            monsterName = "DECIMILLIPEDE_SEGMENT";
+        }
+
+        var moveId = moveState.Id;
+
+        string? title;
+        if (!TryGetTitle(locTable, monsterName, moveId, out title) && moveId.Contains('_'))
+        {
+            var index1 = moveId.LastIndexOf('_');
+            var index2 = moveId.IndexOf('_');
+            _ = TryGetTitle(locTable, monsterName, moveId, out title, endIndex: index1) ||
+                TryGetTitle(locTable, monsterName, moveId, out title, endIndex: moveId.LastIndexOf('_', index1 - 1)) ||
+                TryGetTitle(locTable, monsterName, moveId, out title, startIndex: index2 + 1) ||
+                TryGetTitle(locTable, monsterName, moveId, out title, startIndex: index2 + 1, endIndex: index1);
+        }
+
+        if (title != null)
+        {
+            var width = moveState.Intents.Count + (moveState.Intents.Count - 1) * IconPaddingInMove;
+            graph.Labels.Add(new Models.Label(x + width / 2, y + 0.2f, title, Align: "center", FontSize: 15));
+        }
+    }
+
+    private bool TryGetTitle(LocTable table, string monsterName, string moveId, out string? title, int startIndex = 0, int? endIndex = default)
+    {
+        title = null;
+        var endIndexValue = endIndex ?? moveId.Length;
+        if (startIndex == -1 || endIndexValue == -1 || endIndexValue <= startIndex)
+        {
+            return false;
+        }
+
+        var key = $"{monsterName}.moves.{moveId.Substring(startIndex, endIndexValue - startIndex)}.title";
+        if (table.HasEntry(key))
+        {
+            title = table.GetRawText(key);
+            return true;
+        }
+
+        return false;
     }
 
     private void AddSimpleLoopToGraph(MonsterStateNode loopStart, MonsterStateNode? precessorNode, Graph graph, GraphGenerationContext context, float x, float y)
@@ -281,7 +340,7 @@ internal class IntentGraphLayouter
             }
             if (node.State is MoveState moveState)
             {
-                AddIcons(moveState, graph.Icons, node.X, node.Y, context.IntentDefinition);
+                AddIcons(moveState, graph, node.X, node.Y, context.IntentDefinition);
                 if (node.NextState != null)
                 {
                     if (i == secondHalfIndex - 1)
@@ -317,7 +376,7 @@ internal class IntentGraphLayouter
                 node.Y = secondHalfY;
                 if (node.State is MoveState moveState)
                 {
-                    AddIcons(moveState, graph.Icons, node.X, node.Y, context.IntentDefinition);
+                    AddIcons(moveState, graph, node.X, node.Y, context.IntentDefinition);
                     if (node.NextState != null)
                     {
                         if (i == loopNodes.Count - 1)
@@ -348,7 +407,7 @@ internal class IntentGraphLayouter
             node.Y = secondHalfY;
             if (node.State is MoveState moveState)
             {
-                AddIcons(moveState, graph.Icons, node.X, node.Y, context.IntentDefinition);
+                AddIcons(moveState, graph, node.X, node.Y, context.IntentDefinition);
                 if (prevNode.X + prevNode.Width / 2 < node.X + node.Width - 0.25f)
                 {
                     AddArrow(graph, new Arrow([1, prevNode.X + prevNode.Width / 2, prevNode.Y + prevNode.Height, node.Y]), context, node);

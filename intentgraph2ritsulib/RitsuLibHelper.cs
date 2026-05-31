@@ -33,11 +33,26 @@ public class RitsuLibHelper : IRitsuLibHelper
             settings => settings.ToggleIntentGraphKey,
             (settings, value) => settings.ToggleIntentGraphKey = value);
 
+        var showMonsterMoveNames = new ModSettingsValueBinding<IntentGraphModConfig, bool>(
+            IntentGraphMod.ModId,
+            SettingKey,
+            SaveScope.Global,
+            settings => settings.ShowMonsterMoveNames,
+            (settings, value) => settings.ShowMonsterMoveNames = value);
+
         RitsuLibFramework.RegisterModSettings(IntentGraphMod.ModId, page =>
         {
             page.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_title", "Intent Graph"));
             page.WithDescription(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_description", "Show monster intent as a state machine."));
             page.WithModDisplayName(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_title", "Intent Graph"));
+            page.AddSection("display", section =>
+            {
+                section.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-DISPLAY.title", "Display"));
+                section.AddToggle(
+                    "show_monster_move_names",
+                    ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title", "Show Monster Move Names"),
+                    showMonsterMoveNames);
+            });
             page.AddSection("hotkey", section =>
             {
                 section.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-HOTKEY.title", "Hotkey"));

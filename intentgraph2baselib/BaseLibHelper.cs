@@ -19,6 +19,9 @@ public class HelperModConfig : SimpleModConfig
 {
     internal static IntentGraphModConfig BaseConfig { get; set; } = new IntentGraphModConfig();
 
+    [ConfigSection("Display")]
+    public static bool ShowMonsterMoveNames { get => BaseConfig.ShowMonsterMoveNames; set => BaseConfig.ShowMonsterMoveNames = value; }
+
     [ConfigSection("Hotkey")]
     public static Key ToggleIntentGraphKey { get => BaseConfig.ToggleIntentGraphKey; set => BaseConfig.ToggleIntentGraphKey = value; }
 }
