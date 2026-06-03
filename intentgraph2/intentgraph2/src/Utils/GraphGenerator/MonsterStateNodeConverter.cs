@@ -41,6 +41,7 @@ internal class MonsterStateNodeConverter
 
         var result = initialStates.OrderBy(t => t.Item1).Select(t => t.Item2).ToList();
         MonsterStateNodeSimplifier.FindAndSetSimpleLoops(result);
+        result.FirstOrDefault()?.SetIsInitialState(true);
         return result;
     }
 
@@ -59,12 +60,14 @@ internal class MonsterStateNodeConverter
             if (state != null)
             {
                 initialStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);
+                initialStateNode.SetIsInitialState(true);
             }
         }
 
         if (initialStateNode == null)
         {
             initialStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, initialState, existingNodes, parent: null);
+            initialStateNode.SetIsInitialState(true);
         }
 
         var allNodes = initialStateNode.GetAllNodes();
@@ -154,6 +157,8 @@ internal class MonsterStateNodeConverter
                 Parent = parent,
             };
 
+            result.MoveStateIds.Add(state.Id);
+
             if (parent == null)
             {
                 existingNodes[name] = result;
@@ -191,6 +196,7 @@ internal class MonsterStateNodeConverter
                     childStateNode.Label = text;
                     childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(text, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
                     children.Add(childStateNode);
+                    result.MoveStateIds.AddRange(childStateNode.MoveStateIds);
                 }
             }
 
@@ -232,6 +238,8 @@ internal class MonsterStateNodeConverter
                 NextStateCount = 1,
                 Parent = parent,
             };
+
+            result.MoveStateIds.Add(moveState.Id);
 
             if (parent == null)
             {
@@ -334,6 +342,7 @@ internal class MonsterStateNodeConverter
                         childStateNode.IsLabelGenerated = !overwriteLabel;
                         childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(label, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
                         children.Add(childStateNode);
+                        result.MoveStateIds.AddRange(childStateNode.MoveStateIds);
                     }
                 }
             }

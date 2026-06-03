@@ -13,7 +13,7 @@ public class IntentGraphGenerator
     public const float IconGroupPadding = 0.1f;
     public const float IconGroupLabelHeight = 0.25f;
 
-    public static bool ShowMonsterMoveNames => IntentGraphMod.GetConfig().ShowMonsterMoveNames;
+    public static bool ShowMonsterMoveNames => IntentGraphMod.Config.ShowMonsterMoveNames;
 
     public static float IconGroupSingleMovePadding => ShowMonsterMoveNames ? 0 : -0.15f;
 

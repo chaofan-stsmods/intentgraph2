@@ -36,6 +36,8 @@ public class IntentGraphMod
         }
     };
 
+    public static IntentGraphModConfig Config => ritsuLibHelper?.Config ?? baseLibHelper?.Config ?? defaultConfig;
+
     public const string ModId = "intentgraph2";
 
     public static Dictionary<string, string> IntentGraphStrings = new Dictionary<string, string>();
@@ -162,19 +164,6 @@ public class IntentGraphMod
         {
             Patches.MonsterSetupPatch.Postfix(MegaCrit.Sts2.Core.Combat.CombatManager.Instance, creature);
         }
-    }
-
-    public static IntentGraphModConfig GetConfig()
-    {
-        if (ritsuLibHelper != null)
-        {
-            return ritsuLibHelper.Config;
-        }
-        if (baseLibHelper != null)
-        {
-            return baseLibHelper.Config;
-        }
-        return defaultConfig;
     }
 
     public static void LoadIntentStrings(string language)

@@ -59,6 +59,17 @@ public class RitsuLibHelper : IRitsuLibHelper
                 settings.NotifyUpdated(nameof(IntentGraphModConfig.UseAnimatedIntentIcon));
             });
 
+        var showCurrentMove = new ModSettingsValueBinding<IntentGraphModConfig, bool>(
+            IntentGraphMod.ModId,
+            SettingKey,
+            SaveScope.Global,
+            settings => settings.ShowCurrentMove,
+            (settings, value) =>
+            {
+                settings.ShowCurrentMove = value;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.ShowCurrentMove));
+            });
+
         RitsuLibFramework.RegisterModSettings(IntentGraphMod.ModId, page =>
         {
             page.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_title", "Intent Graph"));
@@ -75,6 +86,10 @@ public class RitsuLibHelper : IRitsuLibHelper
                     "use_animated_intent_icon",
                     ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title", "Use Animated Intent Icon"),
                     useAnimatedIntentIcon);
+                section.AddToggle(
+                    "show_current_move",
+                    ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-SHOW_CURRENT_MOVE.title", "Show Current Move"),
+                    showCurrentMove);
             });
             page.AddSection("hotkey", section =>
             {

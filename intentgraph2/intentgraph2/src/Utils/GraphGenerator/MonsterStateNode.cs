@@ -1,5 +1,6 @@
 using Godot;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static IntentGraph2.Utils.GraphGenerator.IntentGraphGenerator;
@@ -17,6 +18,8 @@ internal class MonsterStateNode
     public bool IsLabelGenerated { get; set; } // Whether the label is auto generated.
     public MonsterState? State { get; set; }
     public MonsterStateNode? NextState { get; set; }
+    public List<string> MoveStateIds { get; set; } = new(); // Include children's, MoveState only.
+    public bool IsInitialState { get; set; }
     public int NextStateCount { get; set; } // include children's next states
     public bool UnrecognizedStateType { get; set; }
     public bool SimpleLoopStart { get; set; }
@@ -82,5 +85,29 @@ internal class MonsterStateNode
         }
 
         return visited;
+    }
+
+    public void AddMoveStateIdsFrom(MonsterStateNode b)
+    {
+        MoveStateIds.AddRange(b.MoveStateIds);
+        if (Children != null && b.Children != null)
+        {
+            for (int i = 0; i < Children.Count; i++)
+            {
+                Children[i].AddMoveStateIdsFrom(b.Children[i]);
+            }
+        }
+    }
+
+    public void SetIsInitialState(bool value)
+    {
+        IsInitialState = value;
+        if (Children != null)
+        {
+            foreach (var child in Children)
+            {
+                child.SetIsInitialState(value);
+            }
+        }
     }
 }

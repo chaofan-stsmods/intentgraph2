@@ -48,6 +48,7 @@ internal class MonsterStateNodeSimplifier
             if (!replacement.ContainsKey(a) && !replacement.ContainsKey(b))
             {
                 replacement[b] = a;
+                a.AddMoveStateIdsFrom(b);
             }
         }
 
@@ -172,7 +173,7 @@ internal class MonsterStateNodeSimplifier
         while (modified);
     }
 
-    private static Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> GetPrecessorDict(HashSet<MonsterStateNode> allNodes)
+    public static Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> GetPrecessorDict(HashSet<MonsterStateNode> allNodes)
     {
         var precessors = new Dictionary<MonsterStateNode, HashSet<MonsterStateNode>>();
         foreach (var node in allNodes)

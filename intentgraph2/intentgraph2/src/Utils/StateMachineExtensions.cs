@@ -14,6 +14,13 @@ public static class StateMachineExtensions
             : throw new Exception("Failed to get initial state from state machine.");
     }
 
+    public static MonsterState GetCurrentState(this MonsterMoveStateMachine stateMachine)
+    {
+        return stateMachine.GetType().GetField("_currentState", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(stateMachine) is MonsterState currentState
+            ? currentState
+            : throw new Exception("Failed to get current state from state machine.");
+    }
+
     public static List<string> GetStates(this ConditionalBranchState conditionalBranchState)
     {
         var list = conditionalBranchState.GetType().GetProperty("States", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(conditionalBranchState) as IList;

@@ -1,8 +1,10 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Patches;
+using IntentGraph2.Utils;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.Fonts;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.TestSupport;
 using System;
@@ -95,11 +97,14 @@ public partial class NIntentGraph : Control
 
     private Texture2D? arrowTexture;
     private Texture2D? groupBorderTexture;
+    private Texture2D? glowTexture;
     private Dictionary<string, Texture2D> intentTextures = new Dictionary<string, Texture2D>();
     private Font? font;
     private Font? labelFont;
+    private Color glowColor;
 
     private Graph? graph;
+    private bool hasAnimatedIcons;
 
     public Graph? Graph
     {
@@ -107,10 +112,15 @@ public partial class NIntentGraph : Control
         set
         {
             graph = value;
+            hasAnimatedIcons = graph?.Icons?.Any(icon => IntentImageAnimationFrameCounts.ContainsKey(icon.IntentType)) == true;
             CustomMinimumSize = new Vector2(GridSize * graph?.Width ?? GridSize, GridSize * graph?.Height ?? GridSize);
             QueueRedraw();
         }
     }
+
+    public MonsterModel? Monster { get; set; }
+
+    private bool ShowCurrentMove => IntentGraphMod.Config.ShowCurrentMove;
 
     public override void _Ready()
     {
@@ -128,7 +138,7 @@ public partial class NIntentGraph : Control
 
     public override void _Input(InputEvent evt)
     {
-        if (evt is InputEventKey evtKey && evtKey.IsPressed() && IntentGraphMod.GetConfig().ToggleIntentGraphKey == evtKey.Keycode)
+        if (evt is InputEventKey evtKey && evtKey.IsPressed() && IntentGraphMod.Config.ToggleIntentGraphKey == evtKey.Keycode)
         {
             ShowIntentGraphPatches.ToggleIntentGraphVisibility();
         }
@@ -136,7 +146,8 @@ public partial class NIntentGraph : Control
 
     public override void _Process(double delta)
     {
-        if (graph != null && Visible && IntentGraphMod.GetConfig().UseAnimatedIntentIcon)
+        if ((hasAnimatedIcons || ShowCurrentMove) &&
+            graph != null && Visible && IntentGraphMod.Config.UseAnimatedIntentIcon)
         {
             QueueRedraw();
         }
@@ -147,6 +158,12 @@ public partial class NIntentGraph : Control
         if (graph == null)
         {
             return;
+        }
+
+        if (ShowCurrentMove)
+        {
+            var glowOpacity = IntentGraphMod.Config.UseAnimatedIntentIcon ? 0.3f + 0.4f * Mathf.Sin(Time.GetTicksMsec() / 1000f * Mathf.Pi) : 0.5f;
+            glowColor = new Color(1, 1, 1, glowOpacity);
         }
 
         foreach (var icon in graph.Icons ?? Enumerable.Empty<Icon>())
@@ -172,6 +189,11 @@ public partial class NIntentGraph : Control
 
     private void DrawIcon(Icon icon)
     {
+        if (icon.IconGlow != null && ShowCurrentMove)
+        {
+            DrawGlow(icon, icon.IconGlow);
+        }
+
         DrawIconIntent(icon);
 
         var text = string.Empty;
@@ -195,6 +217,36 @@ public partial class NIntentGraph : Control
             DrawStringOutline(font, textPosition, text, fontSize: 22, size: 16, modulate: new Color(0, 0, 0, 0.5f));
             DrawString(font, textPosition, text, fontSize: 22);
         }
+    }
+
+    private void DrawGlow(Icon icon, IconGlow iconGlow)
+    {
+        if (Monster?.MoveStateMachine == null)
+        {
+            return;
+        }
+
+        var stateMachine = Monster.MoveStateMachine;
+        var currentState = stateMachine.GetCurrentState()?.Id;
+        if (!iconGlow.CurrentState.Contains(currentState))
+        {
+            return;
+        }
+
+        var previousState = stateMachine.StateLog.Count >= 2 ? stateMachine.StateLog[^2].Id : null;
+        if (iconGlow.PreviousStateIs != null && !iconGlow.PreviousStateIs.Contains(previousState))
+        {
+            return;
+        }
+
+        if (iconGlow.PreviousStateIsNot != null && iconGlow.PreviousStateIsNot.Contains(previousState))
+        {
+            return;
+        }
+
+        glowTexture ??= ResourceLoader.Load<Texture2D>("res://intentgraph2/images/ui/glow.png");
+        var expand = 0.25f * GridSize;
+        DrawTextureRect(glowTexture, new Rect2(icon.X * GridSize - expand, icon.Y * GridSize - expand, GridSize + 2 * expand, GridSize + 2 * expand), false, glowColor);
     }
 
     private void DrawIconIntent(Icon icon)
@@ -235,7 +287,7 @@ public partial class NIntentGraph : Control
     {
         texture = null;
 
-        if (!IntentGraphMod.GetConfig().UseAnimatedIntentIcon
+        if (!IntentGraphMod.Config.UseAnimatedIntentIcon
             || !IntentImageAnimationFrameCounts.TryGetValue(intentType, out int frameCount)
             || frameCount <= 0
             || !IntentImageAnimationResourcePath.TryGetValue(intentType, out string? animationPathFormat))

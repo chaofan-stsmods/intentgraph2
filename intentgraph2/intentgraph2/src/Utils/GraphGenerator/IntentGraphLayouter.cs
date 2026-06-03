@@ -55,7 +55,8 @@ internal class IntentGraphLayouter
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == move.Id);
             if (state != null && state is MoveState moveState)
             {
-                AddIcons(moveState, result, move.X, move.Y, intentDefinition);
+                var glow = new IconGlow([move.Id, .. move.AlterIds ?? []], move.PreviousMoveIs, move.PreviousMoveIsNot);
+                AddIcons(moveState, result, move.X, move.Y, glow, intentDefinition);
             }
         }
 
@@ -64,22 +65,24 @@ internal class IntentGraphLayouter
 
     public Graph StateNodesToGraph(List<MonsterStateNode> stateNodes, IntentDefinition? intentDefinition)
     {
-        // Remove self loop if it's the only next state to avoid unnecessary arrow.
-        if (stateNodes.Count == 1 && stateNodes[0].NextState == stateNodes[0] && stateNodes[0].Children == null)
-        {
-            stateNodes[0].NextState = null;
-            stateNodes[0].NextStateCount = 0;
-        }
-
         var result = new Graph();
         var y = 0f;
         var arrowTarget = new Dictionary<Arrow, MonsterStateNode>();
         foreach (var stateNode in stateNodes)
         {
+            var previousStateNodes = MonsterStateNodeSimplifier.GetPrecessorDict(stateNode.GetAllNodes());
+
+            // Remove self loop if it's the only next state to avoid unnecessary arrow.
+            if (stateNodes.Count == 1 && stateNode.NextState == stateNode && stateNode.Children == null)
+            {
+                stateNode.NextState = null;
+                stateNode.NextStateCount = 0;
+            }
             var context = new GraphGenerationContext()
             {
                 IntentDefinition = intentDefinition,
                 ArrowTarget = arrowTarget,
+                PreviousStateNodes = previousStateNodes,
             };
             AddStateNodeToGraph(stateNode, precessorNode: null, result, context, 0, y);
             y = result.Height + 0.1f;
@@ -157,7 +160,8 @@ internal class IntentGraphLayouter
         {
             if (stateNode.State is MoveState moveState)
             {
-                AddIcons(moveState, graph, x, y, context.IntentDefinition);
+                var glow = MakeIconGlow(stateNode, context.PreviousStateNodes);
+                AddIcons(moveState, graph, x, y, glow, context.IntentDefinition);
             }
         }
         else
@@ -201,7 +205,36 @@ internal class IntentGraphLayouter
         }
     }
 
-    private void AddIcons(MoveState moveState, Graph graph, float x, float y, IntentDefinition? intentDefinition)
+    private IconGlow MakeIconGlow(MonsterStateNode node, Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> previousNodes)
+    {
+        var currentStateIds = node.MoveStateIds.ToArray();
+        var prevNodes = previousNodes.GetValueOrDefault(node);
+        if (prevNodes != null)
+        {
+            var previousStateIds = prevNodes.SelectMany<MonsterStateNode, string?>(n => n.MoveStateIds).ToHashSet();
+            if (node.IsInitialState)
+            {
+                return new IconGlow(currentStateIds, PreviousStateIs: [null, ..previousStateIds]);
+            }
+            else
+            {
+                return new IconGlow(currentStateIds, PreviousStateIs: previousStateIds.ToArray(), PreviousStateIsNot: [null]);
+            }
+        }
+        else
+        {
+            if (node.IsInitialState)
+            {
+                return new IconGlow(currentStateIds, PreviousStateIs: [null]);
+            }
+            else // should be secondary initial state
+            {
+                return new IconGlow(currentStateIds, PreviousStateIsNot: [null]);
+            }
+        }
+    }
+
+    private void AddIcons(MoveState moveState, Graph graph, float x, float y, IconGlow glow, IntentDefinition? intentDefinition)
     {
         var intents = moveState.Intents;
         var iconList = graph.Icons;
@@ -215,15 +248,15 @@ internal class IntentGraphLayouter
             {
                 iconList.Add(new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType,
                     (int?)attackIntent.DamageCalc?.Invoke(), attackIntent.Repeats,
-                    replacement?.ValueText ?? string.Empty, replacement?.TimesText ?? string.Empty));
+                    replacement?.ValueText ?? string.Empty, replacement?.TimesText ?? string.Empty, glow));
             }
             else if (intent is StatusIntent statusIntent)
             {
-                iconList.Add(new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType, statusIntent.CardCount, ValueText: replacement?.ValueText ?? string.Empty));
+                iconList.Add(new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType, statusIntent.CardCount, ValueText: replacement?.ValueText ?? string.Empty, IconGlow: glow));
             }
             else
             {
-                iconList.Add(new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType));
+                iconList.Add(new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType, IconGlow: glow));
             }
         }
 
@@ -340,7 +373,8 @@ internal class IntentGraphLayouter
             }
             if (node.State is MoveState moveState)
             {
-                AddIcons(moveState, graph, node.X, node.Y, context.IntentDefinition);
+                var glow = MakeIconGlow(node, context.PreviousStateNodes);
+                AddIcons(moveState, graph, node.X, node.Y, glow, context.IntentDefinition);
                 if (node.NextState != null)
                 {
                     if (i == secondHalfIndex - 1)
@@ -376,7 +410,8 @@ internal class IntentGraphLayouter
                 node.Y = secondHalfY;
                 if (node.State is MoveState moveState)
                 {
-                    AddIcons(moveState, graph, node.X, node.Y, context.IntentDefinition);
+                    var glow = MakeIconGlow(node, context.PreviousStateNodes);
+                    AddIcons(moveState, graph, node.X, node.Y, glow, context.IntentDefinition);
                     if (node.NextState != null)
                     {
                         if (i == loopNodes.Count - 1)
@@ -407,7 +442,8 @@ internal class IntentGraphLayouter
             node.Y = secondHalfY;
             if (node.State is MoveState moveState)
             {
-                AddIcons(moveState, graph, node.X, node.Y, context.IntentDefinition);
+                var glow = MakeIconGlow(node, context.PreviousStateNodes);
+                AddIcons(moveState, graph, node.X, node.Y, glow, context.IntentDefinition);
                 if (prevNode.X + prevNode.Width / 2 < node.X + node.Width - 0.25f)
                 {
                     AddArrow(graph, new Arrow([1, prevNode.X + prevNode.Width / 2, prevNode.Y + prevNode.Height, node.Y]), context, node);
@@ -658,7 +694,7 @@ internal class IntentGraphLayouter
                             break;
                         }
 
-                        if (h1 && Math.Abs(s1.Y - s2.Y) < 0.12f) // horizontal
+                        if (h1 && Math.Abs(s1.Y - s2.Y) < 0.2f) // horizontal
                         {
                             // same target & same end arrows don't need to adjust
                             if (sameTarget && Math.Abs(e1.X - e2.X) < 0.001f)
@@ -746,5 +782,6 @@ internal class IntentGraphLayouter
         public Dictionary<int, MonsterStateNode> IndexOnGraphToNode { get; set; } = new();
         public IntentDefinition? IntentDefinition { get; init; }
         public Dictionary<Arrow, MonsterStateNode> ArrowTarget { get; set; } = new();
+        public Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> PreviousStateNodes { get; set; } = new();
     }
 }

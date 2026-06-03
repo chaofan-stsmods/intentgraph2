@@ -45,6 +45,16 @@ public class HelperModConfig : SimpleModConfig
         }
     }
 
+    public static bool ShowCurrentMove
+    {
+        get => BaseConfig.ShowCurrentMove;
+        set
+        {
+            BaseConfig.ShowCurrentMove = value;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.ShowCurrentMove));
+        }
+    }
+
     [ConfigSection("Hotkey")]
     public static Key ToggleIntentGraphKey
     {

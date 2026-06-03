@@ -73,6 +73,7 @@ public class ShowIntentGraphPatches
 
             var intentGraph = intentGraphPanel.GetNode<NIntentGraph>("%IntentGraph");
             intentGraph.Graph = graph;
+            intentGraph.Monster = creature.Monster;
             Action handleResized = OnIntentGraphPanelResized(__instance, intentGraphPanel);
 
             unregisterResizedEvent = () =>
