@@ -23,6 +23,7 @@ public partial class NIntentGraph : Control
     private const int ArrowWidth = 10;
     private const int ArrowEndLength = 15;
     private const int AnimatedIconFrameDurationMs = 80;
+    private readonly Move InitMove = new Move(IntentGraphMod.ModId + "_special_init_move_", PossiblePreviousMoveNodeIndices: []);
 
     private static readonly Dictionary<IntentType, string> IntentImageResourcePath = new Dictionary<IntentType, string>
     {
@@ -105,6 +106,8 @@ public partial class NIntentGraph : Control
 
     private Graph? graph;
     private bool hasAnimatedIcons;
+    private int previousStateLogLength;
+    private List<Move> glowingMoves = new();
 
     public Graph? Graph
     {
@@ -112,7 +115,7 @@ public partial class NIntentGraph : Control
         set
         {
             graph = value;
-            hasAnimatedIcons = graph?.Icons?.Any(icon => IntentImageAnimationFrameCounts.ContainsKey(icon.IntentType)) == true;
+            hasAnimatedIcons = graph?.Moves?.Any(m => m.Icons?.Any(icon => IntentImageAnimationFrameCounts.ContainsKey(icon.IntentType)) == true) == true;
             CustomMinimumSize = new Vector2(GridSize * graph?.Width ?? GridSize, GridSize * graph?.Height ?? GridSize);
             QueueRedraw();
         }
@@ -166,9 +169,19 @@ public partial class NIntentGraph : Control
             glowColor = new Color(1, 1, 1, glowOpacity);
         }
 
+        if (ShowCurrentMove)
+        {
+            DrawGlow(graph.Moves);
+        }
+
         foreach (var icon in graph.Icons ?? Enumerable.Empty<Icon>())
         {
             DrawIcon(icon);
+        }
+
+        foreach (var move in graph.Moves ?? Enumerable.Empty<Move>())
+        {
+            DrawMove(move);
         }
 
         foreach (var iconGroup in graph.IconGroups ?? Enumerable.Empty<IconGroup>())
@@ -187,13 +200,88 @@ public partial class NIntentGraph : Control
         }
     }
 
-    private void DrawIcon(Icon icon)
+    private void DrawGlow(List<Move> moves)
     {
-        if (icon.IconGlow != null && ShowCurrentMove)
+        if (moves == null || Monster?.MoveStateMachine == null)
         {
-            DrawGlow(icon, icon.IconGlow);
+            return;
         }
 
+        var stateMachine = Monster.MoveStateMachine;
+        if (!StateLogPatches.FullStateLog.TryGetValue(stateMachine, out var fullStateLog))
+        {
+            return;
+        }
+
+        if (previousStateLogLength == fullStateLog.Count)
+        {
+            foreach (var move in glowingMoves)
+            {
+                DrawMoveGlow(move);
+            }
+            return;
+        }
+
+        previousStateLogLength = fullStateLog.Count;
+        glowingMoves.Clear();
+
+        var lastIndex = 1;
+        var possibleMoves = moves.Select<Move, (Move? curr, Move final)>(m => (m, m)).ToList();
+        while (fullStateLog.Count >= lastIndex)
+        {
+            var state = fullStateLog[^lastIndex];
+            var filteredPossibleMoves = possibleMoves.Where(m => m.curr == null || m.curr.Ids?.Contains(state.Id) == true).ToList();
+            if (filteredPossibleMoves.Count == 1)
+            {
+                glowingMoves.Add(filteredPossibleMoves[0].final);
+                DrawMoveGlow(filteredPossibleMoves[0].final);
+                return;
+            }
+
+            if (filteredPossibleMoves.Count == 0)
+            {
+                break;
+            }
+
+            possibleMoves = filteredPossibleMoves.SelectMany(m =>
+                m.curr == null ?
+                    [m] : // curr == null means any, no change.
+                    (m.curr.PossiblePreviousMoveNodeIndices == null ?
+                        [(null, m.final)] :
+                        m.curr.PossiblePreviousMoveNodeIndices.Select<int?, (Move? curr, Move final)>(i =>
+                            i == null ? (InitMove, m.final) : (moves[i.Value], m.final))) // i == null means initial
+            ).ToList();
+            lastIndex++;
+        }
+
+        foreach (var move in possibleMoves.Where(m => m.curr == null || m.curr == InitMove).Select(m => m.final).Distinct())
+        {
+            glowingMoves.Add(move);
+            DrawMoveGlow(move);
+        }
+    }
+
+    private void DrawMoveGlow(Move move)
+    {
+        glowTexture ??= ResourceLoader.Load<Texture2D>("res://intentgraph2/images/ui/glow.png");
+
+        foreach (var icon in move.Icons ?? Enumerable.Empty<Icon>())
+        {
+            var expand = 0.25f * GridSize;
+            DrawTextureRect(glowTexture, new Rect2(icon.X * GridSize - expand, icon.Y * GridSize - expand, GridSize + 2 * expand, GridSize + 2 * expand), false, glowColor);
+        }
+    }
+
+    private void DrawMove(Move move)
+    {
+        foreach (var icon in move.Icons ?? Enumerable.Empty<Icon>())
+        {
+            DrawIcon(icon);
+        }
+    }
+
+    private void DrawIcon(Icon icon)
+    {
         DrawIconIntent(icon);
 
         var text = string.Empty;
@@ -217,36 +305,6 @@ public partial class NIntentGraph : Control
             DrawStringOutline(font, textPosition, text, fontSize: 22, size: 16, modulate: new Color(0, 0, 0, 0.5f));
             DrawString(font, textPosition, text, fontSize: 22);
         }
-    }
-
-    private void DrawGlow(Icon icon, IconGlow iconGlow)
-    {
-        if (Monster?.MoveStateMachine == null)
-        {
-            return;
-        }
-
-        var stateMachine = Monster.MoveStateMachine;
-        var currentState = stateMachine.GetCurrentState()?.Id;
-        if (!iconGlow.CurrentState.Contains(currentState))
-        {
-            return;
-        }
-
-        var previousState = stateMachine.StateLog.Count >= 2 ? stateMachine.StateLog[^2].Id : null;
-        if (iconGlow.PreviousStateIs != null && !iconGlow.PreviousStateIs.Contains(previousState))
-        {
-            return;
-        }
-
-        if (iconGlow.PreviousStateIsNot != null && iconGlow.PreviousStateIsNot.Contains(previousState))
-        {
-            return;
-        }
-
-        glowTexture ??= ResourceLoader.Load<Texture2D>("res://intentgraph2/images/ui/glow.png");
-        var expand = 0.25f * GridSize;
-        DrawTextureRect(glowTexture, new Rect2(icon.X * GridSize - expand, icon.Y * GridSize - expand, GridSize + 2 * expand, GridSize + 2 * expand), false, glowColor);
     }
 
     private void DrawIconIntent(Icon icon)

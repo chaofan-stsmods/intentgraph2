@@ -82,13 +82,14 @@ public class IntentGraphGenerator
             graph.Width = Math.Max(graph.Width, patch.Width);
             graph.Height = Math.Max(graph.Height, patch.Height);
             graph.Icons.AddRange(patch.Icons);
+            graph.Moves.AddRange(patch.Moves);
             graph.IconGroups.AddRange(patch.IconGroups);
             graph.Labels.AddRange(patch.Labels);
             graph.Arrows.AddRange(patch.Arrows);
         }
 
         // Empty intents may have arrows so don't check it.
-        if (graph.Icons.Count == 0 && graph.IconGroups.Count == 0 && graph.Labels.Count == 0)
+        if (graph.Moves.Count == 0 && graph.IconGroups.Count == 0 && graph.Labels.Count == 0)
         {
             return null;
         }

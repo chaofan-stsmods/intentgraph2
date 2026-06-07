@@ -1276,9 +1276,8 @@ public partial class NIntentGraphEditor : Control
 
         if (graphPatch.Width == 1
             && graphPatch.Height == 1
-            && graphPatch.Moves.Count == 0
             && graphPatch.Arrows.Count == 0
-            && graphPatch.Icons.Count == 0
+            && graphPatch.Moves.Count == 0
             && graphPatch.IconGroups.Count == 0
             && graphPatch.Labels.Count == 0)
         {

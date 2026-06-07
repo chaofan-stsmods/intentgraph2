@@ -11,16 +11,16 @@ public class Graph
     public List<IconGroup> IconGroups { get; set; } = new();
     public List<Label> Labels { get; set; } = new();
     public List<Arrow> Arrows { get; set; } = new();
-    public string? Warning { get; set; }
-
-    // Used in intents.json only
     public List<Move> Moves { get; set; } = new();
+
+    // Generated only
+    public string? Warning { get; set; }
 
     // Used in intents.json only
     public bool Expand { get; set; } = false;
 }
 
-public record class Icon(float X = 0, float Y = 0, IntentType IntentType = IntentType.Hidden, int? Value = null, int Times = 1, string ValueText = "", string TimesText = "", IconGlow? IconGlow = null);
+public record class Icon(float X = 0, float Y = 0, IntentType IntentType = IntentType.Hidden, int? Value = null, int Times = 1, string ValueText = "", string TimesText = "");
 
 public record class IconGroup(float X = 0, float Y = 0, float Width = 1, float Height = 1);
 
@@ -28,6 +28,6 @@ public record class Label(float X = 0, float Y = 0, string Text = "", string Ali
 
 public record class Arrow(float[] Path);
 
-public record class Move(float X = 0, float Y = 0, string Id = "", string[]? AlterIds = null, string[]? PreviousMoveIs = null, string[]? PreviousMoveIsNot = null);
+// If PossiblePreviousMoveNodeIndices is null, means any moves can be previous. If PossiblePreviousMoveNodeIndices is [null], means it's initial move.
+public record class Move(string Id, string[]? Ids = null, float X = 0, float Y = 0, Icon[]? Icons = null, int?[]? PossiblePreviousMoveNodeIndices = null);
 
-public record class IconGlow(string[] CurrentState, string?[]? PreviousStateIs = null, string?[]? PreviousStateIsNot = null);

@@ -110,4 +110,19 @@ internal class MonsterStateNode
             }
         }
     }
+
+    public IEnumerable<MonsterStateNode> GetAllDescendants()
+    {
+        if (Children != null)
+        {
+            foreach (var child in Children)
+            {
+                yield return child;
+                foreach (var descendant in child.GetAllDescendants())
+                {
+                    yield return descendant;
+                }
+            }
+        }
+    }
 }

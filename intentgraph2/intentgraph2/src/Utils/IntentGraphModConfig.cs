@@ -7,7 +7,7 @@ public class IntentGraphModConfig
 {
     public Key ToggleIntentGraphKey { get; set; } = Key.F1;
 
-    public bool ShowMonsterMoveNames { get; set; } = false;
+    public bool ShowMonsterMoveNames { get; set; } = true;
 
     public bool UseAnimatedIntentIcon { get; set; } = true;
 
