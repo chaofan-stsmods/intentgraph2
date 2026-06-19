@@ -1142,7 +1142,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildStateMachineCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node", "horizontalLayout" })
+        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node", "horizontalLayout", "placeHolderIntentCount" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }
@@ -1173,7 +1173,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildGraphPatchCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "width", "height", "moves", "icons", "iconGroups", "labels", "arrows", "x", "y", "id", "intentType", "value", "times", "valueText", "timesText", "text", "align", "path" })
+        foreach (var propertyName in new[] { "width", "height", "moves", "icons", "iconGroups", "labels", "arrows", "x", "y", "id", "intentType", "value", "times", "valueText", "timesText", "text", "align", "path", "fontSize" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }

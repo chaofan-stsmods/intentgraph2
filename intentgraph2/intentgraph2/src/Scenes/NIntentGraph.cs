@@ -135,7 +135,21 @@ public partial class NIntentGraph : Control
         }
         else if (!Engine.IsEditorHint() && !TestMode.IsOn && FontManager.NeedsFontSubstitution(LocManager.Instance.Language))
         {
-            this.labelFont = FontManager.GetSubstituteFont(LocManager.Instance.Language, FontType.Bold);
+            var font = new FontVariation();
+            var standardFont = FontManager.GetSubstituteFont(LocManager.Instance.Language, FontType.Bold);
+            if (standardFont != null)
+            {
+                font.BaseFont = standardFont;
+                font.Fallbacks.Add(ResourceLoader.Load<Font>("res://intentgraph2/images/ui/icon.png"));
+                this.labelFont = font;
+            }
+        }
+        else
+        {
+            var font = new FontVariation();
+            font.BaseFont = this.labelFont;
+            font.Fallbacks.Add(ResourceLoader.Load<Font>("res://intentgraph2/images/ui/icon.png"));
+            this.labelFont = font;
         }
     }
 

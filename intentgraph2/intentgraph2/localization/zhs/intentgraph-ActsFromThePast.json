@@ -1,0 +1,11 @@
+{
+  "ActsFromThePast.BookOfStabbing.Text": "T每回合+1",
+  "ActsFromThePast.Hexaghost.Text": "N=你的HP/12向上取整",
+  "ActsFromThePast.Centurion.Alone": "落单",
+  "ActsFromThePast.Mystic.Lose20Hp": "敌人失去20+ HP，≤2",
+  "ActsFromThePast.Champ.Turn4812": "第4、8、12...回合",
+  "ActsFromThePast.Champ.DefendStanceUsedTwice": "防御姿态已使用两次",
+  "ActsFromThePast.Champ.SeeGraphBelow": "见\n下图",
+  "ActsFromThePast.Collector.Turn4": "第4回合",
+  "ActsFromThePast.Collector.Minion01": "爪牙数为0~1"
+}

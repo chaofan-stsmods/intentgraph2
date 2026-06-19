@@ -1,0 +1,766 @@
+{
+  "ActsFromThePast.Acts.TheBeyond.Enemies.AwakenedOne": [
+    {
+      "condition": "true",
+      "stateMachine": [
+        {
+          "name": "SLASH",
+          "isInitialState": true,
+          "followUpState": "rand1"
+        },
+        {
+          "name": "rand1",
+          "children": [
+            {
+              "label": "75%, ≤2",
+              "node": {
+                "name": "SLASH"
+              }
+            },
+            {
+              "label": "25%, ≤1",
+              "node": {
+                "name": "SOUL_STRIKE"
+              }
+            }
+          ],
+          "followUpState": "rand1",
+          "horizontalLayout": true
+        },
+        {
+          "name": "REBIRTH",
+          "isInitialState": true,
+          "initialStatePriority": 1,
+          "followUpState": "DARK_ECHO"
+        },
+        {
+          "name": "DARK_ECHO",
+          "followUpState": "rand2"
+        },
+        {
+          "name": "rand2",
+          "children": [
+            {
+              "label": "50%, ≤2",
+              "node": {
+                "name": "SLUDGE"
+              }
+            },
+            {
+              "label": "50%, ≤2",
+              "node": {
+                "name": "TACKLE"
+              }
+            }
+          ],
+          "followUpState": "rand2",
+          "horizontalLayout": true
+        }
+      ]
+    }
+  ],
+  "ActsFromThePast.BronzeAutomaton": [
+    {
+      "condition": "true",
+      "stateMachine": [
+        {
+          "name": "SPAWN_ORBS",
+          "isInitialState": true,
+          "followUpState": "FLAIL"
+        },
+        {
+          "name": "FLAIL",
+          "followUpState": "BOOST"
+        },
+        {
+          "name": "BOOST",
+          "followUpState": "FLAIL2"
+        },
+        {
+          "name": "FLAIL2",
+          "moveName": "FLAIL",
+          "followUpState": "BOOST2"
+        },
+        {
+          "name": "BOOST2",
+          "moveName": "BOOST",
+          "followUpState": "HYPER_BEAM"
+        },
+        {
+          "name": "HYPER_BEAM",
+          "followUpState": "BOOST3"
+        },
+        {
+          "name": "BOOST3",
+          "moveName": "BOOST",
+          "followUpState": "FLAIL"
+        }
+      ]
+    }
+  ],
+  "ActsFromThePast.BronzeOrb": [
+    {
+      "condition": "true",
+      "stateMachine": [
+        {
+          "name": "rand1",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "25%",
+              "node": {
+                "name": "BEAM",
+                "followUpState": "rand2"
+              }
+            },
+            {
+              "label": "75%",
+              "node": {
+                "name": "STASIS",
+                "followUpState": "rand4"
+              }
+            }
+          ]
+        },
+        {
+          "name": "rand2",
+          "children": [
+            {
+              "label": "25%",
+              "node": {
+                "name": "BEAM",
+                "followUpState": "rand3"
+              }
+            },
+            {
+              "label": "75%",
+              "node": {
+                "name": "STASIS",
+                "followUpState": "rand4"
+              }
+            }
+          ]
+        },
+        {
+          "name": "rand3",
+          "children": [
+            {
+              "label": "25%",
+              "node": {
+                "name": "SUPPORT_BEAM",
+                "followUpState": "rand1"
+              }
+            },
+            {
+              "label": "75%",
+              "node": {
+                "name": "STASIS",
+                "followUpState": "rand4"
+              }
+            }
+          ]
+        },
+        {
+          "name": "rand4",
+          "children": [
+            {
+              "label": "30%, ≤2",
+              "node": {
+                "name": "BEAM"
+              }
+            },
+            {
+              "label": "70%, ≤1",
+              "node": {
+                "name": "SUPPORT_BEAM"
+              }
+            }
+          ],
+          "followUpState": "rand4"
+        }
+      ]
+    }
+  ],
+  "ActsFromThePast.BookOfStabbing": [
+    {
+      "condition": "true",
+      "graphPatch": {
+        "width": 2.5,
+        "height": 1,
+        "icons": [],
+        "iconGroups": [],
+        "labels": [
+          {
+            "x": 1.3,
+            "y": 0.6,
+            "text": "ActsFromThePast.BookOfStabbing.Text",
+            "align": "left",
+            "fontSize": 18
+          }
+        ],
+        "arrows": [],
+        "moves": []
+      },
+      "stateMachine": [
+        {
+          "name": "rand1",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "85%, ≤2",
+              "node": {
+                "name": "STAB"
+              }
+            },
+            {
+              "label": "15%, ≤1",
+              "node": {
+                "name": "BIG_STAB"
+              }
+            }
+          ],
+          "followUpState": "rand1"
+        }
+      ],
+      "moveReplacements": {
+        "STAB": [
+          {
+            "timesText": "T"
+          }
+        ]
+      }
+    }
+  ],
+  "ActsFromThePast.Byrd": [
+    {
+      "condition": "true",
+      "graphPatch": {
+        "width": 3,
+        "height": 2.5,
+        "icons": [
+          {
+            "y": 1.5,
+            "intentType": "stun",
+            "times": 1,
+            "valueText": "",
+            "timesText": ""
+          }
+        ],
+        "iconGroups": [],
+        "labels": [],
+        "arrows": [
+          {
+            "path": [
+              0,
+              1,
+              2,
+              1.5
+            ]
+          },
+          {
+            "path": [
+              0,
+              2.5,
+              2,
+              3
+            ]
+          },
+          {
+            "path": [
+              0,
+              4,
+              2,
+              4.75,
+              1.3
+            ]
+          }
+        ],
+        "moves": [
+          {
+            "id": "HEADBUTT",
+            "x": 1.5,
+            "y": 1.5
+          },
+          {
+            "id": "GO_AIRBORNE",
+            "x": 3,
+            "y": 1.5
+          }
+        ]
+      },
+      "stateMachine": [
+        {
+          "name": "rand1",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "62%",
+              "node": {
+                "name": "PECK"
+              }
+            },
+            {
+              "label": "38%",
+              "node": {
+                "name": "CAW"
+              }
+            }
+          ],
+          "followUpState": "rand2",
+          "horizontalLayout": true
+        },
+        {
+          "name": "rand2",
+          "children": [
+            {
+              "label": "50%, ≤2",
+              "node": {
+                "name": "PECK"
+              }
+            },
+            {
+              "label": "20%, ≤1",
+              "node": {
+                "name": "SWOOP"
+              }
+            },
+            {
+              "label": "30%, ≤1",
+              "node": {
+                "name": "CAW"
+              }
+            }
+          ],
+          "followUpState": "rand2",
+          "horizontalLayout": true
+        }
+      ]
+    }
+  ],
+  "ActsFromThePast.Chosen": [
+    {
+      "condition": "true",
+      "stateMachine": [
+        {
+          "name": "HEX",
+          "isInitialState": true,
+          "followUpState": "rand1"
+        },
+        {
+          "name": "rand1",
+          "children": [
+            {
+              "label": "50%",
+              "node": {
+                "name": "DEBILITATE"
+              }
+            },
+            {
+              "label": "50%",
+              "node": {
+                "name": "DRAIN"
+              }
+            }
+          ],
+          "followUpState": "rand2"
+        },
+        {
+          "name": "rand2",
+          "children": [
+            {
+              "label": "50%",
+              "node": {
+                "name": "POKE"
+              }
+            },
+            {
+              "label": "50%",
+              "node": {
+                "name": "ZAP"
+              }
+            }
+          ],
+          "followUpState": "rand1"
+        }
+      ]
+    }
+  ],
+  "ActsFromThePast.Hexaghost": [
+    {
+      "condition": "true",
+      "graphPatch": {
+        "width": 1,
+        "height": 1,
+        "icons": [],
+        "iconGroups": [],
+        "labels": [
+          {
+            "x": 2,
+            "y": 1.3,
+            "text": "ActsFromThePast.Hexaghost.Text",
+            "align": "center",
+            "fontSize": 18
+          }
+        ],
+        "arrows": [],
+        "moves": []
+      },
+      "stateMachine": [
+        {
+          "name": "ACTIVATE",
+          "isInitialState": true,
+          "followUpState": "DIVIDER"
+        },
+        {
+          "name": "DIVIDER",
+          "followUpState": "SEAR"
+        },
+        {
+          "name": "SEAR",
+          "followUpState": "TACKLE"
+        },
+        {
+          "name": "TACKLE",
+          "followUpState": "SEAR2"
+        },
+        {
+          "name": "SEAR2",
+          "moveName": "SEAR",
+          "followUpState": "INFLAME"
+        },
+        {
+          "name": "INFLAME",
+          "followUpState": "TACKLE2"
+        },
+        {
+          "name": "SEAR3",
+          "moveName": "SEAR",
+          "followUpState": "INFERNO"
+        },
+        {
+          "name": "TACKLE2",
+          "moveName": "TACKLE",
+          "followUpState": "SEAR3"
+        },
+        {
+          "name": "INFERNO",
+          "followUpState": "SEAR"
+        }
+      ],
+      "moveReplacements": {
+        "DIVIDER": [
+          {
+            "valueText": "N"
+          }
+        ]
+      }
+    }
+  ],
+  "ActsFromThePast.Centurion": [
+    {
+      "condition": "true",
+      "stateMachine": [
+        {
+          "name": "rand1",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "65%",
+              "node": {
+                "name": "SLASH"
+              }
+            },
+            {
+              "label": "35%",
+              "node": {
+                "name": "PROTECT"
+              }
+            }
+          ],
+          "followUpState": "condition1"
+        },
+        {
+          "name": "condition1",
+          "children": [
+            {
+              "label": "ActsFromThePast.Centurion.Alone",
+              "node": {
+                "name": "rand2",
+                "isInitialState": true,
+                "children": [
+                  {
+                    "label": "65%, ≤2",
+                    "node": {
+                      "name": "SLASH"
+                    }
+                  },
+                  {
+                    "label": "35%, ≤2",
+                    "node": {
+                      "name": "FURY"
+                    }
+                  }
+                ],
+                "horizontalLayout": true
+              }
+            },
+            {
+              "label": "ui.Otherwise",
+              "node": {
+                "name": "rand2",
+                "isInitialState": true,
+                "children": [
+                  {
+                    "label": "65%, ≤2",
+                    "node": {
+                      "name": "SLASH"
+                    }
+                  },
+                  {
+                    "label": "35%, ≤2",
+                    "node": {
+                      "name": "PROTECT"
+                    }
+                  }
+                ],
+                "horizontalLayout": true
+              }
+            }
+          ],
+          "followUpState": "condition1"
+        }
+      ]
+    }
+  ],
+  "ActsFromThePast.Mystic": [
+    {
+      "condition": "true",
+      "stateMachine": [
+        {
+          "name": "condition",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "ActsFromThePast.Mystic.Lose20Hp",
+              "node": {
+                "name": "HEAL"
+              }
+            },
+            {
+              "label": "ui.Otherwise",
+              "node": {
+                "name": "rand",
+                "children": [
+                  {
+                    "label": "60%, ≤1",
+                    "node": {
+                      "name": "ATTACK"
+                    }
+                  },
+                  {
+                    "label": "40%, ≤2",
+                    "node": {
+                      "name": "BUFF"
+                    }
+                  }
+                ],
+                "horizontalLayout": true
+              }
+            }
+          ],
+          "followUpState": "condition"
+        }
+      ]
+    }
+  ],
+  "ActsFromThePast.Champ": [
+    {
+      "condition": "true",
+      "graphPatch": {
+        "width": 1,
+        "height": 1,
+        "icons": [],
+        "iconGroups": [],
+        "labels": [
+          {
+            "x": 0.3,
+            "y": 1.7,
+            "text": "ActsFromThePast.Champ.SeeGraphBelow",
+            "align": "left",
+            "fontSize": 14
+          },
+          {
+            "x": 3.3,
+            "y": 3.15,
+            "text": "ActsFromThePast.Champ.SeeGraphBelow",
+            "align": "left",
+            "fontSize": 14
+          },
+          {
+            "x": 4.8,
+            "y": 3.15,
+            "text": "ActsFromThePast.Champ.SeeGraphBelow",
+            "align": "left",
+            "fontSize": 14
+          }
+        ],
+        "arrows": [],
+        "moves": []
+      },
+      "stateMachine": [
+        {
+          "name": "condition1",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "ActsFromThePast.Champ.Turn4812",
+              "node": {
+                "name": "TAUNT"
+              }
+            },
+            {
+              "label": "ui.Otherwise",
+              "node": {
+                "name": "placeholder1",
+                "placeHolderIntentCount": 1
+              }
+            }
+          ],
+          "followUpState": "condition1"
+        },
+        {
+          "name": "ANGER",
+          "isInitialState": true,
+          "followUpState": "EXECUTE"
+        },
+        {
+          "name": "EXECUTE",
+          "followUpState": "rand1"
+        },
+        {
+          "name": "rand1",
+          "children": [],
+          "followUpState": "rand2",
+          "placeHolderIntentCount": 1
+        },
+        {
+          "name": "rand2",
+          "children": [],
+          "followUpState": "EXECUTE",
+          "placeHolderIntentCount": 1
+        },
+        {
+          "name": "rand",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "30%, ≤1",
+              "node": {
+                "name": "cond2",
+                "children": [
+                  {
+                    "label": "ActsFromThePast.Champ.DefendStanceUsedTwice",
+                    "node": {
+                      "name": "GLOAT"
+                    }
+                  },
+                  {
+                    "label": "ui.Otherwise",
+                    "node": {
+                      "name": "DEFENSIVE_STANCE"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "label": "25%, ≤1",
+              "node": {
+                "name": "FACE_SLAP"
+              }
+            },
+            {
+              "label": "45%, ≤1",
+              "node": {
+                "name": "HEAVY_SLASH"
+              }
+            }
+          ],
+          "horizontalLayout": true
+        }
+      ]
+    }
+  ],
+  "ActsFromThePast.Collector": [
+    {
+      "condition": "true",
+      "stateMachine": [
+        {
+          "name": "SPAWN",
+          "isInitialState": true,
+          "followUpState": "cond"
+        },
+        {
+          "name": "cond",
+          "children": [
+            {
+              "label": "ActsFromThePast.Collector.Turn4",
+              "node": {
+                "name": "MEGA_DEBUFF"
+              }
+            },
+            {
+              "label": "ActsFromThePast.Collector.Minion01",
+              "node": {
+                "name": "rand1",
+                "children": [
+                  {
+                    "label": "25%, ≤1",
+                    "node": {
+                      "name": "REVIVE"
+                    }
+                  },
+                  {
+                    "label": "45%, ≤2",
+                    "node": {
+                      "name": "FIREBALL"
+                    }
+                  },
+                  {
+                    "label": "30%, ≤1",
+                    "node": {
+                      "name": "BUFF"
+                    }
+                  }
+                ],
+                "horizontalLayout": true
+              }
+            },
+            {
+              "label": "ui.Otherwise",
+              "node": {
+                "name": "rand2",
+                "children": [
+                  {
+                    "label": "70%, ≤2",
+                    "node": {
+                      "name": "FIREBALL"
+                    }
+                  },
+                  {
+                    "label": "30%, ≤1",
+                    "node": {
+                      "name": "BUFF"
+                    }
+                  }
+                ],
+                "horizontalLayout": true
+              }
+            }
+          ],
+          "followUpState": "cond"
+        }
+      ]
+    }
+  ]
+}

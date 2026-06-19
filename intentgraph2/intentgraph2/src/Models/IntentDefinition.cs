@@ -63,6 +63,8 @@ public class StateMachineNode
     public string? FollowUpState { get; set; }
 
     public bool HorizontalLayout { get; set; } = false;
+
+    public int PlaceHolderIntentCount { get; set; } = 0;
 }
 
 public record class StateMachinNodeChildren(string Label = "", StateMachineNode? Node = null);

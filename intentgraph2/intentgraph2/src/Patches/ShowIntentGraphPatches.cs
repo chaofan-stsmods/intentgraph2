@@ -149,7 +149,7 @@ public class ShowIntentGraphPatches
     [HarmonyPatch(typeof(NCreature), nameof(NCreature.HideHoverTips))]
     public static class HideHoverTipsPatch
     {
-        public static void Postfix(NCreature __instance)
+        public static void Prefix(NCreature __instance)
         {
             RemoveCurrentIntentGraphPanel();
         }

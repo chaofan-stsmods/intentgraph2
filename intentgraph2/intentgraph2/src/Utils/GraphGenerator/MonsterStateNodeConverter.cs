@@ -143,21 +143,35 @@ internal class MonsterStateNodeConverter
         if (node.Children == null || node.Children.Length == 0)
         {
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == (node.MoveName ?? node.Name)) as MoveState;
-            if (state == null)
+            MonsterStateNode result;
+            if (state != null)
+            {
+                result = new MonsterStateNode
+                {
+                    State = state,
+                    Width = state.Intents.Count + (state.Intents.Count - 1) * IconPaddingInMove,
+                    Height = 1,
+                    NextStateCount = 1,
+                    Parent = parent,
+                };
+
+                result.MoveStateIds.Add(state.Id);
+            }
+            else if (node.PlaceHolderIntentCount > 0)
+            {
+                result = new MonsterStateNode
+                {
+                    State = null,
+                    Width = node.PlaceHolderIntentCount + (node.PlaceHolderIntentCount - 1) * IconPaddingInMove,
+                    Height = 1,
+                    NextStateCount = 1,
+                    Parent = parent,
+                };
+            }
+            else
             {
                 return null;
             }
-
-            var result = new MonsterStateNode
-            {
-                State = state,
-                Width = state.Intents.Count + (state.Intents.Count - 1) * IconPaddingInMove,
-                Height = 1,
-                NextStateCount = 1,
-                Parent = parent,
-            };
-
-            result.MoveStateIds.Add(state.Id);
 
             if (parent == null)
             {

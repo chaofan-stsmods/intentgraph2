@@ -1,0 +1,11 @@
+{
+  "ActsFromThePast.BookOfStabbing.Text": "T +1 every turn",
+  "ActsFromThePast.Hexaghost.Text": "N=your HP/12 (rounded up)",
+  "ActsFromThePast.Centurion.Alone": "Alone",
+  "ActsFromThePast.Mystic.Lose20Hp": "Enemies lose 20+ HP, ≤2",
+  "ActsFromThePast.Champ.Turn4812": "Turn 4, 8, 12, ...",
+  "ActsFromThePast.Champ.DefendStanceUsedTwice": "Defend stance has been used twice",
+  "ActsFromThePast.Champ.SeeGraphBelow": "See\ngraph\nbelow",
+  "ActsFromThePast.Collector.Turn4": "Turn 4",
+  "ActsFromThePast.Collector.Minion01": "Minion is 0~1"
+}

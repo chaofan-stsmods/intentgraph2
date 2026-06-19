@@ -266,49 +266,46 @@ public class IntentGraphMod
     {
         IgLogger.Info($"Searching intent definitions for mod {modId}");
 
-        try
-        {
-            var file = $"res://{modId}/intentgraph.json";
-            if (FileAccess.FileExists(file))
-            {
-                IgLogger.Info("Loading intent definitions from " + file);
-                using var fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
-                var asText = fileAccess.GetAsText();
-                var intents = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
-                foreach (var kv in intents)
-                {
-                    IntentDefinitions[kv.Key] = kv.Value;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            IgLogger.Warn($"Failed to load intent definitions for mod {modId}: {ex}");
-        }
+        var errorMessage = $"Failed to load intent definitions for mod {modId}";
+        LoadIntentDefinitionsFromResource($"res://{ModId}/intentgraph-{modId}.json", errorMessage);
+        LoadIntentDefinitionsFromResource($"res://{modId}/intentgraph.json", errorMessage);
 
-        try
+        if (ReleaseInfoManager.Instance.ReleaseInfo != null)
         {
             // version-specific intent definitions, if exist
-            if (ReleaseInfoManager.Instance.ReleaseInfo != null)
+            LoadIntentDefinitionsFromResource(
+                $"res://{modId}/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json",
+                $"Failed to load version-specific intent definitions for mod {modId}");
+        }
+    }
+
+    private static void LoadIntentDefinitionsFromResource(string file, string errorMessage)
+    {
+        try
+        {
+            if (!FileAccess.FileExists(file))
             {
-                var file2 = $"res://{modId}/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json";
-                if (FileAccess.FileExists(file2))
-                {
-                    IgLogger.Info("Loading intent definitions from " + file2);
-                    using var fileAccess2 = FileAccess.Open(file2, FileAccess.ModeFlags.Read);
-                    var asText2 = fileAccess2.GetAsText();
-                    var intents2 = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText2, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
-                    foreach (var kv in intents2)
-                    {
-                        IntentDefinitions[kv.Key] = kv.Value;
-                    }
-                }
+                return;
+            }
+
+            IgLogger.Info("Loading intent definitions from " + file);
+            using var fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
+            var asText = fileAccess.GetAsText();
+            var intents = JsonSerializer.Deserialize<Dictionary<string, IntentDefinitionList>>(asText, SerializeOptions) ?? new Dictionary<string, IntentDefinitionList>();
+            foreach (var kv in intents)
+            {
+                IntentDefinitions[kv.Key] = kv.Value;
             }
         }
         catch (Exception ex)
         {
-            IgLogger.Warn($"Failed to load version-specific intent definitions for mod {modId}: {ex}");
+            IgLogger.Warn($"{errorMessage}: {ex}");
         }
+    }
+
+    private static string GetLocalizedResourcePath(string preferredPath, string fallbackPath)
+    {
+        return FileAccess.FileExists(preferredPath) ? preferredPath : fallbackPath;
     }
 
     private static void LoadIntentDefinitionForDev()
@@ -326,58 +323,51 @@ public class IntentGraphMod
     {
         IgLogger.Info($"Searching intent strings for mod {modId}, language {language}");
 
-        try
-        {
-            var file = $"res://{modId}/localization/{language}/intentgraph.json";
-            if (!FileAccess.FileExists(file))
-            {
-                file = $"res://{modId}/localization/eng/intentgraph.json";
-            }
+        var errorMessage = $"Failed to load intent strings for mod {modId}, language {language}";
+        LoadIntentStringsFromResource(
+            GetLocalizedResourcePath(
+                $"res://{ModId}/localization/{language}/intentgraph-{modId}.json",
+                $"res://{ModId}/localization/eng/intentgraph-{modId}.json"),
+            errorMessage);
 
-            if (FileAccess.FileExists(file))
-            {
-                IgLogger.Info("Loading intent strings from " + file);
-                using var fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
-                var asText = fileAccess.GetAsText();
-                var strings = JsonSerializer.Deserialize<Dictionary<string, string>>(asText) ?? new Dictionary<string, string>();
-                foreach (var kvp in strings)
-                {
-                    IntentGraphStrings[kvp.Key] = kvp.Value;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            IgLogger.Warn($"Failed to load intent strings for mod {modId}, language {language}: {ex}");
-        }
+        LoadIntentStringsFromResource(
+            GetLocalizedResourcePath(
+                $"res://{modId}/localization/{language}/intentgraph.json",
+                $"res://{modId}/localization/eng/intentgraph.json"),
+            errorMessage);
 
-        try
+        if (ReleaseInfoManager.Instance.ReleaseInfo != null)
         {
             // version-specific strings, if exist
-            if (ReleaseInfoManager.Instance.ReleaseInfo != null)
-            {
-                var file2 = $"res://{modId}/localization/{language}/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json";
-                if (!FileAccess.FileExists(file2))
-                {
-                    file2 = $"res://{modId}/localization/eng/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json";
-                }
+            LoadIntentStringsFromResource(
+                GetLocalizedResourcePath(
+                    $"res://{modId}/localization/{language}/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json",
+                    $"res://{modId}/localization/eng/intentgraph-{ReleaseInfoManager.Instance.ReleaseInfo.Version}.json"),
+                $"Failed to load version-specific intent strings for mod {modId}, language {language}");
+        }
+    }
 
-                if (FileAccess.FileExists(file2))
-                {
-                    IgLogger.Info("Loading intent strings from " + file2);
-                    using var fileAccess2 = FileAccess.Open(file2, FileAccess.ModeFlags.Read);
-                    var asText2 = fileAccess2.GetAsText();
-                    var strings2 = JsonSerializer.Deserialize<Dictionary<string, string>>(asText2) ?? new Dictionary<string, string>();
-                    foreach (var kvp in strings2)
-                    {
-                        IntentGraphStrings[kvp.Key] = kvp.Value;
-                    }
-                }
+    private static void LoadIntentStringsFromResource(string file, string errorMessage)
+    {
+        try
+        {
+            if (!FileAccess.FileExists(file))
+            {
+                return;
+            }
+
+            IgLogger.Info("Loading intent strings from " + file);
+            using var fileAccess = FileAccess.Open(file, FileAccess.ModeFlags.Read);
+            var asText = fileAccess.GetAsText();
+            var strings = JsonSerializer.Deserialize<Dictionary<string, string>>(asText) ?? new Dictionary<string, string>();
+            foreach (var kvp in strings)
+            {
+                IntentGraphStrings[kvp.Key] = kvp.Value;
             }
         }
         catch (Exception ex)
         {
-            IgLogger.Warn($"Failed to load version-specific intent strings for mod {modId}, language {language}: {ex}");
+            IgLogger.Warn($"{errorMessage}: {ex}");
         }
     }
 
