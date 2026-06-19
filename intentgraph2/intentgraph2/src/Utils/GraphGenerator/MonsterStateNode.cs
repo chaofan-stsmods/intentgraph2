@@ -22,6 +22,7 @@ internal class MonsterStateNode
     public bool IsInitialState { get; set; }
     public int NextStateCount { get; set; } // include children's next states
     public bool UnrecognizedStateType { get; set; }
+    public bool ForceNotSimpleLoop { get; set; }
     public bool SimpleLoopStart { get; set; }
     public int SimpleLoopLength { get; set; }
     public int SimpleLoopPrecessorCount { get; set; }

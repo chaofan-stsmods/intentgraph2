@@ -1,0 +1,8 @@
+﻿{
+  "title": "Intent Graph",
+  "description": "Show monster intent as a state machine.",
+  "visibility": "public",
+  "changeNote": "",
+  "tags": ["QoL", "English", "Simplified Chinese"],
+  "dependencies": []
+}

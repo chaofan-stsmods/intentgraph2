@@ -153,9 +153,14 @@ internal class MonsterStateNodeConverter
                     Height = 1,
                     NextStateCount = 1,
                     Parent = parent,
+                    ForceNotSimpleLoop = node.NotSimpleLoopStart,
                 };
 
                 result.MoveStateIds.Add(state.Id);
+                if (node.AlternativeMoveNames != null)
+                {
+                    result.MoveStateIds.AddRange(node.AlternativeMoveNames);
+                }
             }
             else if (node.PlaceHolderIntentCount > 0)
             {
@@ -166,7 +171,13 @@ internal class MonsterStateNodeConverter
                     Height = 1,
                     NextStateCount = 1,
                     Parent = parent,
+                    ForceNotSimpleLoop = node.NotSimpleLoopStart,
                 };
+
+                if (node.AlternativeMoveNames != null)
+                {
+                    result.MoveStateIds.AddRange(node.AlternativeMoveNames);
+                }
             }
             else
             {
@@ -191,6 +202,7 @@ internal class MonsterStateNodeConverter
             {
                 State = null,
                 Parent = parent,
+                ForceNotSimpleLoop = node.NotSimpleLoopStart,
             };
 
             if (parent == null)
@@ -212,6 +224,11 @@ internal class MonsterStateNodeConverter
                     children.Add(childStateNode);
                     result.MoveStateIds.AddRange(childStateNode.MoveStateIds);
                 }
+            }
+
+            if (node.AlternativeMoveNames != null)
+            {
+                result.MoveStateIds.AddRange(node.AlternativeMoveNames);
             }
 
             result.Children = children;

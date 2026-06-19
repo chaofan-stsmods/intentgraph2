@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <Reference Include="RitsuLib">
-      <HintPath>$(Steamlib)\steamapps\common\Slay the Spire 2\mods\RitsuLib\STS2-RitsuLib.dll</HintPath>
+      <HintPath>$(Steamlib)\steamapps\workshop\content\2868840\3747602295\lib\0.107.1\STS2-RitsuLib.dll</HintPath>
     </Reference>
   </ItemGroup>
 

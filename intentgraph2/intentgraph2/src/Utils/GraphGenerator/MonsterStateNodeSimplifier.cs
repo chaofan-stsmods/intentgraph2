@@ -377,7 +377,7 @@ internal class MonsterStateNodeSimplifier
             }
         }
 
-        var candidates = allNodes.Where(n => n.Parent == null && n.Children == null && precessorCount.GetValueOrDefault(n) > 1).ToList();
+        var candidates = allNodes.Where(n => n.Parent == null && n.Children == null && !n.ForceNotSimpleLoop && precessorCount.GetValueOrDefault(n) > 1).ToList();
         foreach (var node in candidates)
         {
             var loopNodes = new HashSet<MonsterStateNode>();

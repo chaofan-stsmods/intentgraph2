@@ -7,5 +7,21 @@
   "ActsFromThePast.Champ.DefendStanceUsedTwice": "防御姿态已使用两次",
   "ActsFromThePast.Champ.SeeGraphBelow": "见\n下图",
   "ActsFromThePast.Collector.Turn4": "第4回合",
-  "ActsFromThePast.Collector.Minion01": "爪牙数为0~1"
+  "ActsFromThePast.Collector.Minion01": "爪牙数为0~1",
+  "ActsFromThePast.Spiker.Text": "50%, 最多用6次",
+  "ActsFromThePast.GiantHead.Cond": "第4回合",
+  "ActsFromThePast.GiantHead.Text": "N从40开始，每回合+5\n最大70",
+  "ActsFromThePast.GiantHead.Text2": "N从30开始，每回合+5\n最大60",
+  "ActsFromThePast.GremlinShield.Alone": "落单",
+  "ActsFromThePast.GremlinLeader.Cond0": "0个爪牙",
+  "ActsFromThePast.GremlinLeader.Cond1": "1个爪牙",
+  "ActsFromThePast.GremlinLeader.Cond2": "2个爪牙",
+  "ActsFromThePast.Lagavulin.Awake": "醒来",
+  "ActsFromThePast.Maw.Text": "T从1开始，每2回合+1",
+  "ActsFromThePast.Reptomancer.Cond": "爪牙数为0~3",
+  "ActsFromThePast.SpireGrowth.Cond": "你未被缠绕",
+  "ActsFromThePast.TimeEater.Cond": "HP<=50%, 只能用1次",
+  "ActsFromThePast.Transient.Text": "N从40开始,\n每回合+10",
+  "ActsFromThePast.Transient.Text2": "N从30开始,\n每回合+10",
+  "ActsFromThePast.WrithingMass.Cond": "10%, 只能用1次"
 }

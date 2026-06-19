@@ -79,6 +79,7 @@ public class RuleContext : IRuleContext
                 "act" => Monster.CombatState.RunState.CurrentActIndex,
                 "slotIndex" => Monster.CombatState.Encounter?.Slots.IndexOf(Monster.Creature.SlotName) ?? 0,
                 "ascension" => Traverse.Create(RunManager.Instance.AscensionManager).Field("_level").GetValue<int>(),
+                "showMoveNames" => IntentGraphMod.Config.ShowMonsterMoveNames ? 1 : 0,
                 _ => 0,
             };
         }

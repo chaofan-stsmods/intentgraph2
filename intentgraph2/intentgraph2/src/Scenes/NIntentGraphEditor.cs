@@ -1142,7 +1142,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildStateMachineCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node", "horizontalLayout", "placeHolderIntentCount" })
+        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node", "horizontalLayout", "placeHolderIntentCount", "notSimpleLoopStart", "alternativeMoveNames" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }

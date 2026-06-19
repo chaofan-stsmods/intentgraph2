@@ -7,5 +7,21 @@
   "ActsFromThePast.Champ.DefendStanceUsedTwice": "Defend stance has been used twice",
   "ActsFromThePast.Champ.SeeGraphBelow": "See\ngraph\nbelow",
   "ActsFromThePast.Collector.Turn4": "Turn 4",
-  "ActsFromThePast.Collector.Minion01": "Minion is 0~1"
+  "ActsFromThePast.Collector.Minion01": "0~1 minions",
+  "ActsFromThePast.Spiker.Text": "50%, up to 6 times",
+  "ActsFromThePast.GiantHead.Cond": "Turn 4",
+  "ActsFromThePast.GiantHead.Text": "N starts at 40, +5 every turn\nmax 70",
+  "ActsFromThePast.GiantHead.Text2": "N starts at 30, +5 every turn\nmax 60",
+  "ActsFromThePast.GremlinShield.Alone": "Alone",
+  "ActsFromThePast.GremlinLeader.Cond0": "0 minions",
+  "ActsFromThePast.GremlinLeader.Cond1": "1 minion",
+  "ActsFromThePast.GremlinLeader.Cond2": "2 minions",
+  "ActsFromThePast.Lagavulin.Awake": "Awake",
+  "ActsFromThePast.Maw.Text": "T starts at 1, +1 every 2 turns",
+  "ActsFromThePast.Reptomancer.Cond": "0~3 minions",
+  "ActsFromThePast.SpireGrowth.Cond": "You are not constricted",
+  "ActsFromThePast.TimeEater.Cond": "HP ≤ 50%, one use",
+  "ActsFromThePast.Transient.Text": "N starts at 40,\n+10 every turn",
+  "ActsFromThePast.Transient.Text2": "N starts at 30,\n+10 every turn",
+  "ActsFromThePast.WrithingMass.Cond": "10%, one use"
 }

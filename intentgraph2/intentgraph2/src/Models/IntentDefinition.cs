@@ -54,6 +54,8 @@ public class StateMachineNode
 
     public string? MoveName { get; set; }
 
+    public string[]? AlternativeMoveNames { get; set; }
+
     public bool IsInitialState { get; set; } = false;
 
     public int InitialStatePriority { get; set; } = 0;
@@ -65,6 +67,8 @@ public class StateMachineNode
     public bool HorizontalLayout { get; set; } = false;
 
     public int PlaceHolderIntentCount { get; set; } = 0;
+
+    public bool NotSimpleLoopStart { get; set; } = false;
 }
 
 public record class StateMachinNodeChildren(string Label = "", StateMachineNode? Node = null);
