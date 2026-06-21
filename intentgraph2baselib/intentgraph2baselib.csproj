@@ -18,9 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="BaseLib">
-      <HintPath>$(Steamlib)\steamapps\workshop\content\2868840\3737335127\BaseLib\BaseLib.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Alchyr.Sts2.BaseLib" Version="3.2.1"/>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

@@ -85,6 +85,7 @@ public class IntentGraphMod
             }
             catch (Exception ex)
             {
+                baseLibHelper = null;
                 IgLogger.Warn("Failed to load BaseLib helper: " + ex);
             }
         }
@@ -107,6 +108,7 @@ public class IntentGraphMod
             }
             catch (Exception ex)
             {
+                ritsuLibHelper = null;
                 IgLogger.Warn("Failed to load RitsuLib helper: " + ex);
             }
         }
