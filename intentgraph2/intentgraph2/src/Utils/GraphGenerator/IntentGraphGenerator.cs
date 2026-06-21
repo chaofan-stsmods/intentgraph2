@@ -4,6 +4,7 @@ using IntentGraph2.Utils.Rule;
 using MegaCrit.Sts2.Core.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IntentGraph2.Utils.GraphGenerator;
 
@@ -89,7 +90,7 @@ public class IntentGraphGenerator
         }
 
         // Empty intents may have arrows so don't check it.
-        if (graph.Moves.Count == 0 && graph.IconGroups.Count == 0 && graph.Labels.Count == 0)
+        if (graph.Moves.Sum(m => m.Icons?.Length ?? 0) == 0 && graph.IconGroups.Count == 0 && graph.Labels.Count == 0 && graph.Icons.Count == 0)
         {
             return null;
         }

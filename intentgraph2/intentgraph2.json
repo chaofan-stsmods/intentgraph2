@@ -3,7 +3,7 @@
     "name": "Intent Graph",
     "author": "Chaofan",
     "description": "Show monster intent as a state machine.",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "has_pck": true,
     "has_dll": true,
     "dependencies": [],
