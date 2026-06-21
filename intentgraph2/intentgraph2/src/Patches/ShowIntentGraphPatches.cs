@@ -18,6 +18,7 @@ public class ShowIntentGraphPatches
 {
     private const float IntentGraphPanelTop = 90;
 
+    private static NCreature? currentCreature;
     private static MarginContainer? intentGraphPanel;
     private static Action? unregisterResizedEvent;
     private static bool intentGraphVisible = true;
@@ -43,20 +44,27 @@ public class ShowIntentGraphPatches
             unregisterResizedEvent?.Invoke();
             unregisterResizedEvent = null;
             intentGraphPanel = null;
+            currentCreature = null;
         }
     }
 
-    [HarmonyPatch(typeof(NCreature), nameof(NCreature.ShowHoverTips))]
-    public static class ShowHoverTipsPatch
+    [HarmonyPatch(typeof(NCreature), "OnFocus")]
+    public static class OnFocusPatch
     {
         public static void Postfix(NCreature __instance)
         {
+            if (__instance == currentCreature)
+            {
+                return;
+            }
+
             if (NGame.Instance?.HoverTipsContainer == null || NCombatRoom.Instance?.Ui.Hand.InCardPlay != false || __instance.Entity?.IsMonster != true)
             {
                 return;
             }
 
             RemoveCurrentIntentGraphPanel();
+            currentCreature = __instance;
 
             var creature = __instance.Entity;
             if (creature.Monster == null || !IntentGraphMod.GeneratedGraphs.TryGetValue(creature.Monster, out var graph))
@@ -146,12 +154,24 @@ public class ShowIntentGraphPatches
         }
     }
 
-    [HarmonyPatch(typeof(NCreature), nameof(NCreature.HideHoverTips))]
-    public static class HideHoverTipsPatch
+    [HarmonyPatch(typeof(NCreature), "OnUnfocus")]
+    public static class OnUnfocusPatch
     {
         public static void Prefix(NCreature __instance)
         {
             RemoveCurrentIntentGraphPanel();
+        }
+    }
+
+    [HarmonyPatch(typeof(NCreature), "_ExitTree")]
+    public static class ExitTreePatch
+    {
+        public static void Prefix(NCreature __instance)
+        {
+            if (currentCreature == __instance)
+            {
+                RemoveCurrentIntentGraphPanel();
+            }
         }
     }
 }
