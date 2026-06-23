@@ -55,6 +55,17 @@ public class HelperModConfig : SimpleModConfig
         }
     }
 
+    [ConfigSection("Control")]
+    public static bool PinableIntentGraph
+    {
+        get => BaseConfig.PinableIntentGraph;
+        set
+        {
+            BaseConfig.PinableIntentGraph = value;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.PinableIntentGraph));
+        }
+    }
+
     [ConfigSection("Hotkey")]
     public static Key ToggleIntentGraphKey
     {

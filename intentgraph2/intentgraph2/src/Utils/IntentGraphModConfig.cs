@@ -13,6 +13,8 @@ public class IntentGraphModConfig
 
     public bool ShowCurrentMove { get; set; } = true;
 
+    public bool PinableIntentGraph { get; set; } = false;
+
     public event EventHandler<string>? OnUpdated;
 
     public void NotifyUpdated(string propertyName)
@@ -26,5 +28,6 @@ public class IntentGraphModConfig
         ShowMonsterMoveNames = config.ShowMonsterMoveNames;
         UseAnimatedIntentIcon = config.UseAnimatedIntentIcon;
         ShowCurrentMove = config.ShowCurrentMove;
+        PinableIntentGraph = config.PinableIntentGraph;
     }
 }

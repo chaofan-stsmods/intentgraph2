@@ -1,11 +1,32 @@
-[gd_scene load_steps=4 format=3 uid="uid://b5war5vsouc6n"]
+[gd_scene load_steps=10 format=3 uid="uid://b5war5vsouc6n"]
 
+[ext_resource type="Script" uid="uid://dcbpnxxsocuf6" path="res://intentgraph2/src/Scenes/NIntentGraphPanel.cs" id="1_q57aw"]
 [ext_resource type="Texture2D" uid="uid://btggtppujbn5i" path="res://images/ui/hover_tip.png" id="2_3a5hu"]
 [ext_resource type="FontVariation" uid="uid://ux4d708e7mk6" path="res://themes/kreon_bold_glyph_space_one.tres" id="2_xq0mx"]
 [ext_resource type="PackedScene" uid="uid://dlxlgbs7cv2xv" path="res://intentgraph2/scenes/intent_graph.tscn" id="3_57a7l"]
+[ext_resource type="Texture2D" uid="uid://clicsxi3tga2n" path="res://intentgraph2/images/ui/pin.png" id="4_idu1v"]
+[ext_resource type="Texture2D" uid="uid://bo4afytn3vkq6" path="res://intentgraph2/images/ui/close.png" id="4_qpr76"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_idu1v"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0, 0, 0, 0)
+draw_center = false
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qpr76"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6fqwj"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0, 0, 0, 0)
 
 [node name="IntentGraphPanel" type="MarginContainer"]
 mouse_filter = 2
+script = ExtResource("1_q57aw")
 
 [node name="Shadow" type="NinePatchRect" parent="."]
 modulate = Color(0, 0, 0, 0.25098)
@@ -40,6 +61,7 @@ mouse_filter = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="MonsterName" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
@@ -69,6 +91,36 @@ theme_override_fonts/font = ExtResource("2_xq0mx")
 theme_override_font_sizes/font_size = 22
 text = "⚠️Outdated"
 vertical_alignment = 1
+
+[node name="ButtonContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_constants/separation = 0
+
+[node name="PinButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/ButtonContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/icon_normal_color = Color(1, 1, 1, 0.7607843)
+theme_override_colors/icon_focus_color = Color(1, 1, 1, 0.7607843)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 0.7607843)
+theme_override_styles/normal = SubResource("StyleBoxFlat_idu1v")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_qpr76")
+toggle_mode = true
+icon = ExtResource("4_idu1v")
+icon_alignment = 1
+
+[node name="CloseButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/ButtonContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/icon_normal_color = Color(1, 1, 1, 0.7607843)
+theme_override_colors/icon_focus_color = Color(1, 1, 1, 0.7607843)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 0.7607843)
+theme_override_styles/normal = SubResource("StyleBoxFlat_6fqwj")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_qpr76")
+icon = ExtResource("4_qpr76")
+icon_alignment = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2

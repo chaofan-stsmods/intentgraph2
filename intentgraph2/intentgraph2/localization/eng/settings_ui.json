@@ -6,5 +6,7 @@
     "INTENTGRAPH2-DISPLAY.title": "Display",
     "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title": "Show Monster Move Names (Restart Combat Required)",
     "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "Use Animated Icon",
-    "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "Show Current Move"
+    "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "Show Current Move",
+    "INTENTGRAPH2-CONTROL.title": "Control",
+    "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title": "Pinable Intent Graph"
 }

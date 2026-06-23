@@ -70,6 +70,17 @@ public class RitsuLibHelper : IRitsuLibHelper
                 settings.NotifyUpdated(nameof(IntentGraphModConfig.ShowCurrentMove));
             });
 
+        var pinableIntentGraph = new ModSettingsValueBinding<IntentGraphModConfig, bool>(
+            IntentGraphMod.ModId,
+            SettingKey,
+            SaveScope.Global,
+            settings => settings.PinableIntentGraph,
+            (settings, value) =>
+            {
+                settings.PinableIntentGraph = value;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.PinableIntentGraph));
+            });
+
         RitsuLibFramework.RegisterModSettings(IntentGraphMod.ModId, page =>
         {
             page.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_title", "Intent Graph"));
@@ -90,6 +101,14 @@ public class RitsuLibHelper : IRitsuLibHelper
                     "show_current_move",
                     ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-SHOW_CURRENT_MOVE.title", "Show Current Move"),
                     showCurrentMove);
+            });
+            page.AddSection("control", section =>
+            {
+                section.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-CONTROL.title", "Control"));
+                section.AddToggle(
+                    "pinable_intent_graph",
+                    ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title", "Pinable Intent Graph"),
+                    pinableIntentGraph);
             });
             page.AddSection("hotkey", section =>
             {
