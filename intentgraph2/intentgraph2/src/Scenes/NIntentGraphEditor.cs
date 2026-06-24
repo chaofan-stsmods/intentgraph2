@@ -898,7 +898,7 @@ public partial class NIntentGraphEditor : Control
         source.Condition = NormalizeConditionText(conditionEdit?.Text);
         source.UpToDateCondition = NormalizeOptionalRuleText(upToDateConditionEdit?.Text);
 
-        if (!TryDeserializeField(secondaryInitialStatesEdit?.Text, LocalizeText("ui.editor.field.secondary_initial_states", "secondaryInitialStates"), out string[]? secondaryInitialStates, out error))
+        if (!TryDeserializeField(secondaryInitialStatesEdit?.Text, LocalizeText("ui.editor.field.secondary_initial_states", "secondaryInitialStates"), out SecondaryInitialState[]? secondaryInitialStates, out error))
         {
             return false;
         }
@@ -918,7 +918,7 @@ public partial class NIntentGraphEditor : Control
             return false;
         }
 
-        source.SecondaryInitialStates = NormalizeSecondaryInitialStates(secondaryInitialStates);
+        source.SecondaryInitialStates = secondaryInitialStates;
         source.StateMachine = stateMachine;
         source.MoveReplacements = moveReplacements;
         source.GraphPatch = NormalizeGraphPatch(graphPatch);
@@ -1132,6 +1132,11 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildSecondaryInitialStatesCompletionItems(bool isInsideString)
     {
+        foreach (var propertyName in new[] { "id", "yOffset" })
+        {
+            yield return PropertyCompletion(propertyName, isInsideString);
+        }
+
         yield return SnippetCompletion("secondary initial states", "[\n  \"\"\n]");
 
         foreach (var stateId in availableStateIds)
@@ -1142,7 +1147,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildStateMachineCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node", "horizontalLayout", "placeHolderIntentCount", "notSimpleLoopStart", "alternativeMoveNames" })
+        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node", "horizontalLayout", "placeHolderIntentCount", "notSimpleLoopStart", "alternativeMoveNames", "yOffset" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }
@@ -1173,7 +1178,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildGraphPatchCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "width", "height", "moves", "icons", "iconGroups", "labels", "arrows", "x", "y", "id", "intentType", "value", "times", "valueText", "timesText", "text", "align", "path", "fontSize" })
+        foreach (var propertyName in new[] { "width", "height", "moves", "icons", "iconGroups", "labels", "arrows", "x", "y", "id", "intentType", "value", "times", "valueText", "timesText", "text", "align", "path", "fontSize", "expand" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }

@@ -7,6 +7,7 @@ using IntentGraph2.Utils;
 using MegaCrit.Sts2.Core.Debug;
 using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Saves;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,6 +128,21 @@ public class IntentGraphMod
                 baseLibHelper.Config.SetFrom(ritsuLibHelper.Config);
                 baseLibHelper.SaveConfig();
             };
+        }
+
+        var fileIo = new GodotFileIo($"{UserDataPathProvider.GetAccountScopedBasePath(null)}/mod_data/intentgraph2");
+        var settings = fileIo.ReadFile("settings.json");
+        if (settings != null)
+        {
+            try
+            {
+                // Don't use SerializeOptions because RitsuLib doesn't use lower camel case.
+                defaultConfig = JsonSerializer.Deserialize<IntentGraphModConfig>(settings) ?? new IntentGraphModConfig();
+            }
+            catch (Exception ex)
+            {
+                IgLogger.Warn("Failed to load default config: " + ex);
+            }
         }
 
         LoadIntentDefinitions();

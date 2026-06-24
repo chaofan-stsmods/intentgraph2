@@ -1,0 +1,59 @@
+using IntentGraph2.Models;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace IntentGraph2.Utils.JsonConverters;
+public class SecondaryInitialStateJsonConverter : JsonConverter<SecondaryInitialState>
+{
+    public override SecondaryInitialState? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            string stateId = reader.GetString()!;
+            return new SecondaryInitialState(stateId);
+        }
+        else if (reader.TokenType == JsonTokenType.StartObject)
+        {
+            using var doc = JsonDocument.ParseValue(ref reader);
+            var root = doc.RootElement;
+
+            if (!root.TryGetProperty("id", out var stateIdElement))
+            {
+                throw new JsonException($"Missing required property: {nameof(SecondaryInitialState.Id)}");
+            }
+
+            var stateId = stateIdElement.GetString();
+            if (string.IsNullOrEmpty(stateId))
+            {
+                throw new JsonException($"Invalid value for property: {nameof(SecondaryInitialState.Id)}");
+            }
+
+            float yOffset = 0f;
+            if (root.TryGetProperty("yOffset", out var yOffsetElement))
+            {
+                yOffset = yOffsetElement.GetSingle();
+            }
+
+            return new SecondaryInitialState(stateId, yOffset);
+        }
+        else
+        {
+            throw new JsonException($"Unexpected token type: {reader.TokenType}");
+        }
+    }
+
+    public override void Write(Utf8JsonWriter writer, SecondaryInitialState value, JsonSerializerOptions options)
+    {
+        if (value.YOffset == 0f)
+        {
+            writer.WriteStringValue(value.Id);
+            return;
+        }
+
+        writer.WriteStartObject();
+        writer.WriteString("id", value.Id);
+        writer.WriteNumber("yOffset", value.YOffset);
+        writer.WriteEndObject();
+    }
+}

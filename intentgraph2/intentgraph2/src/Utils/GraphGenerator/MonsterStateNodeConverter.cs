@@ -77,9 +77,9 @@ internal class MonsterStateNodeConverter
         var secondaryStates = intentDefinition?.SecondaryInitialStates;
         if (secondaryStates != null)
         {
-            foreach (var stateName in secondaryStates)
+            foreach (var secondaryState in secondaryStates)
             {
-                var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == stateName);
+                var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == secondaryState.Id);
                 if (state != null && !existingNodes.ContainsKey(state))
                 {
                     var stateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);
@@ -89,6 +89,7 @@ internal class MonsterStateNodeConverter
                     {
                         allNodes.Add(item);
                     }
+                    stateNode.YOffset = secondaryState.YOffset;
                     result.Add(stateNode);
                 }
             }
@@ -154,6 +155,7 @@ internal class MonsterStateNodeConverter
                     NextStateCount = 1,
                     Parent = parent,
                     ForceNotSimpleLoop = node.NotSimpleLoopStart,
+                    YOffset = node.YOffset,
                 };
 
                 result.MoveStateIds.Add(state.Id);
@@ -172,6 +174,7 @@ internal class MonsterStateNodeConverter
                     NextStateCount = 1,
                     Parent = parent,
                     ForceNotSimpleLoop = node.NotSimpleLoopStart,
+                    YOffset = node.YOffset,
                 };
 
                 if (node.AlternativeMoveNames != null)
@@ -203,6 +206,7 @@ internal class MonsterStateNodeConverter
                 State = null,
                 Parent = parent,
                 ForceNotSimpleLoop = node.NotSimpleLoopStart,
+                YOffset = node.YOffset,
             };
 
             if (parent == null)

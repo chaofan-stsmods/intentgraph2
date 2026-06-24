@@ -13,6 +13,8 @@ public partial class NIntentGraphPanel : MarginContainer
 
     public NCreature? NCreature { get; set; }
 
+    public bool Pinned => pinButton?.ButtonPressed == true;
+
     public override void _Ready()
     {
         if (IntentGraphMod.Config.PinableIntentGraph)
@@ -58,7 +60,7 @@ public partial class NIntentGraphPanel : MarginContainer
         }
 
         if (evt is InputEventMouseButton evtMb && evtMb.ButtonIndex == MouseButton.Left && evtMb.Pressed &&
-            NCreature != null && pinButton?.ButtonPressed != true)
+            NCreature != null && !Pinned)
         {
             var localClickPos = ((InputEventMouseButton)MakeInputLocal(evt)).Position;
             var panelRect = new Rect2(Vector2.Zero, Size);

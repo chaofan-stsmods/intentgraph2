@@ -164,7 +164,7 @@ public class IntentDefinitionEditorServiceTest : IDisposable
     {
         var definition = new IntentDefinition
         {
-            SecondaryInitialStates = ["FORM_2"],
+            SecondaryInitialStates = [new SecondaryInitialState("FORM_2")],
             Graph = new Graph(),
         };
 

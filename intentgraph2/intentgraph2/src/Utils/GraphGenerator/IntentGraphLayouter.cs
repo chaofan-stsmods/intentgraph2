@@ -69,6 +69,8 @@ internal class IntentGraphLayouter
         var arrowTarget = new Dictionary<Arrow, MonsterStateNode>();
         foreach (var stateNode in stateNodes)
         {
+            y += stateNode.YOffset;
+
             var previousStateNodes = MonsterStateNodeSimplifier.GetPrecessorDict(stateNode.GetAllNodes());
 
             // Remove self loop if it's the only next state to avoid unnecessary arrow.
@@ -85,7 +87,7 @@ internal class IntentGraphLayouter
             };
             AddStateNodeToGraph(stateNode, precessorNode: null, result, context, 0, y);
             AddPossiblePreviousMoveIds(result.Moves, context);
-            y = result.Height + 0.1f;
+            y = result.Height + 0.25f;
         }
 
         TuneArrowPosition(result.Arrows, arrowTarget);

@@ -26,6 +26,7 @@ internal class MonsterStateNode
     public bool SimpleLoopStart { get; set; }
     public int SimpleLoopLength { get; set; }
     public int SimpleLoopPrecessorCount { get; set; }
+    public float YOffset { get; set; } // For secondary initial states, to adjust their vertical position.
 
     // Following are used for graph layout
 

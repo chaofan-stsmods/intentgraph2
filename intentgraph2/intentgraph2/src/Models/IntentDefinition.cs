@@ -1,9 +1,11 @@
 using IntentGraph2.Utils;
+using IntentGraph2.Utils.JsonConverters;
 using IntentGraph2.Utils.Rule;
 using MegaCrit.Sts2.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace IntentGraph2.Models;
 
@@ -37,7 +39,7 @@ public class IntentDefinition
 
     public string? UpToDateCondition { get; set; }
 
-    public string[]? SecondaryInitialStates { get; set; }
+    public SecondaryInitialState[]? SecondaryInitialStates { get; set; }
 
     public Graph? Graph { get; set; }
 
@@ -69,8 +71,13 @@ public class StateMachineNode
     public int PlaceHolderIntentCount { get; set; } = 0;
 
     public bool NotSimpleLoopStart { get; set; } = false;
+
+    public float YOffset { get; set; } = 0f;
 }
 
 public record class StateMachinNodeChildren(string Label = "", StateMachineNode? Node = null);
 
 public record class MoveReplacement(string? ValueText, string? TimesText);
+
+[JsonConverter(typeof(SecondaryInitialStateJsonConverter))]
+public record class SecondaryInitialState(string Id, float YOffset = 0f);

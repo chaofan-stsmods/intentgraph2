@@ -15,6 +15,7 @@ namespace IntentGraph2.Utils;
 public static class IntentGraphHost
 {
     private const float IntentGraphPanelTop = 90;
+    private const float IntentGraphPanelTopPinned = 170;
 
     private static Dictionary<NCreature, IntentGraphItem> availableIntentGraphs = new();
     private static bool intentGraphVisible = true;
@@ -40,8 +41,9 @@ public static class IntentGraphHost
 
     public static void Create(NCreature nCreature)
     {
-        if (availableIntentGraphs.ContainsKey(nCreature))
+        if (availableIntentGraphs.TryGetValue(nCreature, out var item))
         {
+            item.IntentGraphPanel.MoveToFrontSafely();
             return;
         }
 
@@ -54,6 +56,15 @@ public static class IntentGraphHost
         if (creature.Monster == null || !IntentGraphMod.GeneratedGraphs.TryGetValue(creature.Monster, out var graph))
         {
             return;
+        }
+
+        foreach (var (c, i) in availableIntentGraphs.ToList())
+        {
+            if (!i.IntentGraphPanel.Pinned)
+            {
+                i.RemoveIntentGraphPanel();
+                availableIntentGraphs.Remove(c);
+            }
         }
 
         var scene = PreloadManager.Cache.GetScene("res://intentgraph2/scenes/intent_graph_panel.tscn");
@@ -69,8 +80,9 @@ public static class IntentGraphHost
         intentGraph.Graph = graph;
         intentGraph.Monster = creature.Monster;
 
-        var handleResized = OnIntentGraphPanelResized(nCreature, intentGraphPanel);
-        if (!IntentGraphMod.Config.PinableIntentGraph)
+        var pinableIntentGraph = IntentGraphMod.Config.PinableIntentGraph;
+        var handleResized = OnIntentGraphPanelResized(nCreature, intentGraphPanel, pinableIntentGraph);
+        if (!pinableIntentGraph)
         {
             nCreature.Resized += handleResized;
         }
@@ -88,7 +100,15 @@ public static class IntentGraphHost
 
         intentGraphPanel.ResetSize();
 
-        NGame.Instance.HoverTipsContainer.AddChildSafely(intentGraphPanel);
+        if (pinableIntentGraph)
+        {
+            NCombatRoom.Instance?.Ui.AddChildSafely(intentGraphPanel);
+        }
+        else
+        {
+            NGame.Instance.HoverTipsContainer.AddChildSafely(intentGraphPanel);
+        }
+
         if (!intentGraphVisible)
         {
             intentGraphPanel.Hide();
@@ -102,7 +122,10 @@ public static class IntentGraphHost
                 try
                 {
                     intentGraphPanel.Resized -= handleResized;
-                    nCreature.Resized -= handleResized;
+                    if (!pinableIntentGraph)
+                    {
+                        nCreature.Resized -= handleResized;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -123,16 +146,15 @@ public static class IntentGraphHost
         }
     }
 
-    private static Action OnIntentGraphPanelResized(NCreature __instance, MarginContainer intentGraphPanel)
+    private static Action OnIntentGraphPanelResized(NCreature __instance, MarginContainer intentGraphPanel, bool pinableIntentGraph)
     {
         return () =>
         {
-            var parent = intentGraphPanel.GetParent();
-            var tipSet = (NHoverTipSet?)parent?.GetChildren().Last(c => c is NHoverTipSet);
-
             var maxX = NGame.Instance!.GetViewportRect().Size.X - intentGraphPanel.Size.X;
             var candidateX = Math.Clamp(__instance.GlobalPosition.X + __instance.Size.X / 2 - intentGraphPanel.Size.X / 2, 0, maxX);
 
+            var parent = intentGraphPanel.GetParent();
+            var tipSet = (NHoverTipSet?)parent?.GetChildren().LastOrDefault(c => c is NHoverTipSet);
             var textTipContainer = tipSet?.GetTextHoverTipContainer();
             if (textTipContainer != null)
             {
@@ -153,15 +175,8 @@ public static class IntentGraphHost
                 }
             }
 
-            intentGraphPanel.Position = new Vector2(candidateX, IntentGraphPanelTop);
+            intentGraphPanel.Position = new Vector2(candidateX, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
         };
-    }
-
-    private static void SetIntentGraphPanelDefaultPosition(NCreature __instance, MarginContainer intentGraphPanel)
-    {
-        var maxX = NGame.Instance!.GetViewportRect().Size.X - intentGraphPanel.Size.X;
-        var candidateX = Math.Clamp(__instance.GlobalPosition.X + __instance.Size.X / 2 - intentGraphPanel.Size.X / 2, 0, maxX);
-        intentGraphPanel.Position = new Vector2(candidateX, IntentGraphPanelTop);
     }
 
     private class IntentGraphItem
