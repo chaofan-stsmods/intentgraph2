@@ -32,7 +32,7 @@ Both files are stored in the game folder. Paths are resolved through `IntentGrap
 
 The editor currently exposes these tabs:
 
-- `Condition`
+- `Basic Value`
 - `secondaryInitialStates JSON`
 - `stateMachine JSON`
 - `moveReplacements JSON`
@@ -42,9 +42,10 @@ The editor currently exposes these tabs:
 
 ### Meaning of each tab
 
-- `Condition`: now contains two rule-expression fields.
-- `Condition > Selection condition`: rule expression used to select the variant.
-- `Condition > Up-to-date condition`: optional rule expression used only to decide whether preview/runtime should mark the graph as outdated.
+- `Basic Value`: contains scalar per-variant fields edited as simple inputs instead of JSON.
+- `Basic Value > Selection condition`: rule expression used to select the variant.
+- `Basic Value > Up-to-date condition`: optional rule expression used only to decide whether preview/runtime should mark the graph as outdated.
+- `Basic Value > offsetX / offsetY`: optional numeric graph offset written into `IntentDefinition.Offset` and applied by the layouter.
 - `secondaryInitialStates JSON`: editable `string[]` for additional graph roots.
 - `stateMachine JSON`: editable `StateMachineNode[]` override.
 - `moveReplacements JSON`: editable `Dictionary<string, MoveReplacement[]>`.
@@ -121,6 +122,7 @@ Completion items now store `CodeEdit.CodeCompletionKind` directly rather than `i
 
 - Empty or whitespace `Condition` becomes `true`.
 - Empty or whitespace `UpToDateCondition` becomes `null`.
+- Empty or whitespace `offsetX` / `offsetY` become `0`.
 - Empty `secondaryInitialStates` becomes `null`.
 - `secondaryInitialStates` is trimmed, deduplicated, and nullified when empty.
 - Empty `graphPatch` becomes `null` if it contains only default values and no content.

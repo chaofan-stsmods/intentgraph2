@@ -59,6 +59,37 @@ Here's an example of the content in `intentgraph.json` for this use case:
 }
 ```
 
+Or add `offset` to the secondary initial state:
+
+```json
+{
+    "MegaCrit.Sts2.Core.Models.Monsters.CeremonialBeast": [
+        {
+            "secondaryInitialStates": [
+                {
+                    "id": "STUN_MOVE",
+                    "offset": { "x": 0, "y": 1 }  // Optional. Add a margin between the state and the states above.
+                }
+            ]
+        }
+    ]
+}
+```
+
+### Adjust position of generated nodes
+
+By default, the graph starts from x=0, y=0. You can add an `offset` property to the graph to adjust the position of the generated nodes. Here is an example:
+
+```json
+{
+    "MegaCrit.Sts2.Core.Models.Monsters.CeremonialBeast": [
+        {
+            "offset": { "x": 0, "y": 0 }
+        }
+    ]
+}
+```
+
 ### Overwriting the whole intent graph
 
 You can also overwrite the whole intent graph. This is useful when the generated intent graph is not good enough, or you want to add some custom nodes that can't be generated.
@@ -78,10 +109,15 @@ It's recommended to use the `stateMachine` property to define the overwritten in
                     "moveName": "HAUNT_MOVE",
                     // Whether this node is an initial state.
                     "isInitialState": true,
+                    // Name of the next state node.
+                    "followUpState": "RAMMING_SPEED_MOVE",
                     // Optional. If there are multiple initial states, the lower priority is shown first.
                     "initialStatePriority": 0,
-                    // Name of the next state node.
-                    "followUpState": "RAMMING_SPEED_MOVE"
+                    // Optional. Only take effect when `isInitialState` is true. Offset of the node and its follow-up nodes on the graph.
+                    "offset": { "x": 0, "y": 0 },
+                    // Optional. If this is set to a number > 0 and moveName is not set,
+                    // the node will be shown as a placeholder with the number of intents it has.
+                    "placeholderIntentCount": 0,
                 },
                 {
                     "name": "RAMMING_SPEED_MOVE",
@@ -257,3 +293,4 @@ Supported variables are:
   * `mm.hasMove_{moveId}`: whether the monster has a move with the given state ID.
   * `mm.startsWith_{moveId}`: whether the first move of the monster is the given state ID.
   * `mm.nextMoveOf_{moveId1}_is_{moveId2}`: whether the next move of the monster after `moveId1` is `moveId2`.
+- `showMoveNames`: whether the setting "show move names" is enabled.

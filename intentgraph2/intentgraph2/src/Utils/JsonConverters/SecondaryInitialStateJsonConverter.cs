@@ -29,13 +29,13 @@ public class SecondaryInitialStateJsonConverter : JsonConverter<SecondaryInitial
                 throw new JsonException($"Invalid value for property: {nameof(SecondaryInitialState.Id)}");
             }
 
-            float yOffset = 0f;
-            if (root.TryGetProperty("yOffset", out var yOffsetElement))
+            Position offset = default;
+            if (root.TryGetProperty("offset", out var offsetElement))
             {
-                yOffset = yOffsetElement.GetSingle();
+                offset = JsonSerializer.Deserialize<Position>(offsetElement.GetRawText(), options);
             }
 
-            return new SecondaryInitialState(stateId, yOffset);
+            return new SecondaryInitialState(stateId, offset);
         }
         else
         {
@@ -45,7 +45,7 @@ public class SecondaryInitialStateJsonConverter : JsonConverter<SecondaryInitial
 
     public override void Write(Utf8JsonWriter writer, SecondaryInitialState value, JsonSerializerOptions options)
     {
-        if (value.YOffset == 0f)
+        if (value.Offset == default)
         {
             writer.WriteStringValue(value.Id);
             return;
@@ -53,7 +53,8 @@ public class SecondaryInitialStateJsonConverter : JsonConverter<SecondaryInitial
 
         writer.WriteStartObject();
         writer.WriteString("id", value.Id);
-        writer.WriteNumber("yOffset", value.YOffset);
+        writer.WritePropertyName("offset");
+        JsonSerializer.Serialize(writer, value.Offset, options);
         writer.WriteEndObject();
     }
 }

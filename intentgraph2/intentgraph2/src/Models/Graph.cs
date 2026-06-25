@@ -1,5 +1,7 @@
+using IntentGraph2.Utils.Rule;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace IntentGraph2.Models;
 
@@ -14,7 +16,11 @@ public class Graph
     public List<Move> Moves { get; set; } = new();
 
     // Generated only
+    [JsonIgnore]
     public string? Warning { get; set; }
+
+    [JsonIgnore]
+    public IRule? Condition { get; set; }
 
     // Used in intents.json only
     public bool Expand { get; set; } = false;

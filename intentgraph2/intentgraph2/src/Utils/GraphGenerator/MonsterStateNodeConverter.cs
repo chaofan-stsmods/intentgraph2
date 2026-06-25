@@ -89,7 +89,7 @@ internal class MonsterStateNodeConverter
                     {
                         allNodes.Add(item);
                     }
-                    stateNode.YOffset = secondaryState.YOffset;
+                    stateNode.Offset = secondaryState.Offset;
                     result.Add(stateNode);
                 }
             }
@@ -155,7 +155,7 @@ internal class MonsterStateNodeConverter
                     NextStateCount = 1,
                     Parent = parent,
                     ForceNotSimpleLoop = node.NotSimpleLoopStart,
-                    YOffset = node.YOffset,
+                    Offset = node.Offset,
                 };
 
                 result.MoveStateIds.Add(state.Id);
@@ -164,17 +164,17 @@ internal class MonsterStateNodeConverter
                     result.MoveStateIds.AddRange(node.AlternativeMoveNames);
                 }
             }
-            else if (node.PlaceHolderIntentCount > 0)
+            else if (node.PlaceholderIntentCount > 0)
             {
                 result = new MonsterStateNode
                 {
                     State = null,
-                    Width = node.PlaceHolderIntentCount + (node.PlaceHolderIntentCount - 1) * IconPaddingInMove,
+                    Width = node.PlaceholderIntentCount + (node.PlaceholderIntentCount - 1) * IconPaddingInMove,
                     Height = 1,
                     NextStateCount = 1,
                     Parent = parent,
                     ForceNotSimpleLoop = node.NotSimpleLoopStart,
-                    YOffset = node.YOffset,
+                    Offset = node.Offset,
                 };
 
                 if (node.AlternativeMoveNames != null)
@@ -206,7 +206,7 @@ internal class MonsterStateNodeConverter
                 State = null,
                 Parent = parent,
                 ForceNotSimpleLoop = node.NotSimpleLoopStart,
-                YOffset = node.YOffset,
+                Offset = node.Offset,
             };
 
             if (parent == null)

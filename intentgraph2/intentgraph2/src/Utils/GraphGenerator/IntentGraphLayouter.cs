@@ -65,12 +65,12 @@ internal class IntentGraphLayouter
     public Graph StateNodesToGraph(List<MonsterStateNode> stateNodes, IntentDefinition? intentDefinition)
     {
         var result = new Graph();
-        var y = 0f;
+        var y = intentDefinition?.Offset.Y ?? 0f;
+        var x = intentDefinition?.Offset.X ?? 0f;
         var arrowTarget = new Dictionary<Arrow, MonsterStateNode>();
         foreach (var stateNode in stateNodes)
         {
-            y += stateNode.YOffset;
-
+            y += stateNode.Offset.Y;
             var previousStateNodes = MonsterStateNodeSimplifier.GetPrecessorDict(stateNode.GetAllNodes());
 
             // Remove self loop if it's the only next state to avoid unnecessary arrow.
@@ -85,7 +85,7 @@ internal class IntentGraphLayouter
                 ArrowTarget = arrowTarget,
                 PreviousStateNodes = previousStateNodes,
             };
-            AddStateNodeToGraph(stateNode, precessorNode: null, result, context, 0, y);
+            AddStateNodeToGraph(stateNode, precessorNode: null, result, context, x + stateNode.Offset.X, y);
             AddPossiblePreviousMoveIds(result.Moves, context);
             y = result.Height + 0.25f;
         }
@@ -358,22 +358,22 @@ internal class IntentGraphLayouter
             if (node.State is MoveState moveState)
             {
                 AddMove(moveState, node, graph, node.X, node.Y, context);
-                if (node.NextState != null)
+            }
+            if (node.NextState != null)
+            {
+                if (i == secondHalfIndex - 1)
                 {
-                    if (i == secondHalfIndex - 1)
+                    if (!secondHalfSingleLayout)
                     {
-                        if (!secondHalfSingleLayout)
-                        {
-                            AddArrow(graph, new Arrow([1, x + node.Width - Math.Min(node.Width, node.NextState.Width) / 2, node.Y + node.Height, secondHalfY]), context, node.NextState);
-                        }
-                    }
-                    else
-                    {
-                        AddArrow(graph, new Arrow([0, x + node.Width, node.Y + 0.5f, x + node.Width + 0.5f]), context, node.NextState);
+                        AddArrow(graph, new Arrow([1, x + node.Width - Math.Min(node.Width, node.NextState.Width) / 2, node.Y + node.Height, secondHalfY]), context, node.NextState);
                     }
                 }
-                x += node.Width + 0.5f;
+                else
+                {
+                    AddArrow(graph, new Arrow([0, x + node.Width, node.Y + 0.5f, x + node.Width + 0.5f]), context, node.NextState);
+                }
             }
+            x += node.Width + 0.5f;
         }
 
         x -= 0.5f;
@@ -394,26 +394,26 @@ internal class IntentGraphLayouter
                 if (node.State is MoveState moveState)
                 {
                     AddMove(moveState, node, graph, node.X, node.Y, context);
-                    if (node.NextState != null)
+                }
+                if (node.NextState != null)
+                {
+                    if (i == loopNodes.Count - 1)
                     {
-                        if (i == loopNodes.Count - 1)
+                        if (inputFromLeft)
                         {
-                            if (inputFromLeft)
-                            {
-                                AddArrow(graph, new Arrow([1, node.X + Math.Min(node.Width, node.NextState.Width) / 2, node.Y, loopStart.Y + loopStart.Height]), context, node.NextState);
-                            }
-                            else
-                            {
-                                AddArrow(graph, new Arrow([0, node.X, node.Y + 0.5f, loopStartX + loopStart.Width / 2, loopStart.Y + loopStart.Height]), context, node.NextState);
-                            }
+                            AddArrow(graph, new Arrow([1, node.X + Math.Min(node.Width, node.NextState.Width) / 2, node.Y, loopStart.Y + loopStart.Height]), context, node.NextState);
                         }
                         else
                         {
-                            AddArrow(graph, new Arrow([0, node.X, node.Y + 0.5f, node.X - secondHalfDistance]), context, node.NextState);
+                            AddArrow(graph, new Arrow([0, node.X, node.Y + 0.5f, loopStartX + loopStart.Width / 2, loopStart.Y + loopStart.Height]), context, node.NextState);
                         }
                     }
-                    x -= node.Width + secondHalfDistance;
+                    else
+                    {
+                        AddArrow(graph, new Arrow([0, node.X, node.Y + 0.5f, node.X - secondHalfDistance]), context, node.NextState);
+                    }
                 }
+                x -= node.Width + secondHalfDistance;
             }
         }
         else
@@ -425,29 +425,29 @@ internal class IntentGraphLayouter
             if (node.State is MoveState moveState)
             {
                 AddMove(moveState, node, graph, node.X, node.Y, context);
-                if (prevNode.X + prevNode.Width / 2 < node.X + node.Width - 0.25f)
-                {
-                    AddArrow(graph, new Arrow([1, prevNode.X + prevNode.Width / 2, prevNode.Y + prevNode.Height, node.Y]), context, node);
-                }
-                else
-                {
-                    AddArrow(graph, new Arrow([1,
+            }
+            if (prevNode.X + prevNode.Width / 2 < node.X + node.Width - 0.25f)
+            {
+                AddArrow(graph, new Arrow([1, prevNode.X + prevNode.Width / 2, prevNode.Y + prevNode.Height, node.Y]), context, node);
+            }
+            else
+            {
+                AddArrow(graph, new Arrow([1,
                         Math.Max(prevNode.X + prevNode.Width / 2, node.X + node.Width + 0.25f), prevNode.Y + prevNode.Height,
                         node.Y + 0.5f,
                         node.X + node.Width]), context, node);
-                }
+            }
 
-                if (loopStart.X + loopStart.Width / 2 > node.X + 0.25f)
-                {
-                    AddArrow(graph, new Arrow([1, loopStart.X + loopStart.Width / 2, node.Y, loopStart.Y + loopStart.Height]), context, loopStart);
-                }
-                else
-                {
-                    AddArrow(graph, new Arrow([0,
+            if (loopStart.X + loopStart.Width / 2 > node.X + 0.25f)
+            {
+                AddArrow(graph, new Arrow([1, loopStart.X + loopStart.Width / 2, node.Y, loopStart.Y + loopStart.Height]), context, loopStart);
+            }
+            else
+            {
+                AddArrow(graph, new Arrow([0,
                         node.X, node.Y + 0.5f,
                         Math.Min(loopStart.X + loopStart.Width / 2, node.X - 0.25f),
                         loopStart.Y + loopStart.Height]), context, loopStart);
-                }
             }
         }
 

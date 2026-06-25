@@ -267,6 +267,40 @@ layout_mode = 2
 text = "Leave blank to skip outdated warnings. Syntax is validated against the current monster."
 autowrap_mode = 3
 
+[node name="OffsetRow" type="HBoxContainer" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OffsetXLabel" type="Label" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection/OffsetRow"]
+layout_mode = 2
+text = "offsetX"
+
+[node name="OffsetXEdit" type="LineEdit" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection/OffsetRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/caret_color = Color(0.98, 0.98, 0.98, 1)
+theme_override_constants/caret_width = 3
+theme_override_fonts/font = SubResource("SystemFont_hog8t")
+theme_override_font_sizes/font_size = 20
+placeholder_text = "0"
+
+[node name="OffsetYLabel" type="Label" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection/OffsetRow"]
+layout_mode = 2
+text = "offsetY"
+
+[node name="OffsetYEdit" type="LineEdit" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection/OffsetRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/caret_color = Color(0.98, 0.98, 0.98, 1)
+theme_override_constants/caret_width = 3
+theme_override_fonts/font = SubResource("SystemFont_hog8t")
+theme_override_font_sizes/font_size = 20
+placeholder_text = "0"
+
 [node name="secondaryInitialStates JSON" type="MarginContainer" parent="WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs"]
 visible = false
 layout_mode = 2

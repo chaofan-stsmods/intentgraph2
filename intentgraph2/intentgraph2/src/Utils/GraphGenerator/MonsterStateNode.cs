@@ -1,4 +1,5 @@
 using Godot;
+using IntentGraph2.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ internal class MonsterStateNode
     public bool SimpleLoopStart { get; set; }
     public int SimpleLoopLength { get; set; }
     public int SimpleLoopPrecessorCount { get; set; }
-    public float YOffset { get; set; } // For secondary initial states, to adjust their vertical position.
+    public Position Offset { get; set; } // For secondary initial states, to adjust their position.
 
     // Following are used for graph layout
 

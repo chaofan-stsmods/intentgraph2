@@ -11,7 +11,7 @@ namespace IntentGraph2.Models;
 
 public class IntentDefinitionList : List<IntentDefinition>
 {
-    public IntentDefinition? FindFirstMatchCondition(MonsterModel monster)
+    public (IntentDefinition?, IRule?) FindFirstMatchCondition(MonsterModel monster)
     {
         foreach (var def in this.Reverse<IntentDefinition>())
         {
@@ -20,7 +20,7 @@ public class IntentDefinitionList : List<IntentDefinition>
                 var rule = IRule.Parse(def.Condition, new RuleContext(monster));
                 if (rule?.GetBool() == true)
                 {
-                    return def;
+                    return (def, rule);
                 }
             }
             catch (Exception ex)
@@ -29,7 +29,7 @@ public class IntentDefinitionList : List<IntentDefinition>
             }
         }
 
-        return null;
+        return (null, null);
     }
 }
 
@@ -48,6 +48,8 @@ public class IntentDefinition
     public StateMachineNode[]? StateMachine { get; set; }
 
     public Dictionary<string, MoveReplacement[]>? MoveReplacements { get; set; }
+
+    public Position Offset { get; set; }
 }
 
 public class StateMachineNode
@@ -68,11 +70,11 @@ public class StateMachineNode
 
     public bool HorizontalLayout { get; set; } = false;
 
-    public int PlaceHolderIntentCount { get; set; } = 0;
+    public int PlaceholderIntentCount { get; set; } = 0;
 
     public bool NotSimpleLoopStart { get; set; } = false;
 
-    public float YOffset { get; set; } = 0f;
+    public Position Offset { get; set; }
 }
 
 public record class StateMachinNodeChildren(string Label = "", StateMachineNode? Node = null);
@@ -80,4 +82,6 @@ public record class StateMachinNodeChildren(string Label = "", StateMachineNode?
 public record class MoveReplacement(string? ValueText, string? TimesText);
 
 [JsonConverter(typeof(SecondaryInitialStateJsonConverter))]
-public record class SecondaryInitialState(string Id, float YOffset = 0f);
+public record class SecondaryInitialState(string Id, Position Offset = default);
+
+public record struct Position(float X = 0, float Y = 0);

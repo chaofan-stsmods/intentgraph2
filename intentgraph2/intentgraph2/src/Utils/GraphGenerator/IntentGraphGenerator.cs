@@ -1,9 +1,12 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Utils.Rule;
+using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace IntentGraph2.Utils.GraphGenerator;
@@ -18,6 +21,32 @@ public class IntentGraphGenerator
 
     public static float IconGroupSingleMovePadding => ShowMonsterMoveNames ? 0 : -0.15f;
 
+    public static Graph? GenerateAndCacheGraphForCreature(Creature creature)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        try
+        {
+            var monster = creature.Monster;
+            IgLogger.Info($"Generating intent graph for monster: {creature.Name}.");
+            var graph = GenerateGraph(monster);
+            if (monster != null && graph != null)
+            {
+                IntentGraphMod.GeneratedGraphs.AddOrUpdate(monster, graph);
+            }
+            return graph;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(ex.ToString());
+            return null;
+        }
+        finally
+        {
+            stopwatch.Stop();
+            IgLogger.Info($"Finished generating intent graph for monster: {creature.Name} in {stopwatch.ElapsedMilliseconds} ms.");
+        }
+    }
+
     public static Graph? GenerateGraph(MonsterModel? monster, IntentDefinition? overwriteIntentDefinition = null, IReadOnlyDictionary<string, string>? overwriteIntentStrings = null)
     {
         if (monster?.MoveStateMachine == null)
@@ -29,10 +58,14 @@ public class IntentGraphGenerator
         var initialState = stateMachine.GetInitialState();
 
         var intentDefinition = overwriteIntentDefinition;
+        IRule? condition = null;
         if (intentDefinition == null)
         {
             var intentDefinitionList = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
-            intentDefinition = intentDefinitionList?.FindFirstMatchCondition(monster);
+            if (intentDefinitionList != null)
+            {
+                (intentDefinition, condition) = intentDefinitionList.FindFirstMatchCondition(monster);
+            }
         }
 
         var localizer = new IntentGraphLocalizer(overwriteIntentStrings);
@@ -60,6 +93,7 @@ public class IntentGraphGenerator
         {
             graph = layouter.MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph, intentDefinition, font);
             graph.Warning = warning;
+            graph.Condition = condition;
             return graph;
         }
 
@@ -76,6 +110,7 @@ public class IntentGraphGenerator
 
         graph = layouter.StateNodesToGraph(stateNodes, intentDefinition);
         graph.Warning = warning;
+        graph.Condition = condition;
 
         if (intentDefinition?.GraphPatch != null)
         {

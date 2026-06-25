@@ -622,7 +622,7 @@
               "label": "ui.Otherwise",
               "node": {
                 "name": "placeholder1",
-                "placeHolderIntentCount": 1
+                "placeholderIntentCount": 1
               }
             }
           ],
@@ -642,13 +642,13 @@
           "name": "rand1",
           "children": [],
           "followUpState": "rand2",
-          "placeHolderIntentCount": 1
+          "placeholderIntentCount": 1
         },
         {
           "name": "rand2",
           "children": [],
           "followUpState": "EXECUTE",
-          "placeHolderIntentCount": 1
+          "placeholderIntentCount": 1
         },
         {
           "name": "rand",
@@ -739,7 +739,7 @@
               "label": "ui.Otherwise",
               "node": {
                 "name": "placeholder1",
-                "placeHolderIntentCount": 1
+                "placeholderIntentCount": 1
               }
             }
           ],
@@ -759,13 +759,13 @@
           "name": "rand1",
           "children": [],
           "followUpState": "rand2",
-          "placeHolderIntentCount": 1
+          "placeholderIntentCount": 1
         },
         {
           "name": "rand2",
           "children": [],
           "followUpState": "EXECUTE",
-          "placeHolderIntentCount": 1
+          "placeholderIntentCount": 1
         },
         {
           "name": "rand",

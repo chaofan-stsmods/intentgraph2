@@ -1,5 +1,6 @@
 using Godot;
 using IntentGraph2.Scenes;
+using IntentGraph2.Utils.GraphGenerator;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Localization.Fonts;
@@ -56,6 +57,15 @@ public static class IntentGraphHost
         if (creature.Monster == null || !IntentGraphMod.GeneratedGraphs.TryGetValue(creature.Monster, out var graph))
         {
             return;
+        }
+
+        if (graph.Condition?.GetBool() == false)
+        {
+            graph = IntentGraphGenerator.GenerateAndCacheGraphForCreature(creature);
+            if (graph == null)
+            {
+                return;
+            }
         }
 
         foreach (var (c, i) in availableIntentGraphs.ToList())

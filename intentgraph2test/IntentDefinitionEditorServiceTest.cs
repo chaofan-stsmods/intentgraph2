@@ -36,6 +36,7 @@ public class IntentDefinitionEditorServiceTest : IDisposable
             {
                 Condition = "slotIndex == 1",
                 UpToDateCondition = "count > 0",
+                Offset = new Position(1.25f, -2.5f),
                 StateMachine =
                 [
                     new StateMachineNode
@@ -71,10 +72,13 @@ public class IntentDefinitionEditorServiceTest : IDisposable
         Assert.Equal("ascension >= 9", loaded["Other.Monster"][0].Condition);
         Assert.Equal("slotIndex == 1", loaded["Test.Monster"][0].Condition);
         Assert.Equal("count > 0", loaded["Test.Monster"][0].UpToDateCondition);
+        Assert.Equal(1.25f, loaded["Test.Monster"][0].Offset.X);
+        Assert.Equal(-2.5f, loaded["Test.Monster"][0].Offset.Y);
         Assert.Single(loaded["Test.Monster"][0].StateMachine!);
         Assert.Single(loaded["Test.Monster"][0].GraphPatch!.Labels);
 
         var rawText = File.ReadAllText(filePath);
+        Assert.Contains("\"offset\"", rawText);
         Assert.Contains("\"graphPatch\"", rawText);
         Assert.Contains("\"stateMachine\"", rawText);
         Assert.Contains("\"moveReplacements\"", rawText);

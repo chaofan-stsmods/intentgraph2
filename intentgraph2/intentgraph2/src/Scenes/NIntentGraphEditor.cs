@@ -8,6 +8,7 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace IntentGraph2.Scenes;
@@ -46,6 +47,8 @@ public partial class NIntentGraphEditor : Control
     private Godot.Label? conditionStatusLabel;
     private LineEdit? upToDateConditionEdit;
     private Godot.Label? upToDateConditionStatusLabel;
+    private LineEdit? offsetXEdit;
+    private LineEdit? offsetYEdit;
     private CodeEdit? secondaryInitialStatesEdit;
     private CodeEdit? stateMachineEdit;
     private CodeEdit? moveReplacementsEdit;
@@ -117,6 +120,8 @@ public partial class NIntentGraphEditor : Control
         conditionStatusLabel = GetNode<Godot.Label>("%ConditionStatus");
         upToDateConditionEdit = GetNode<LineEdit>("%UpToDateConditionEdit");
         upToDateConditionStatusLabel = GetNode<Godot.Label>("%UpToDateConditionStatus");
+        offsetXEdit = GetNode<LineEdit>("%OffsetXEdit");
+        offsetYEdit = GetNode<LineEdit>("%OffsetYEdit");
         secondaryInitialStatesEdit = GetNode<CodeEdit>("%SecondaryInitialStatesEdit");
         stateMachineEdit = GetNode<CodeEdit>("%StateMachineEdit");
         moveReplacementsEdit = GetNode<CodeEdit>("%MoveReplacementsEdit");
@@ -145,6 +150,8 @@ public partial class NIntentGraphEditor : Control
         closeButton.Pressed += OnClosePressed;
         conditionEdit.TextChanged += _ => OnEditorFieldsChanged();
         upToDateConditionEdit.TextChanged += _ => OnEditorFieldsChanged();
+        offsetXEdit.TextChanged += _ => OnEditorFieldsChanged();
+        offsetYEdit.TextChanged += _ => OnEditorFieldsChanged();
         secondaryInitialStatesEdit.TextChanged += OnEditorFieldsChanged;
         stateMachineEdit.TextChanged += OnEditorFieldsChanged;
         moveReplacementsEdit.TextChanged += OnEditorFieldsChanged;
@@ -266,6 +273,10 @@ public partial class NIntentGraphEditor : Control
         conditionEdit!.PlaceholderText = LocalizeText("ui.editor.condition.placeholder", "true");
         GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection/UpToDateConditionLabel").Text = LocalizeText("ui.editor.up_to_date_condition.label", "Up-to-date condition");
         upToDateConditionEdit!.PlaceholderText = LocalizeText("ui.editor.up_to_date_condition.placeholder", "Leave blank to skip outdated warnings.");
+        GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection/OffsetRow/OffsetXLabel").Text = LocalizeText("ui.editor.offset_x.label", "offsetX");
+        offsetXEdit!.PlaceholderText = LocalizeText("ui.editor.offset_x.placeholder", "0");
+        GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/Condition/ConditionSection/OffsetRow/OffsetYLabel").Text = LocalizeText("ui.editor.offset_y.label", "offsetY");
+        offsetYEdit!.PlaceholderText = LocalizeText("ui.editor.offset_y.placeholder", "0");
         GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/secondaryInitialStates JSON/SecondaryInitialStatesSection/SecondaryInitialStatesHelp").Text = LocalizeText("ui.editor.help.secondary_initial_states", "Edit secondaryInitialStates as a JSON array of state ids.");
         GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/stateMachine JSON/StateMachineSection/StateMachineHelp").Text = LocalizeText("ui.editor.help.state_machine", "Edit the StateMachineNode array for this variant.");
         GetNode<Godot.Label>("WindowMargin/Window/RootMargin/RootVBox/BodySplit/ContentSplit/EditorScroll/EditorVBox/EditorTabs/moveReplacements JSON/MoveReplacementsSection/MoveReplacementHelp").Text = LocalizeText("ui.editor.help.move_replacements", "Edit move replacement overrides keyed by move id.");
@@ -274,7 +285,7 @@ public partial class NIntentGraphEditor : Control
 
         if (editorTabs != null)
         {
-            SetTabTitle("Condition", LocalizeText("ui.editor.tab.condition", "Condition"));
+            SetTabTitle("Condition", LocalizeText("ui.editor.tab.condition", "Basic Value"));
             SetTabTitle("secondaryInitialStates JSON", LocalizeText("ui.editor.tab.secondary_initial_states", "secondaryInitialStates JSON"));
             SetTabTitle("stateMachine JSON", LocalizeText("ui.editor.tab.state_machine", "stateMachine JSON"));
             SetTabTitle("moveReplacements JSON", LocalizeText("ui.editor.tab.move_replacements", "moveReplacements JSON"));
@@ -397,7 +408,7 @@ public partial class NIntentGraphEditor : Control
             : null;
         SetEditorsEnabled(definition != null);
 
-        if (conditionEdit == null || upToDateConditionEdit == null || secondaryInitialStatesEdit == null || stateMachineEdit == null || moveReplacementsEdit == null || graphPatchEdit == null || readOnlySummaryEdit == null)
+        if (conditionEdit == null || upToDateConditionEdit == null || offsetXEdit == null || offsetYEdit == null || secondaryInitialStatesEdit == null || stateMachineEdit == null || moveReplacementsEdit == null || graphPatchEdit == null || readOnlySummaryEdit == null)
         {
             return;
         }
@@ -406,6 +417,8 @@ public partial class NIntentGraphEditor : Control
         {
             conditionEdit.Text = string.Empty;
             upToDateConditionEdit.Text = string.Empty;
+            offsetXEdit.Text = string.Empty;
+            offsetYEdit.Text = string.Empty;
             secondaryInitialStatesEdit.Text = string.Empty;
             stateMachineEdit.Text = string.Empty;
             moveReplacementsEdit.Text = string.Empty;
@@ -418,6 +431,8 @@ public partial class NIntentGraphEditor : Control
 
         conditionEdit.Text = definition.Condition ?? "true";
         upToDateConditionEdit.Text = definition.UpToDateCondition ?? string.Empty;
+        offsetXEdit.Text = FormatPositionComponent(definition.Offset.X);
+        offsetYEdit.Text = FormatPositionComponent(definition.Offset.Y);
         secondaryInitialStatesEdit.Text = definition.SecondaryInitialStates == null || definition.SecondaryInitialStates.Length == 0
             ? string.Empty
             : IntentDefinitionEditorService.SerializeJson(definition.SecondaryInitialStates);
@@ -483,6 +498,16 @@ public partial class NIntentGraphEditor : Control
         if (upToDateConditionEdit != null)
         {
             upToDateConditionEdit.Editable = enabled;
+        }
+
+        if (offsetXEdit != null)
+        {
+            offsetXEdit.Editable = enabled;
+        }
+
+        if (offsetYEdit != null)
+        {
+            offsetYEdit.Editable = enabled;
         }
 
         if (secondaryInitialStatesEdit != null)
@@ -898,6 +923,16 @@ public partial class NIntentGraphEditor : Control
         source.Condition = NormalizeConditionText(conditionEdit?.Text);
         source.UpToDateCondition = NormalizeOptionalRuleText(upToDateConditionEdit?.Text);
 
+        if (!TryParsePositionComponent(offsetXEdit?.Text, LocalizeText("ui.editor.field.offset_x", "offsetX"), out var offsetX, out error))
+        {
+            return false;
+        }
+
+        if (!TryParsePositionComponent(offsetYEdit?.Text, LocalizeText("ui.editor.field.offset_y", "offsetY"), out var offsetY, out error))
+        {
+            return false;
+        }
+
         if (!TryDeserializeField(secondaryInitialStatesEdit?.Text, LocalizeText("ui.editor.field.secondary_initial_states", "secondaryInitialStates"), out SecondaryInitialState[]? secondaryInitialStates, out error))
         {
             return false;
@@ -922,6 +957,7 @@ public partial class NIntentGraphEditor : Control
         source.StateMachine = stateMachine;
         source.MoveReplacements = moveReplacements;
         source.GraphPatch = NormalizeGraphPatch(graphPatch);
+        source.Offset = new Position(offsetX, offsetY);
         if (validateCondition && !ValidateVariantRuleExpressions(source, out error))
         {
             return false;
@@ -1132,7 +1168,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildSecondaryInitialStatesCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "id", "yOffset" })
+        foreach (var propertyName in new[] { "id", "offset", "x", "y" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }
@@ -1147,7 +1183,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildStateMachineCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node", "horizontalLayout", "placeHolderIntentCount", "notSimpleLoopStart", "alternativeMoveNames", "yOffset" })
+        foreach (var propertyName in new[] { "name", "moveName", "isInitialState", "initialStatePriority", "children", "followUpState", "label", "node", "horizontalLayout", "placeholderIntentCount", "notSimpleLoopStart", "alternativeMoveNames", "offset", "x", "y" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }
@@ -1283,6 +1319,7 @@ public partial class NIntentGraphEditor : Control
             && graphPatch.Height == 1
             && graphPatch.Arrows.Count == 0
             && graphPatch.Moves.Count == 0
+            && graphPatch.Icons.Count == 0
             && graphPatch.IconGroups.Count == 0
             && graphPatch.Labels.Count == 0)
         {
@@ -1313,9 +1350,32 @@ public partial class NIntentGraphEditor : Control
         return NormalizeOptionalRuleText(condition) ?? "true";
     }
 
+    private static string FormatPositionComponent(float value)
+    {
+        return value == 0f ? string.Empty : value.ToString(CultureInfo.InvariantCulture);
+    }
+
     private static string? NormalizeOptionalRuleText(string? condition)
     {
         return string.IsNullOrWhiteSpace(condition) ? null : condition.Trim();
+    }
+
+    private bool TryParsePositionComponent(string? text, string fieldName, out float value, out string error)
+    {
+        error = string.Empty;
+        value = 0f;
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return true;
+        }
+
+        if (float.TryParse(text.Trim(), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        error = LocalizeText("ui.editor.error.invalid_number", "Invalid {0}: expected a number using '.' for decimals.", fieldName);
+        return false;
     }
 
     private bool TryDeserializeField<T>(string? text, string fieldName, out T? value, out string error)

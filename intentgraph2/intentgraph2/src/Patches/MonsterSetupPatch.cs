@@ -1,11 +1,7 @@
 using HarmonyLib;
 using IntentGraph2.Utils.GraphGenerator;
-using IntentGraph2.Utils;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;
-using MegaCrit.Sts2.Core.Logging;
-using System;
-using System.Diagnostics;
 
 namespace IntentGraph2.Patches;
 
@@ -16,26 +12,7 @@ public class MonsterSetupPatch
     {
         if (creature.IsMonster)
         {
-            var stopwatch = Stopwatch.StartNew();
-            try
-            {
-                var monster = creature.Monster;
-                IgLogger.Info($"Generating intent graph for monster: {creature.Name}.");
-                var graph = IntentGraphGenerator.GenerateGraph(monster);
-                if (monster != null && graph != null)
-                {
-                    IntentGraphMod.GeneratedGraphs.TryAdd(monster, graph);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn(ex.ToString());
-            }
-            finally
-            {
-                stopwatch.Stop();
-                IgLogger.Info($"Finished generating intent graph for monster: {creature.Name} in {stopwatch.ElapsedMilliseconds} ms.");
-            }
+            IntentGraphGenerator.GenerateAndCacheGraphForCreature(creature);
         }
     }
 }
