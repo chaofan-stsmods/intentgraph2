@@ -130,19 +130,19 @@ public class IntentGraphMod
             };
         }
 
-        var fileIo = new GodotFileIo($"{UserDataPathProvider.GetAccountScopedBasePath(null)}/mod_data/intentgraph2");
-        var settings = fileIo.ReadFile("settings.json");
-        if (settings != null)
+        try
         {
-            try
+            var fileIo = new GodotFileIo($"{UserDataPathProvider.GetAccountScopedBasePath(null)}/mod_data/intentgraph2");
+            var settings = fileIo.ReadFile("settings.json");
+            if (settings != null)
             {
                 // Don't use SerializeOptions because RitsuLib doesn't use lower camel case.
                 defaultConfig = JsonSerializer.Deserialize<IntentGraphModConfig>(settings) ?? new IntentGraphModConfig();
             }
-            catch (Exception ex)
-            {
-                IgLogger.Warn("Failed to load default config: " + ex);
-            }
+        }
+        catch (Exception ex)
+        {
+            IgLogger.Warn("Failed to load default config: " + ex);
         }
 
         LoadIntentDefinitions();
