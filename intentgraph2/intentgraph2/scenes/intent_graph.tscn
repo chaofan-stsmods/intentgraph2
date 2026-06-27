@@ -1,9 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://dlxlgbs7cv2xv"]
+[gd_scene load_steps=3 format=3 uid="uid://dlxlgbs7cv2xv"]
 
 [ext_resource type="Script" uid="uid://bgtwpj3crttg3" path="res://intentgraph2/src/Scenes/NIntentGraph.cs" id="1_qohfl"]
+[ext_resource type="Script" uid="uid://dpqomx87gr54u" path="res://intentgraph2/src/scenes/NIntentGraphCanvas.cs" id="2_urx8o"]
 
 [node name="IntentGraph" type="Control"]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_qohfl")
+
+[node name="IntentGraphCanvas" type="Control" parent="."]
+unique_name_in_owner = true
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+script = ExtResource("2_urx8o")

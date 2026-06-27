@@ -15,6 +15,10 @@ public class IntentGraphModConfig
 
     public bool PinableIntentGraph { get; set; } = false;
 
+    public IntentGraphPosition IntentGraphPosition { get; set; } = IntentGraphPosition.Default;
+
+    public float IntentGraphScale { get; set; } = 1.0f;
+
     public event EventHandler<string>? OnUpdated;
 
     public void NotifyUpdated(string propertyName)
@@ -29,5 +33,15 @@ public class IntentGraphModConfig
         UseAnimatedIntentIcon = config.UseAnimatedIntentIcon;
         ShowCurrentMove = config.ShowCurrentMove;
         PinableIntentGraph = config.PinableIntentGraph;
+        IntentGraphPosition = config.IntentGraphPosition;
+        IntentGraphScale = config.IntentGraphScale;
     }
+}
+
+public enum IntentGraphPosition
+{
+    Default,
+    TopLeft,
+    TopCenter,
+    TopRight,
 }

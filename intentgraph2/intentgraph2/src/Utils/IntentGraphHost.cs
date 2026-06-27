@@ -16,7 +16,7 @@ namespace IntentGraph2.Utils;
 public static class IntentGraphHost
 {
     private const float IntentGraphPanelTop = 90;
-    private const float IntentGraphPanelTopPinned = 170;
+    private const float IntentGraphPanelTopPinned = 160;
 
     private static Dictionary<NCreature, IntentGraphItem> availableIntentGraphs = new();
     private static bool intentGraphVisible = true;
@@ -160,6 +160,22 @@ public static class IntentGraphHost
     {
         return () =>
         {
+            if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeft)
+            {
+                intentGraphPanel.Position = new Vector2(8, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
+                return;
+            }
+            else if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopRight)
+            {
+                intentGraphPanel.Position = new Vector2(NGame.Instance!.GetViewportRect().Size.X - intentGraphPanel.Size.X, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
+                return;
+            }
+            else if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopCenter)
+            {
+                intentGraphPanel.Position = new Vector2(NGame.Instance!.GetViewportRect().Size.X / 2 - intentGraphPanel.Size.X / 2, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
+                return;
+            }
+
             var maxX = NGame.Instance!.GetViewportRect().Size.X - intentGraphPanel.Size.X;
             var candidateX = Math.Clamp(__instance.GlobalPosition.X + __instance.Size.X / 2 - intentGraphPanel.Size.X / 2, 0, maxX);
 

@@ -70,6 +70,28 @@ public class RitsuLibHelper : IRitsuLibHelper
                 settings.NotifyUpdated(nameof(IntentGraphModConfig.ShowCurrentMove));
             });
 
+        var intentGraphPosition = new ModSettingsValueBinding<IntentGraphModConfig, IntentGraphPosition>(
+            IntentGraphMod.ModId,
+            SettingKey,
+            SaveScope.Global,
+            settings => settings.IntentGraphPosition,
+            (settings, value) =>
+            {
+                settings.IntentGraphPosition = value;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.IntentGraphPosition));
+            });
+
+        var intentGraphScale = new ModSettingsValueBinding<IntentGraphModConfig, double>(
+            IntentGraphMod.ModId,
+            SettingKey,
+            SaveScope.Global,
+            settings => settings.IntentGraphScale * 100,
+            (settings, value) =>
+            {
+                settings.IntentGraphScale = (float)value / 100;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.IntentGraphScale));
+            });
+
         var pinableIntentGraph = new ModSettingsValueBinding<IntentGraphModConfig, bool>(
             IntentGraphMod.ModId,
             SettingKey,
@@ -101,6 +123,20 @@ public class RitsuLibHelper : IRitsuLibHelper
                     "show_current_move",
                     ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-SHOW_CURRENT_MOVE.title", "Show Current Move"),
                     showCurrentMove);
+                section.AddEnumChoice(
+                    "intent_graph_position",
+                    ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-INTENT_GRAPH_POSITION.title", "Intent Graph Position"),
+                    intentGraphPosition,
+                    optionLabelFactory: (position) => ModSettingsText.LocString("settings_ui", $"INTENTGRAPH2-INTENT_GRAPH_POSITION.{position}", position.ToString()),
+                    presentation: ModSettingsChoicePresentation.Stepper);
+                section.AddSlider(
+                    "intent_graph_scale",
+                    ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-INTENT_GRAPH_SCALE.title", "Intent Graph Scale"),
+                    intentGraphScale,
+                    minValue: 50,
+                    maxValue: 150,
+                    step: 10,
+                    valueFormatter: (value) => $"{value:0.##}%");
             });
             page.AddSection("control", section =>
             {

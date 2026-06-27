@@ -8,5 +8,11 @@
     "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "Use Animated Icon",
     "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "Show Current Move",
     "INTENTGRAPH2-CONTROL.title": "Control",
-    "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title": "Pinable Intent Graph"
+    "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title": "Pinable Intent Graph",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.title": "Intent Graph Position",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.Default": "Default",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeft": "Top Left",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Top Right",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Top Center",
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Intent Graph Scale"
 }

@@ -55,6 +55,27 @@ public class HelperModConfig : SimpleModConfig
         }
     }
 
+    public static IntentGraphPosition IntentGraphPosition
+    {
+        get => BaseConfig.IntentGraphPosition;
+        set
+        {
+            BaseConfig.IntentGraphPosition = value;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.IntentGraphPosition));
+        }
+    }
+
+    [ConfigSlider(50, 150, 10, Format = "{0:0.##}%")]
+    public static float IntentGraphScale
+    {
+        get => BaseConfig.IntentGraphScale * 100;
+        set
+        {
+            BaseConfig.IntentGraphScale = value / 100;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.IntentGraphScale));
+        }
+    }
+
     [ConfigSection("Control")]
     public static bool PinableIntentGraph
     {
