@@ -160,24 +160,28 @@ public static class IntentGraphHost
     {
         return () =>
         {
-            if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeft)
+            var screenWidth = NGame.Instance!.GetViewportRect().Size.X;
+            var creatureMid = __instance.GlobalPosition.X + __instance.Size.X / 2;
+            if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeft ||
+                (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeftOrRight && creatureMid < screenWidth / 2))
             {
                 intentGraphPanel.Position = new Vector2(8, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
                 return;
             }
-            else if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopRight)
+            else if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopRight ||
+                (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeftOrRight && creatureMid >= screenWidth / 2))
             {
-                intentGraphPanel.Position = new Vector2(NGame.Instance!.GetViewportRect().Size.X - intentGraphPanel.Size.X, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
+                intentGraphPanel.Position = new Vector2(screenWidth - intentGraphPanel.Size.X, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
                 return;
             }
             else if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopCenter)
             {
-                intentGraphPanel.Position = new Vector2(NGame.Instance!.GetViewportRect().Size.X / 2 - intentGraphPanel.Size.X / 2, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
+                intentGraphPanel.Position = new Vector2(screenWidth / 2 - intentGraphPanel.Size.X / 2, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
                 return;
             }
 
-            var maxX = NGame.Instance!.GetViewportRect().Size.X - intentGraphPanel.Size.X;
-            var candidateX = Math.Clamp(__instance.GlobalPosition.X + __instance.Size.X / 2 - intentGraphPanel.Size.X / 2, 0, maxX);
+            var maxX = screenWidth - intentGraphPanel.Size.X;
+            var candidateX = Math.Clamp(creatureMid - intentGraphPanel.Size.X / 2, 0, maxX);
 
             var parent = intentGraphPanel.GetParent();
             var tipSet = (NHoverTipSet?)parent?.GetChildren().LastOrDefault(c => c is NHoverTipSet);

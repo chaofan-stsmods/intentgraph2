@@ -14,5 +14,6 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeft": "Top Left",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Top Right",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Top Center",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "Top Left or Right",
     "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Intent Graph Scale"
 }

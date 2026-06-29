@@ -44,4 +44,5 @@ public enum IntentGraphPosition
     TopLeft,
     TopCenter,
     TopRight,
+    TopLeftOrRight,
 }
