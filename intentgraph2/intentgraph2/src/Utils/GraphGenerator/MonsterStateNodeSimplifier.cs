@@ -17,11 +17,47 @@ internal class MonsterStateNodeSimplifier
         ChangeToHorizontalLayout(allNodes, rootNodes);
     }
 
-    public static void FindAndSetSimpleLoops(List<MonsterStateNode> nodes)
+    public static void FindAndSetSimpleLoops(List<MonsterStateNode> initNodes)
     {
-        foreach (var node in nodes)
+        // A Simple loop contains only no-child nodes, and only one node has precessor outside the loop.
+        var precessorCount = new Dictionary<MonsterStateNode, int>();
+        foreach (var initNode in initNodes)
         {
-            FindAndSetSimpleLoops(node);
+            precessorCount[initNode] = 1;
+        }
+
+        var allNodes = initNodes.GetAllNodes();
+        foreach (var node in allNodes)
+        {
+            if (node.NextState != null)
+            {
+                precessorCount[node.NextState] = precessorCount.GetValueOrDefault(node.NextState) + 1;
+            }
+        }
+
+        var candidates = allNodes.Where(n => n.Parent == null && n.Children == null && !n.ForceNotSimpleLoop && precessorCount.GetValueOrDefault(n) > 1).ToList();
+        foreach (var node in candidates)
+        {
+            var loopNodes = new HashSet<MonsterStateNode>();
+            var current = node;
+            while (current != null && !loopNodes.Contains(current))
+            {
+                if (current != node && (current.Children != null || precessorCount.GetValueOrDefault(current) > 1))
+                {
+                    goto nextCandidate;
+                }
+
+                loopNodes.Add(current);
+                current = current.NextState;
+            }
+            if (current == node && loopNodes.Count > 1)
+            {
+                node.SimpleLoopStart = true;
+                node.SimpleLoopLength = loopNodes.Count;
+                node.SimpleLoopPrecessorCount = precessorCount.GetValueOrDefault(node) - 1; // -1 for inside loop precessor
+            }
+
+        nextCandidate:;
         }
     }
 
@@ -360,46 +396,6 @@ internal class MonsterStateNodeSimplifier
                 n.CalculateNodeSize();
                 n = n.Parent;
             }
-        }
-    }
-
-    private static void FindAndSetSimpleLoops(MonsterStateNode initNode)
-    {
-        // A Simple loop contains only no-child nodes, and only one node has precessor outside the loop.
-        var allNodes = initNode.GetAllNodes();
-        var precessorCount = new Dictionary<MonsterStateNode, int>();
-        precessorCount[initNode] = 1;
-        foreach (var node in allNodes)
-        {
-            if (node.NextState != null)
-            {
-                precessorCount[node.NextState] = precessorCount.GetValueOrDefault(node.NextState) + 1;
-            }
-        }
-
-        var candidates = allNodes.Where(n => n.Parent == null && n.Children == null && !n.ForceNotSimpleLoop && precessorCount.GetValueOrDefault(n) > 1).ToList();
-        foreach (var node in candidates)
-        {
-            var loopNodes = new HashSet<MonsterStateNode>();
-            var current = node;
-            while (current != null && !loopNodes.Contains(current))
-            {
-                if (current != node && (current.Children != null || precessorCount.GetValueOrDefault(current) > 1))
-                {
-                    goto nextCandidate;
-                }
-
-                loopNodes.Add(current);
-                current = current.NextState;
-            }
-            if (current == node && loopNodes.Count > 1)
-            {
-                node.SimpleLoopStart = true;
-                node.SimpleLoopLength = loopNodes.Count;
-                node.SimpleLoopPrecessorCount = precessorCount.GetValueOrDefault(node) - 1; // -1 for inside loop precessor
-            }
-
-        nextCandidate:;
         }
     }
 }

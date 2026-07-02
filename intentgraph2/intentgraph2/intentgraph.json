@@ -33,31 +33,11 @@
     ],
     "MegaCrit.Sts2.Core.Models.Monsters.TerrorEel": [
         {
-            "upToDateCondition": "mm.count == 4 && mm.nextMoveOf_CRASH_MOVE_is_THRASH_MOVE && mm.nextMoveOf_THRASH_MOVE_is_CRASH_MOVE && mm.nextMoveOf_STUN_MOVE_is_TERROR_MOVE && mm.nextMoveOf_TERROR_MOVE_is_CRASH_MOVE",
-            "graphPatch": {
-                "width": 3.22,
-                "height": 2.5,
-                "moves": [
-                    {
-                        "x": 0,
-                        "y": 1.5,
-                        "id": "STUN_MOVE"
-                    },
-                    {
-                        "x": 1.5,
-                        "y": 1.5,
-                        "id": "TERROR_MOVE"
-                    }
-                ],
-                "arrows": [
-                    {
-                        "path": [0, 1, 2, 1.5]
-                    },
-                    {
-                        "path": [1, 2, 1.5, 1.25, 0.5, 1]
-                    }
-                ]
-            }
+            "condition": "true",
+            "upToDateCondition": "mm.hasMove_STUN_MOVE && mm.nextMoveOf_STUN_MOVE_is_TERROR_MOVE && mm.nextMoveOf_TERROR_MOVE_is_CRASH_MOVE",
+            "secondaryInitialStates": [
+                "STUN_MOVE"
+            ]
         }
     ],
     "MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat": [

@@ -34,7 +34,8 @@ internal class MonsterStateNode
     public float X { get; set; }
     public float Y { get; set; }
     public bool AddedToGraph { get; set; }
-    public int IndexOnGraph { get; set; }
+    public int XIndex { get; set; }
+    public int YIndex { get; set; }
     public bool AddedArrow { get; set; }
     public float ArrowRight { get; set; }
     public float ArrowBottom { get; set; }
@@ -129,3 +130,21 @@ internal class MonsterStateNode
         }
     }
 }
+
+public static class MonsterStateNodeExtensions
+{
+    internal static HashSet<MonsterStateNode> GetAllNodes(this IEnumerable<MonsterStateNode> nodes)
+    {
+        var allNodes = new HashSet<MonsterStateNode>();
+        foreach (var node in nodes)
+        {
+            foreach (var node1 in node.GetAllNodes())
+            {
+                allNodes.Add(node1);
+            }
+        }
+
+        return allNodes;
+    }
+}
+

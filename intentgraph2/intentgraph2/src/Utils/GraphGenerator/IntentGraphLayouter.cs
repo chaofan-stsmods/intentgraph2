@@ -55,7 +55,13 @@ internal class IntentGraphLayouter
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == move.Id);
             if (state != null && state is MoveState moveState)
             {
-                AddMove(moveState, new HashSet<string>([move.Id, ..move.Ids ?? []]).ToArray(), result, move.X, move.Y, intentDefinition, move.PossiblePreviousMoveNodeIndices);
+                AddMove(moveState,
+                    new HashSet<string>([move.Id, ..move.Ids ?? []]).ToArray(),
+                    result,
+                    move.X, move.Y,
+                    intentDefinition,
+                    move.PossiblePreviousMoveNodeIndices,
+                    subGraph: null);
             }
         }
 
@@ -65,13 +71,20 @@ internal class IntentGraphLayouter
     public Graph StateNodesToGraph(List<MonsterStateNode> stateNodes, IntentDefinition? intentDefinition)
     {
         var result = new Graph();
-        var y = intentDefinition?.Offset.Y ?? 0f;
         var x = intentDefinition?.Offset.X ?? 0f;
-        var arrowTarget = new Dictionary<Arrow, MonsterStateNode>();
+        var context = new GraphGenerationContext()
+        {
+            IntentDefinition = intentDefinition,
+            PreviousStateNodes = MonsterStateNodeSimplifier.GetPrecessorDict(stateNodes.GetAllNodes()),
+            Y = intentDefinition?.Offset.Y ?? 0f,
+        };
         foreach (var stateNode in stateNodes)
         {
-            y += stateNode.Offset.Y;
-            var previousStateNodes = MonsterStateNodeSimplifier.GetPrecessorDict(stateNode.GetAllNodes());
+            context.SubGraphs[context.YIndex] = new SubGraph()
+            {
+                Y = context.Y,
+            };
+            context.Y += stateNode.Offset.Y;
 
             // Remove self loop if it's the only next state to avoid unnecessary arrow.
             if (stateNodes.Count == 1 && stateNode.NextState == stateNode && stateNode.Children == null)
@@ -79,22 +92,16 @@ internal class IntentGraphLayouter
                 stateNode.NextState = null;
                 stateNode.NextStateCount = 0;
             }
-            var context = new GraphGenerationContext()
-            {
-                IntentDefinition = intentDefinition,
-                ArrowTarget = arrowTarget,
-                PreviousStateNodes = previousStateNodes,
-            };
-            AddStateNodeToGraph(stateNode, precessorNode: null, result, context, x + stateNode.Offset.X, y);
+            AddStateNodeToGraph(stateNode, precessorNode: null, result, context, x + stateNode.Offset.X);
             AddPossiblePreviousMoveIds(result.Moves, context);
-            y = result.Height + 0.25f;
+            context.NewLine(result.Height + 0.25f);
         }
 
-        TuneArrowPosition(result.Arrows, arrowTarget);
+        TuneArrowPosition(result.Arrows, context.ArrowTarget);
         return result;
     }
 
-    private void AddStateNodeToGraph(MonsterStateNode stateNode, MonsterStateNode? precessorNode, Graph graph, GraphGenerationContext context, float x, float y)
+    private void AddStateNodeToGraph(MonsterStateNode stateNode, MonsterStateNode? precessorNode, Graph graph, GraphGenerationContext context, float x)
     {
         if (stateNode.AddedToGraph)
         {
@@ -102,17 +109,17 @@ internal class IntentGraphLayouter
         }
 
         if (stateNode.SimpleLoopStart && stateNode.SimpleLoopPrecessorCount == 1 &&
-            (stateNode.SimpleLoopLength >= 4 || (stateNode.SimpleLoopLength == 3 && (context.NextNodeX >= 3 || graph.Height - y >= 2))))
+            (stateNode.SimpleLoopLength >= 4 || (stateNode.SimpleLoopLength == 3 && (context.NextX >= 3 || graph.Height - context.Y >= 2))))
         {
-            AddSimpleLoopToGraph(stateNode, precessorNode, graph, context, x, y);
+            AddSimpleLoopToGraph(stateNode, precessorNode, graph, context, x);
         }
         else
         {
-            AddStateNodeToGraphNormal(stateNode, graph, context, x, y);
+            AddStateNodeToGraphNormal(stateNode, graph, context, x, 0);
         }
     }
 
-    private void AddStateNodeToGraphNormal(MonsterStateNode stateNode, Graph graph, GraphGenerationContext context, float x, float y)
+    private void AddStateNodeToGraphNormal(MonsterStateNode stateNode, Graph graph, GraphGenerationContext context, float x, float yOffset)
     {
         if (stateNode.AddedToGraph)
         {
@@ -121,20 +128,25 @@ internal class IntentGraphLayouter
 
         stateNode.AddedToGraph = true;
         stateNode.X = x;
-        stateNode.Y = y;
+        stateNode.Y = context.Y + yOffset;
+        float y = stateNode.Y;
         if (stateNode.Parent != null)
         {
-            stateNode.IndexOnGraph = stateNode.Parent.IndexOnGraph;
+            stateNode.XIndex = stateNode.Parent.XIndex;
+            stateNode.YIndex = stateNode.Parent.YIndex;
         }
         else
         {
-            stateNode.IndexOnGraph = context.IndexOnGraph++;
-            context.IndexOnGraphToNode[stateNode.IndexOnGraph] = stateNode;
+            stateNode.XIndex = context.NextXIndex++;
+            stateNode.YIndex = context.YIndex;
+            context.IndexToNode[(stateNode.XIndex, stateNode.YIndex)] = stateNode;
         }
 
-        if (context.NextNodeX < x + stateNode.Width + 0.25f + 0.25f * stateNode.NextStateCount)
+        context.SubGraphs[stateNode.YIndex].Nodes.Add(stateNode);
+
+        if (context.NextX < x + stateNode.Width + 0.25f + 0.25f * stateNode.NextStateCount)
         {
-            context.NextNodeX = x + stateNode.Width + 0.25f + 0.25f * stateNode.NextStateCount;
+            context.NextX = x + stateNode.Width + 0.25f + 0.25f * stateNode.NextStateCount;
         }
 
         if (x + stateNode.Width > graph.Width)
@@ -167,29 +179,32 @@ internal class IntentGraphLayouter
         }
         else
         {
-            float childY = y + IconGroupLabelHeight + IconGroupPadding;
-            float childX = x + IconGroupPadding;
+            var subGraph = context.SubGraphs[stateNode.YIndex];
+            var childYOffset = yOffset + IconGroupLabelHeight + IconGroupPadding;
+            var childX = x + IconGroupPadding;
             for (int i = 0; i < stateNode.Children.Count; i++)
             {
                 var childNode = stateNode.Children[i];
-                graph.Labels.Add(new Models.Label(childX, childY - 0.04f, childNode.Label ?? string.Empty));
+                graph.Labels.Add(new Models.Label(childX, context.Y + childYOffset - 0.04f, childNode.Label ?? string.Empty));
+                subGraph.LabelIndices.Add(graph.Labels.Count - 1);
                 if (stateNode.HorizontalLayout)
                 {
-                    AddStateNodeToGraphNormal(childNode, graph, context, childX, childY + (childNode.Children == null ? IconGroupSingleMovePadding : 0));
+                    AddStateNodeToGraphNormal(childNode, graph, context, childX, childYOffset + (childNode.Children == null ? IconGroupSingleMovePadding : 0));
                     childX += childNode.Width + IconGroupPadding;
                 }
                 else
                 {
                     if (childNode.Children == null)
                     {
-                        childY += IconGroupSingleMovePadding; // reduce padding for single move child
+                        childYOffset += IconGroupSingleMovePadding; // reduce padding for single move child
                     }
-                    AddStateNodeToGraphNormal(childNode, graph, context, childX, childY);
-                    childY += childNode.Height + IconGroupLabelHeight;
+                    AddStateNodeToGraphNormal(childNode, graph, context, childX, childYOffset);
+                    childYOffset += childNode.Height + IconGroupLabelHeight;
                 }
             }
 
-            graph.IconGroups.Add(new IconGroup(x, y, stateNode.Width, stateNode.Height));
+            graph.IconGroups.Add(new IconGroup(stateNode.X, stateNode.Y, stateNode.Width, stateNode.Height));
+            subGraph.IconGroupIndices.Add(graph.IconGroups.Count - 1);
         }
 
         if (stateNode.NextState != null)
@@ -201,19 +216,20 @@ internal class IntentGraphLayouter
             }
 
             var nextNode = stateNode.NextState;
-            AddStateNodeToGraph(nextNode, stateNode, graph, context, context.NextNodeX, rootNode.Y);
+            AddStateNodeToGraph(nextNode, stateNode, graph, context, context.NextX);
             AddArrow(stateNode, nextNode, graph, context);
         }
     }
 
     private void AddMove(MoveState moveState, MonsterStateNode node, Graph graph, float x, float y, GraphGenerationContext context)
     {
-        var move = AddMove(moveState, node.MoveStateIds.ToArray(), graph, x, y, context.IntentDefinition, possiblePreviousMoveIndices: null);
+        var subGraph = context.SubGraphs[node.YIndex];
+        var move = AddMove(moveState, node.MoveStateIds.ToArray(), graph, x, y, context.IntentDefinition, possiblePreviousMoveIndices: null, subGraph);
         context.StateNodeToMove[node] = move;
         context.MoveToStateNode[move] = node;
     }
 
-    private Move AddMove(MoveState moveState, string[] ids, Graph graph, float x, float y, IntentDefinition? intentDefinition, int?[]? possiblePreviousMoveIndices)
+    private Move AddMove(MoveState moveState, string[] ids, Graph graph, float x, float y, IntentDefinition? intentDefinition, int?[]? possiblePreviousMoveIndices, SubGraph? subGraph)
     {
         var intents = moveState.Intents;
         var icons = new Icon[intents.Count];
@@ -241,16 +257,20 @@ internal class IntentGraphLayouter
 
         var move = new Move(ids[0], ids, x, y, icons, possiblePreviousMoveIndices);
         graph.Moves.Add(move);
+        if (subGraph != null)
+        {
+            subGraph.MoveIndices.Add(graph.Moves.Count - 1);
+        }
 
         if (ShowMonsterMoveNames)
         {
-            AddMoveName(moveState, graph, x, y);
+            AddMoveName(moveState, graph, x, y, subGraph);
         }
 
         return move;
     }
 
-    private void AddMoveName(MoveState moveState, Graph graph, float x, float y)
+    private void AddMoveName(MoveState moveState, Graph graph, float x, float y, SubGraph? subGraph)
     {
         var locTable = LocManager.Instance.GetTable("monsters");
         var monsterName = monster.Id.Entry;
@@ -275,7 +295,12 @@ internal class IntentGraphLayouter
         if (title != null)
         {
             var width = moveState.Intents.Count + (moveState.Intents.Count - 1) * IconPaddingInMove;
-            graph.Labels.Add(new Models.Label(x + width / 2, y + 0.2f, title, Align: "center", FontSize: 15));
+            var label = new Models.Label(x + width / 2, y + 0.2f, title, Align: "center", FontSize: 15);
+            graph.Labels.Add(label);
+            if (subGraph != null)
+            {
+                subGraph.LabelIndices.Add(graph.Labels.Count - 1);
+            }
         }
     }
 
@@ -298,18 +323,20 @@ internal class IntentGraphLayouter
         return false;
     }
 
-    private void AddSimpleLoopToGraph(MonsterStateNode loopStart, MonsterStateNode? precessorNode, Graph graph, GraphGenerationContext context, float x, float y)
+    private void AddSimpleLoopToGraph(MonsterStateNode loopStart, MonsterStateNode? precessorNode, Graph graph, GraphGenerationContext context, float x)
     {
         if (loopStart.AddedToGraph)
         {
             return;
         }
 
+        float y = context.Y;
+
         // Left: o -> o -> o  Bottom: o    o -> o -> o
         //            ^    |          |    ^         |
         //            |    v          |    |         v
         //            o <- o          +----+--- o <- o
-        var inputFromLeft = precessorNode == null || (precessorNode.IndexOnGraph == context.IndexOnGraph - 1 && precessorNode.Y < y + 0.5f);
+        var inputFromLeft = precessorNode == null || (precessorNode.XIndex == context.NextXIndex - 1 && precessorNode.Y < y + 0.5f);
 
         var loopNodes = new List<MonsterStateNode>();
         var node1 = loopStart;
@@ -337,7 +364,7 @@ internal class IntentGraphLayouter
         }
 
         // Too unbalanced, 3+ vs 1 and the single node is too short
-        if (loopNodes.Count - secondHalfIndex == 1 && loopNodes.Count > 3 && loopNodes[secondHalfIndex].Width < 1.5f && context.NextNodeX < 2)
+        if (loopNodes.Count - secondHalfIndex == 1 && loopNodes.Count > 3 && loopNodes[secondHalfIndex].Width < 1.5f && context.NextX < 2)
         {
             AddStateNodeToGraphNormal(loopStart, graph, context, x, y);
             return;
@@ -377,7 +404,7 @@ internal class IntentGraphLayouter
         }
 
         x -= 0.5f;
-        context.NextNodeX = x + 0.25f;
+        context.NextX = x + 0.25f;
         graph.Width = x;
         graph.Height = Math.Max(secondHalfY + 1f, graph.Height);
 
@@ -456,8 +483,10 @@ internal class IntentGraphLayouter
             MonsterStateNode? node = loopNodes[i];
             node.AddedToGraph = true;
             node.AddedArrow = true;
-            node.IndexOnGraph = context.IndexOnGraph++;
-            context.IndexOnGraphToNode[node.IndexOnGraph] = node;
+            node.XIndex = context.NextXIndex++;
+            node.YIndex = context.YIndex;
+            context.IndexToNode[(node.XIndex, node.YIndex)] = node;
+            context.SubGraphs[node.YIndex].Nodes.Add(node);
         }
     }
 
@@ -470,28 +499,59 @@ internal class IntentGraphLayouter
 
         stateNode.AddedArrow = true;
 
-        // o--->o or o<---o or both
-        if (Math.Abs(stateNode.IndexOnGraph - nextStateNode.IndexOnGraph) == 1 &&
-            TryAddHorizontalStraightArrow(stateNode, nextStateNode, graph, context))
+        if (stateNode.YIndex == nextStateNode.YIndex)
         {
-            return;
-        }
-
-        //      o    o
-        //      ^ or ^
-        // o----+    +----o
-        if (stateNode.Y > nextStateNode.Y + 0.25f && stateNode.IndexOnGraph != nextStateNode.IndexOnGraph)
-        {
-            if (TryAddHorizontalThenUpArrow(stateNode, nextStateNode, graph, context))
+            // o--->o or o<---o or both
+            if (Math.Abs(stateNode.XIndex - nextStateNode.XIndex) == 1 &&
+                TryAddHorizontalStraightArrow(stateNode, nextStateNode, graph, context))
             {
                 return;
             }
-        }
 
-        //  o       o--+
-        //  ^          |
-        //  +----------+
-        AddDefaultArrow(stateNode, nextStateNode, graph, context);
+            //      o    o
+            //      ^ or ^
+            // o----+    +----o
+            if (stateNode.XIndex != nextStateNode.XIndex)
+            {
+                if (TryAddHorizontalThenUpArrow(stateNode, nextStateNode, graph, context))
+                {
+                    return;
+                }
+            }
+
+            //  o   o   o--+    o--+   o   o
+            //  ^          | or    |       ^
+            //  +----------+       +-------+
+            AddDefaultSameYArrow(stateNode, nextStateNode, graph, context);
+        }
+        else
+        {
+            // o
+            // ^
+            // |
+            // o
+            if (stateNode.YIndex == nextStateNode.YIndex + 1 &&
+                TryAddVerticalStraightArrow(stateNode, nextStateNode, graph, context))
+            {
+                return;
+            }
+
+            // o            o
+            // ^            ^
+            // +---+ or +---+
+            //     o    o
+            if (TryAddVerticalStartDifferentYArrow(stateNode, nextStateNode, graph, context))
+            {
+                return;
+            }
+
+            // o              o
+            // ^              ^
+            // +---+ or   +---+
+            //     |      |
+            //   o-+    o-+
+            AddDefaultDifferentYArrow(stateNode, nextStateNode, graph, context);
+        }
     }
 
     private bool TryAddHorizontalStraightArrow(MonsterStateNode stateNode, MonsterStateNode nextStateNode, Graph graph, GraphGenerationContext context)
@@ -556,10 +616,15 @@ internal class IntentGraphLayouter
         //      ^ or ^
         // o----+    +----o
         var lineY = stateNode.Y + stateNode.Height / 2;
-        var canDrawStraightLine = true;
-        for (int i = Math.Min(stateNode.IndexOnGraph, nextStateNode.IndexOnGraph) + 1; i < Math.Max(stateNode.IndexOnGraph, nextStateNode.IndexOnGraph); i++)
+        if (lineY < nextStateNode.Y + nextStateNode.Height + 0.25f)
         {
-            var midNode = context.IndexOnGraphToNode[i];
+            return false;
+        }
+
+        var canDrawStraightLine = true;
+        for (int i = Math.Min(stateNode.XIndex, nextStateNode.XIndex) + 1; i < Math.Max(stateNode.XIndex, nextStateNode.XIndex); i++)
+        {
+            var midNode = context.IndexToNode[(i, stateNode.YIndex)];
             if (midNode.Y + midNode.Height + 0.2f > lineY)
             {
                 canDrawStraightLine = false;
@@ -594,22 +659,21 @@ internal class IntentGraphLayouter
         return false;
     }
 
-    private void AddDefaultArrow(MonsterStateNode stateNode, MonsterStateNode nextStateNode, Graph graph, GraphGenerationContext context)
+    private void AddDefaultSameYArrow(MonsterStateNode stateNode, MonsterStateNode nextStateNode, Graph graph, GraphGenerationContext context)
     {
-        //  o       o--+
-        //  ^          |
-        //  +----------+
+        //  o   o   o--+    o--+   o   o
+        //  ^          | or    |       ^
+        //  +----------+       +-------+
         var arrowRight = stateNode.ArrowRight;
-        var arrowBottom = nextStateNode.IndexOnGraph <= stateNode.IndexOnGraph ? stateNode.ArrowBottom : stateNode.Y + stateNode.Height + 0.25f;
-
         while (context.VLineTargetNode.TryGetValue(arrowRight, out var vLineTarget) && vLineTarget != nextStateNode)
         {
             arrowRight += 0.25f;
         }
 
-        for (int i = Math.Min(stateNode.IndexOnGraph, nextStateNode.IndexOnGraph) + 1; i < Math.Max(stateNode.IndexOnGraph, nextStateNode.IndexOnGraph); i++)
+        var arrowBottom = nextStateNode.XIndex <= stateNode.XIndex ? stateNode.ArrowBottom : 0;
+        for (int i = Math.Min(stateNode.XIndex, nextStateNode.XIndex) + 1; i < Math.Max(stateNode.XIndex, nextStateNode.XIndex); i++)
         {
-            var midNode = context.IndexOnGraphToNode[i];
+            var midNode = context.IndexToNode[(i, stateNode.YIndex)];
             if (arrowBottom < midNode.Y + midNode.Height + 0.25f)
             {
                 arrowBottom = midNode.Y + midNode.Height + 0.25f;
@@ -650,10 +714,150 @@ internal class IntentGraphLayouter
         }
     }
 
-    private void AddArrow(Graph graph, Arrow arrow, GraphGenerationContext context, MonsterStateNode target)
+    private bool TryAddVerticalStraightArrow(MonsterStateNode stateNode, MonsterStateNode nextStateNode, Graph graph, GraphGenerationContext context)
+    {
+        // o
+        // ^
+        // |
+        // o
+        if (stateNode.Parent != null && !stateNode.Parent.HorizontalLayout)
+        {
+            return false;
+        }
+
+        var minX = Math.Max(stateNode.X + 0.25f, nextStateNode.X + 0.25f);
+        var maxX = Math.Min(stateNode.X + stateNode.Width - 0.25f, nextStateNode.X + nextStateNode.Width - 0.25f);
+
+        if (minX <= maxX)
+        {
+            var centerX = (minX + maxX) / 2;
+            var arrow = new Arrow([1, centerX, stateNode.Y, nextStateNode.Y + nextStateNode.Height]);
+            AddArrow(graph, arrow, context, nextStateNode, addSubGraph: false);
+            context.SubGraphs[stateNode.YIndex].Arrows.Add((arrow, 0, 3));
+            context.SubGraphs[nextStateNode.YIndex].Arrows.Add((arrow, 3, 1));
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryAddVerticalStartDifferentYArrow(MonsterStateNode stateNode, MonsterStateNode nextStateNode, Graph graph, GraphGenerationContext context)
+    {
+        // o            o
+        // ^            ^
+        // +---+ or +---+
+        //     o    o
+        if (stateNode.Parent != null && !stateNode.Parent.HorizontalLayout)
+        {
+            return false;
+        }
+
+        var startX = stateNode.X + stateNode.Width / 2;
+        var targetX = nextStateNode.X + nextStateNode.Width / 2;
+        var midY = context.HLineTargetNode.Where(p => p.Value == nextStateNode).Select(p => p.Key).OrderBy(p => p).Select<float, float?>(k => k).FirstOrDefault();
+        var startSubGraph = context.SubGraphs[stateNode.YIndex];
+        if (midY == null)
+        {
+            var offset = 0.25f;
+            midY = startSubGraph.Y;
+            context.Y += offset;
+            graph.Height += offset;
+            startSubGraph.MoveY(graph, offset);
+            context.HLineTargetNode[midY.Value] = nextStateNode;
+            foreach (var (k, v) in context.HLineTargetNode.Where(p => p.Key > midY.Value).ToList())
+            {
+                context.HLineTargetNode[k + offset] = v;
+                context.HLineTargetNode.Remove(k);
+            }
+        }
+
+        var arrow = new Arrow([1, startX, stateNode.Y, midY.Value, targetX, nextStateNode.Y + nextStateNode.Height]);
+        AddArrow(graph, arrow, context, nextStateNode, addSubGraph: false);
+        context.SubGraphs[stateNode.YIndex].Arrows.Add((arrow, 0, 3));
+        GetSubGraphByY(context.SubGraphs, midY.Value).Arrows.Add((arrow, 3, 2));
+        context.SubGraphs[nextStateNode.YIndex].Arrows.Add((arrow, 5, 1));
+
+        return true;
+    }
+
+    private void AddDefaultDifferentYArrow(MonsterStateNode stateNode, MonsterStateNode nextStateNode, Graph graph, GraphGenerationContext context)
+    {
+        // o              o
+        // ^              ^
+        // +---+ or   +---+
+        //     |      |
+        //   o-+    o-+
+        var arrowRight = stateNode.ArrowRight;
+        while (context.VLineTargetNode.TryGetValue(arrowRight, out var vLineTarget) && vLineTarget != nextStateNode)
+        {
+            arrowRight += 0.25f;
+        }
+
+        var targetX = nextStateNode.X + nextStateNode.Width / 2;
+        var midY = context.HLineTargetNode.Where(p => p.Value == nextStateNode).Select(p => p.Key).Select<float, float?>(k => k).FirstOrDefault();
+        var startSubGraph = context.SubGraphs[stateNode.YIndex];
+        if (midY == null)
+        {
+            var offset = 0.25f;
+            midY = startSubGraph.Y;
+            context.Y += offset;
+            graph.Height += offset;
+            startSubGraph.MoveY(graph, offset);
+            context.HLineTargetNode[midY.Value] = nextStateNode;
+            foreach (var (k, v) in context.HLineTargetNode.Where(p => p.Key > midY.Value).ToList())
+            {
+                context.HLineTargetNode[k + offset] = v;
+                context.HLineTargetNode.Remove(k);
+            }
+        }
+
+        context.VLineTargetNode[arrowRight] = nextStateNode;
+        var arrow = new Arrow([0,
+                stateNode.X + stateNode.Width, stateNode.Y + stateNode.Height / 2,
+                arrowRight,
+                midY.Value,
+                targetX,
+                nextStateNode.Y + nextStateNode.Height]);
+        if (stateNode.Parent != null && stateNode.Children == null)
+        {
+            arrow.Path[1] -= 0.1f;
+        }
+
+        AddArrow(graph, arrow, context, nextStateNode, addSubGraph: false);
+        context.SubGraphs[stateNode.YIndex].Arrows.Add((arrow, 0, 4));
+        GetSubGraphByY(context.SubGraphs, midY.Value).Arrows.Add((arrow, 4, 2));
+        context.SubGraphs[nextStateNode.YIndex].Arrows.Add((arrow, 6, 1));
+
+        if (arrowRight > graph.Width)
+        {
+            graph.Width = arrowRight;
+        }
+    }
+
+    private SubGraph GetSubGraphByY(Dictionary<int, SubGraph> subGraphs, float value)
+    {
+        var lastSubGraph = subGraphs[0];
+        for (var i = 0; subGraphs.TryGetValue(i, out var subGraph); i++)
+        {
+            if (subGraph.Y >= value)
+            {
+                break;
+            }
+
+            lastSubGraph = subGraph;
+        }
+
+        return lastSubGraph;
+    }
+
+    private void AddArrow(Graph graph, Arrow arrow, GraphGenerationContext context, MonsterStateNode target, bool addSubGraph = true)
     {
         graph.Arrows.Add(arrow);
         context.ArrowTarget[arrow] = target;
+        if (addSubGraph)
+        {
+            context.SubGraphs[target.YIndex].Arrows.Add((arrow, 0, arrow.Path.Length));
+        }
     }
 
     private void AddPossiblePreviousMoveIds(List<Move> moves, GraphGenerationContext context)
@@ -807,15 +1011,86 @@ internal class IntentGraphLayouter
 
     private class GraphGenerationContext
     {
-        public int IndexOnGraph { get; set; }
-        public float NextNodeX { get; set; }
+        public int NextXIndex { get; set; }
+        public int YIndex { get; set; }
+        public float NextX { get; set; }
+        public float Y { get; set; }
         public Dictionary<float, MonsterStateNode> HLineTargetNode { get; set; } = new();
         public Dictionary<float, MonsterStateNode> VLineTargetNode { get; set; } = new();
-        public Dictionary<int, MonsterStateNode> IndexOnGraphToNode { get; set; } = new();
+        public Dictionary<(int x, int y), MonsterStateNode> IndexToNode { get; set; } = new();
         public IntentDefinition? IntentDefinition { get; init; }
         public Dictionary<Arrow, MonsterStateNode> ArrowTarget { get; set; } = new();
         public Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> PreviousStateNodes { get; set; } = new();
         public Dictionary<MonsterStateNode, Move> StateNodeToMove { get; set; } = new();
         public Dictionary<Move, MonsterStateNode> MoveToStateNode { get; set; } = new();
+        public Dictionary<int, SubGraph> SubGraphs { get; set; } = new();
+
+        internal void NewLine(float y)
+        {
+            NextXIndex = 0;
+            NextX = 0;
+            YIndex++;
+            VLineTargetNode.Clear();
+            Y = y;
+        }
+    }
+
+    private class SubGraph
+    {
+        public float Y { get; set; }
+        public List<int> MoveIndices { get; set; } = new();
+        public List<int> LabelIndices { get; set; } = new();
+        public List<int> IconGroupIndices { get; set; } = new();
+        public List<(Arrow arrow, int startIndex, int length)> Arrows { get; set; } = new();
+        public List<MonsterStateNode> Nodes { get; set; } = new();
+
+        internal void MoveY(Graph graph, float yOffset)
+        {
+            Y += yOffset;
+            foreach (var moveIndex in MoveIndices)
+            {
+                var move = graph.Moves[moveIndex];
+                graph.Moves[moveIndex] = move with
+                {
+                    Y = move.Y + yOffset,
+                    Icons = move.Icons?.Select(icon => icon with { Y = icon.Y + yOffset }).ToArray()
+                };
+            }
+            foreach (var labelIndex in LabelIndices)
+            {
+                var label = graph.Labels[labelIndex];
+                graph.Labels[labelIndex] = label with
+                {
+                    Y = label.Y + yOffset
+                };
+            }
+            foreach (var iconGroupIndex in IconGroupIndices)
+            {
+                var iconGroup = graph.IconGroups[iconGroupIndex];
+                graph.IconGroups[iconGroupIndex] = iconGroup with
+                {
+                    Y = iconGroup.Y + yOffset
+                };
+            }
+            foreach (var node in Nodes)
+            {
+                node.Y += yOffset;
+            }
+            foreach (var (arrow, startIndex, length) in Arrows)
+            {
+                if (2 >= startIndex && 2 < startIndex + length)
+                {
+                    arrow.Path[2] += yOffset;
+                }
+
+                for (var i = Math.Max(3, startIndex); i < startIndex + length; i++)
+                {
+                    if (i % 2 == arrow.Path[0])
+                    {
+                        arrow.Path[i] += yOffset;
+                    }
+                }
+            }
+        }
     }
 }
