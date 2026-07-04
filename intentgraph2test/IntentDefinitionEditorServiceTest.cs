@@ -47,12 +47,9 @@ public class IntentDefinitionEditorServiceTest : IDisposable
                         FollowUpState = "NEXT",
                     }
                 ],
-                MoveReplacements = new Dictionary<string, MoveReplacement[]>
+                MoveReplacements = new Dictionary<string, MoveReplacement>
                 {
-                    ["ROOT_MOVE"] =
-                    [
-                        new MoveReplacement("N", "T")
-                    ]
+                    ["ROOT_MOVE"] = new MoveReplacement([new IntentOverride("N", "T")], null),
                 },
                 GraphPatch = new Graph
                 {

@@ -47,7 +47,7 @@ public class IntentDefinition
 
     public StateMachineNode[]? StateMachine { get; set; }
 
-    public Dictionary<string, MoveReplacement[]>? MoveReplacements { get; set; }
+    public Dictionary<string, MoveReplacement>? MoveReplacements { get; set; }
 
     public Position Offset { get; set; }
 }
@@ -79,7 +79,12 @@ public class StateMachineNode
 
 public record class StateMachinNodeChildren(string Label = "", StateMachineNode? Node = null);
 
-public record class MoveReplacement(string? ValueText, string? TimesText);
+[JsonConverter(typeof(MoveReplacementJsonConverter))]
+public record class MoveReplacement(IntentOverride[]? IntentOverrides, ArrowOverride? ArrowOverride);
+
+public record class IntentOverride(string? ValueText, string? TimesText);
+
+public record class ArrowOverride(float?[] Path);
 
 [JsonConverter(typeof(SecondaryInitialStateJsonConverter))]
 public record class SecondaryInitialState(string Id, Position Offset = default);

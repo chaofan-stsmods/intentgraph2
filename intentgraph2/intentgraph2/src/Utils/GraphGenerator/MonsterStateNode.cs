@@ -10,6 +10,7 @@ namespace IntentGraph2.Utils.GraphGenerator;
 
 internal class MonsterStateNode
 {
+    public string? Id { get; set; }
     public float Width { get; set; }
     public float Height { get; set; }
     public MonsterStateNode? Parent { get; set; }
@@ -39,6 +40,23 @@ internal class MonsterStateNode
     public bool AddedArrow { get; set; }
     public float ArrowRight { get; set; }
     public float ArrowBottom { get; set; }
+
+    // Derived properties
+    public string? FullId 
+    { 
+        get
+        {
+            if (Parent == null)
+            {
+                return Id == null ? null : $"/{Id}";
+            }
+            else
+            {
+                var parentFullId = Parent.FullId;
+                return parentFullId == null || Id == null ? null : $"{parentFullId}/{Id}";
+            }
+        }
+    }
 
     public void CalculateNodeSize()
     {

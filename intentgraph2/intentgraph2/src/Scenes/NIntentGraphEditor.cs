@@ -943,7 +943,7 @@ public partial class NIntentGraphEditor : Control
             return false;
         }
 
-        if (!TryDeserializeField(moveReplacementsEdit?.Text, LocalizeText("ui.editor.field.move_replacements", "moveReplacements"), out Dictionary<string, MoveReplacement[]>? moveReplacements, out error))
+        if (!TryDeserializeField(moveReplacementsEdit?.Text, LocalizeText("ui.editor.field.move_replacements", "moveReplacements"), out Dictionary<string, MoveReplacement>? moveReplacements, out error))
         {
             return false;
         }
@@ -1201,6 +1201,11 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildMoveReplacementCompletionItems(bool isInsideString)
     {
+        foreach (var propertyName in new[] { "intentOverrides", "arrowOverride" })
+        {
+            yield return PropertyCompletion(propertyName, isInsideString);
+        }
+
         foreach (var stateId in availableStateIds)
         {
             yield return PropertyCompletion(stateId, isInsideString, CodeEdit.CodeCompletionKind.Variable);

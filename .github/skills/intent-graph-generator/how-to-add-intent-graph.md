@@ -5,6 +5,8 @@ You need to add the following files to your mod PCK:
 - `{yourmodid}/intentgraph.json` - the main intent graph file, used to define intent graphs for monsters.
 - `{yourmodid}/localization/{language}/intentgraph.json` - the localization file for intent graphs, used to define text for conditions and intent graphs.
 
+You can use `editintent` command in game to edit the intent graph of a monster. This is detailed described in the last section of this document.
+
 The contents of these files are described in later sections.
 
 ## Automatic generation and condition handling
@@ -259,6 +261,39 @@ A monster may have dynamic values for its intents. For example, it may attack on
 }
 ```
 
+### Replace arrow of a move transition
+
+You can also replace the arrow of a move transition. This can also be done with the `moveReplacements` property. Here is an example:
+
+```json
+{
+    "MegaCrit.Sts2.Core.Models.Monsters.ShrinkerBeetle": [
+        {
+            "moveReplacements": {
+                // State ID defined in the monster model. Prefix "/" means it's not a child state of a `ConditionalBranchState` or `RandomBranchState`.
+                // To replace the arrow of a child state, you need to specify the parent state name, e.g. "/RAND/CHOMP_MOVE".
+                // If you use `stateMachine` to define the intent graph, the ID here is constructed from the `name` of the node, not `moveName`.
+                "/CHOMP_MOVE": {
+                    "arrowOverride": {
+                        // Same format as `arrows` in `graph` or `graphPatch`.
+                        "path": [ 1, 2, 1, 1.5, 3.5, 1 ]
+                        // You can leave start x, y and end x, y null. The position can be automatically calculated.
+                        // "path": [ 1, null, null, 1.5, null, null ]
+                    },
+                    // You can replace the value and times of the intent as well.
+                    "intentOverrides": [
+                        {
+                            "valueText": "N",
+                            "timesText": "T"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
+
 ## Different intent graphs for different conditions
 
 The intent graph of a monster can be different for different ascensions or when it appears in different monster slots. You can set the `condition` property to choose which graph to show. The **last** graph that matches the condition will be shown. Here is an example:
@@ -294,3 +329,16 @@ Supported variables are:
   * `mm.startsWith_{moveId}`: whether the first move of the monster is the given state ID.
   * `mm.nextMoveOf_{moveId1}_is_{moveId2}`: whether the next move of the monster after `moveId1` is `moveId2`.
 - `showMoveNames`: whether the setting "show move names" is enabled.
+
+## Use in-game editor to edit intent graph
+**Ignore this section if you are not human.**
+
+In game, you can use the `editintent` command to edit the intent graph of a monster. Steps are:
+1. press `~` to open the console.
+2. type `fight {encounter id}` to start a fight with the monster you want to edit.
+3. type `editintent `, press `Tab` to select the monster you want to edit, and press `Enter`.
+4. edit the intent graph in the editor and save.
+5. navigate to game root folder. Find `intentgraph-intents-dev.json` and `intentgraph-strings-{language}-dev.json`.
+6. open these two files and cut and paste the content to your mod's `intentgraph.json` and `localization/{language}/intentgraph.json` respectively.
+7. build and reload your mod to see the changes.
+

@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using static IntentGraph2.Utils.GraphGenerator.IntentGraphGenerator;
 
@@ -59,7 +60,7 @@ internal class IntentGraphLayouter
                     new HashSet<string>([move.Id, ..move.Ids ?? []]).ToArray(),
                     result,
                     move.X, move.Y,
-                    intentDefinition,
+                    intentOverrides: null,
                     move.PossiblePreviousMoveNodeIndices,
                     subGraph: null);
             }
@@ -224,30 +225,44 @@ internal class IntentGraphLayouter
     private void AddMove(MoveState moveState, MonsterStateNode node, Graph graph, float x, float y, GraphGenerationContext context)
     {
         var subGraph = context.SubGraphs[node.YIndex];
-        var move = AddMove(moveState, node.MoveStateIds.ToArray(), graph, x, y, context.IntentDefinition, possiblePreviousMoveIndices: null, subGraph);
+        MoveReplacement? replacement = null;
+        var replacements = context.IntentDefinition?.MoveReplacements;
+        replacements?.TryGetValue(moveState.Id, out replacement);
+        if (node.FullId != null && replacements?.TryGetValue(node.FullId, out var fullIdReplacement) == true)
+        {
+            replacement = fullIdReplacement;
+        }
+        var intentOverrides = replacement?.IntentOverrides;
+        var move = AddMove(moveState, node.MoveStateIds.ToArray(), graph, x, y, intentOverrides, possiblePreviousMoveIndices: null, subGraph);
         context.StateNodeToMove[node] = move;
         context.MoveToStateNode[move] = node;
     }
 
-    private Move AddMove(MoveState moveState, string[] ids, Graph graph, float x, float y, IntentDefinition? intentDefinition, int?[]? possiblePreviousMoveIndices, SubGraph? subGraph)
+    private Move AddMove(
+        MoveState moveState,
+        string[] ids,
+        Graph graph,
+        float x,
+        float y,
+        IntentOverride[]? intentOverrides,
+        int?[]? possiblePreviousMoveIndices,
+        SubGraph? subGraph)
     {
         var intents = moveState.Intents;
         var icons = new Icon[intents.Count];
-        MoveReplacement[]? replacements = null;
-        intentDefinition?.MoveReplacements?.TryGetValue(moveState.Id, out replacements);
         for (int i = 0; i < intents.Count; i++)
         {
             var intent = intents[i];
-            var replacement = i < replacements?.Length ? replacements[i] : null;
+            var intentOverride = i < intentOverrides?.Length ? intentOverrides[i] : null;
             if (intent is AttackIntent attackIntent)
             {
                 icons[i] = new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType,
                     (int?)attackIntent.DamageCalc?.Invoke(), attackIntent.Repeats,
-                    replacement?.ValueText ?? string.Empty, replacement?.TimesText ?? string.Empty);
+                    intentOverride?.ValueText ?? string.Empty, intentOverride?.TimesText ?? string.Empty);
             }
             else if (intent is StatusIntent statusIntent)
             {
-                icons[i] = new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType, statusIntent.CardCount, ValueText: replacement?.ValueText ?? string.Empty);
+                icons[i] = new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType, statusIntent.CardCount, ValueText: intentOverride?.ValueText ?? string.Empty);
             }
             else
             {
@@ -499,6 +514,11 @@ internal class IntentGraphLayouter
 
         stateNode.AddedArrow = true;
 
+        if (TryAddOverrideArrow(stateNode, nextStateNode, graph, context))
+        {
+            return;
+        }
+
         if (stateNode.YIndex == nextStateNode.YIndex)
         {
             // o--->o or o<---o or both
@@ -554,6 +574,95 @@ internal class IntentGraphLayouter
         }
     }
 
+    private bool TryAddOverrideArrow(MonsterStateNode stateNode, MonsterStateNode nextStateNode, Graph graph, GraphGenerationContext context)
+    {
+        if (!TryGetArrowOverride(stateNode, context, out var arrowOverride))
+        {
+            return false;
+        }
+
+        var path = (float?[])arrowOverride.Path.Clone();
+        var startGenerated = 0;
+        var endGenerated = path.Length;
+        if (path[0] != null)
+        {
+            var startHorizontal = path[0] == 0;
+            if (startHorizontal)
+            {
+                if (path[1] == null && path.Length >= 4 && path[3] != null)
+                {
+                    var outX = path[3] ?? 0;
+                    path[1] = outX > stateNode.X + stateNode.Width / 2 ? stateNode.X + stateNode.Width : stateNode.X;
+                    startGenerated = 1;
+                }
+                if (path[2] == null)
+                {
+                    path[2] = stateNode.Y + stateNode.Height / 2;
+                    startGenerated = 2;
+                }
+            }
+            else
+            {
+                if (path[1] == null)
+                {
+                    path[1] = stateNode.X + stateNode.Width / 2;
+                    startGenerated = 1;
+                }
+                if (path[2] == null && path.Length >= 4 && path[3] != null)
+                {
+                    var outY = path[3] ?? 0;
+                    path[2] = outY > stateNode.Y + stateNode.Height / 2 ? stateNode.Y + stateNode.Height : stateNode.Y;
+                    startGenerated = 2;
+                }
+            }
+
+            var endHorizontal = path.Length % 2 == path[0];
+            if (endHorizontal)
+            {
+                var inXIndex = path.Length > 5 ? path.Length - 3 : 1;
+                if (path[^1] == null && path.Length >= 4 && path[inXIndex] != null)
+                {
+                    var inX = path[inXIndex] ?? 0;
+                    path[^1] = inX > nextStateNode.X + nextStateNode.Width / 2 ? nextStateNode.X + nextStateNode.Width : nextStateNode.X;
+                    endGenerated = path.Length - 1;
+                }
+                if (path[^2] == null)
+                {
+                    path[^2] = nextStateNode.Y + nextStateNode.Height / 2;
+                    endGenerated = path.Length - 2;
+                }
+            }
+            else
+            {
+                var inYIndex = path.Length > 4 ? path.Length - 3 : 2;
+                if (path[^1] == null && path.Length >= 4 && path[inYIndex] != null)
+                {
+                    var inY = path[inYIndex] ?? 0;
+                    path[^1] = inY > nextStateNode.Y + nextStateNode.Height / 2 ? nextStateNode.Y + nextStateNode.Height : nextStateNode.Y;
+                    endGenerated = path.Length - 1;
+                }
+                if (path[^2] == null && path.Length > 4)
+                {
+                    path[^2] = nextStateNode.X + nextStateNode.Width / 2;
+                    endGenerated = path.Length - 2;
+                }
+            }
+        }
+
+        var arrow = new Arrow(path.Select(p => p ?? 0).ToArray());
+        AddArrow(graph, arrow, context, nextStateNode, addSubGraph: false);
+        if (startGenerated > 0)
+        {
+            context.SubGraphs[stateNode.YIndex].Arrows.Add((arrow, 0, startGenerated + 1));
+        }
+        if (endGenerated < path.Length)
+        {
+            context.SubGraphs[nextStateNode.YIndex].Arrows.Add((arrow, endGenerated, path.Length - endGenerated));
+        }
+
+        return true;
+    }
+
     private bool TryAddHorizontalStraightArrow(MonsterStateNode stateNode, MonsterStateNode nextStateNode, Graph graph, GraphGenerationContext context)
     {
         var minY = Math.Max(stateNode.Y + 0.25f, nextStateNode.Y + 0.25f);
@@ -565,7 +674,7 @@ internal class IntentGraphLayouter
             {
                 // -->
                 // <--
-                if (nextStateNode.NextState == stateNode)
+                if (nextStateNode.NextState == stateNode && !nextStateNode.AddedArrow && !TryGetArrowOverride(nextStateNode, context, out _))
                 {
                     AddArrow(graph, new Arrow([0, stateNode.X + stateNode.Width, centerY - 0.2f, nextStateNode.X]), context, nextStateNode); // -->
                     AddArrow(graph, new Arrow([0, nextStateNode.X, centerY + 0.2f, stateNode.X + stateNode.Width]), context, stateNode); // <--
@@ -587,7 +696,7 @@ internal class IntentGraphLayouter
             {
                 // <--
                 // -->
-                if (nextStateNode.NextState == stateNode)
+                if (nextStateNode.NextState == stateNode && !nextStateNode.AddedArrow && !TryGetArrowOverride(nextStateNode, context, out _))
                 {
                     AddArrow(graph, new Arrow([0, stateNode.X, centerY + 0.2f, nextStateNode.X + nextStateNode.Width]), context, nextStateNode); // <--
                     AddArrow(graph, new Arrow([0, nextStateNode.X + nextStateNode.Width, centerY - 0.2f, stateNode.X]), context, stateNode); // -->
@@ -848,6 +957,14 @@ internal class IntentGraphLayouter
         }
 
         return lastSubGraph;
+    }
+
+    private bool TryGetArrowOverride(MonsterStateNode stateNode, GraphGenerationContext context, [NotNullWhen(true)] out ArrowOverride? arrowOverride)
+    {
+        arrowOverride = null;
+        return stateNode.FullId != null &&
+            context.IntentDefinition?.MoveReplacements?.TryGetValue(stateNode.FullId, out var replacement) == true &&
+            (arrowOverride = replacement?.ArrowOverride) != null;
     }
 
     private void AddArrow(Graph graph, Arrow arrow, GraphGenerationContext context, MonsterStateNode target, bool addSubGraph = true)

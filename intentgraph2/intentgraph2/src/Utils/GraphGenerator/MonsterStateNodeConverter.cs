@@ -61,6 +61,11 @@ internal class MonsterStateNodeConverter
             {
                 initialStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);
                 initialStateNode.SetIsInitialState(true);
+                // If next state is the same as initial state, use the initial state can simplify the graph.
+                if (initialStateNode.NextState?.State == initialState)
+                {
+                    initialStateNode = null;
+                }
             }
         }
 
@@ -149,6 +154,7 @@ internal class MonsterStateNodeConverter
             {
                 result = new MonsterStateNode
                 {
+                    Id = node.Name,
                     State = state,
                     Width = state.Intents.Count + (state.Intents.Count - 1) * IconPaddingInMove,
                     Height = 1,
@@ -168,6 +174,7 @@ internal class MonsterStateNodeConverter
             {
                 result = new MonsterStateNode
                 {
+                    Id = node.Name,
                     State = null,
                     Width = node.PlaceholderIntentCount + (node.PlaceholderIntentCount - 1) * IconPaddingInMove,
                     Height = 1,
@@ -203,6 +210,7 @@ internal class MonsterStateNodeConverter
         {
             var result = new MonsterStateNode
             {
+                Id = node.Name,
                 State = null,
                 Parent = parent,
                 ForceNotSimpleLoop = node.NotSimpleLoopStart,
@@ -267,6 +275,7 @@ internal class MonsterStateNodeConverter
         {
             var result = new MonsterStateNode
             {
+                Id = state.Id,
                 State = state,
                 Width = moveState.Intents.Count + (moveState.Intents.Count - 1) * IconPaddingInMove,
                 Height = 1,
@@ -353,6 +362,7 @@ internal class MonsterStateNodeConverter
 
             var result = new MonsterStateNode
             {
+                Id = state.Id,
                 State = state,
                 Parent = parent,
                 UnrecognizedStateType = unrecognizedStateType,

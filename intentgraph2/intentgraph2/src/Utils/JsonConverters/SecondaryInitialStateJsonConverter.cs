@@ -32,7 +32,7 @@ public class SecondaryInitialStateJsonConverter : JsonConverter<SecondaryInitial
             Position offset = default;
             if (root.TryGetProperty("offset", out var offsetElement))
             {
-                offset = JsonSerializer.Deserialize<Position>(offsetElement.GetRawText(), options);
+                offset = JsonSerializer.Deserialize<Position>(offsetElement, options);
             }
 
             return new SecondaryInitialState(stateId, offset);

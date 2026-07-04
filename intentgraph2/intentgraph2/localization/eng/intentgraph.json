@@ -32,6 +32,7 @@
 	"text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE": "T starts from 3, +1 each time it's used",
 	"text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE": "One rat can be summoned per turn, up to 3 total",
 	"text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2": "There can be a maximum of 5 rats on the field",
+    "text.MegaCrit.Sts2.Core.Models.Monsters.WaterfallGiant": "+5 damage each time it's used",
 	"ui.editor.header.monster_name": "Monster Name",
 	"ui.editor.header.monster_model_name": "Monster model full name",
 	"ui.editor.status.ready": "Ready",

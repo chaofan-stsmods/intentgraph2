@@ -33,11 +33,26 @@
     ],
     "MegaCrit.Sts2.Core.Models.Monsters.TerrorEel": [
         {
-            "condition": "true",
             "upToDateCondition": "mm.hasMove_STUN_MOVE && mm.nextMoveOf_STUN_MOVE_is_TERROR_MOVE && mm.nextMoveOf_TERROR_MOVE_is_CRASH_MOVE",
             "secondaryInitialStates": [
                 "STUN_MOVE"
             ]
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.WaterfallGiant": [
+        {
+            "upToDateCondition": "mm.count == 8 && mm.nextMoveOf_SIPHON_MOVE_is_PRESSURE_GUN_MOVE && mm.nextMoveOf_PRESSURE_GUN_MOVE_is_PRESSURE_UP_MOVE",
+            "graphPatch": {
+                "labels": [
+                    {
+                        "x": 7.3,
+                        "y": 2.6,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.WaterfallGiant",
+                        "align": "center"
+                    }
+                ],
+                "expand": true
+            }
         }
     ],
     "MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat": [

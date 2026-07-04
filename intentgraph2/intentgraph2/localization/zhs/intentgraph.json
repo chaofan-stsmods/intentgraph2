@@ -32,6 +32,7 @@
 	"text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE": "T从3开始，每次使用+1",
 	"text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE": "每回合最多召唤1只鼠，总共最多3只",
 	"text.MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat.RAND.CALL_FOR_BACKUP_MOVE_2": "场上最多可以有5只鼠",
+    "text.MegaCrit.Sts2.Core.Models.Monsters.WaterfallGiant": "每次使用后伤害+5",
 	"ui.editor.header.monster_name": "怪物名称",
 	"ui.editor.header.monster_model_name": "怪物模型完整名称",
 	"ui.editor.status.ready": "就绪",
