@@ -1,0 +1,19 @@
+{
+    "INTENTGRAPH2.mod_title": "Grafo delle intenzioni",
+    "INTENTGRAPH2.mod_description": "Mostra l'intento del mostro come una macchina a stati.",
+    "INTENTGRAPH2-HOTKEY.title": "Tasto rapido",
+    "INTENTGRAPH2-TOGGLE_INTENT_GRAPH_KEY.title": "Attiva/disattiva grafo delle intenzioni",
+    "INTENTGRAPH2-DISPLAY.title": "Visualizzazione",
+    "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title": "Mostra i nomi delle mosse del mostro (richiede il riavvio del combattimento)",
+    "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "Usa icona animata",
+    "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "Mostra mossa attuale",
+    "INTENTGRAPH2-CONTROL.title": "Controllo",
+    "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title": "Grafo delle intenzioni appuntabile",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.title": "Posizione del grafo delle intenzioni",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.Default": "Predefinito",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeft": "In alto a sinistra",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "In alto a destra",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "In alto al centro",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "In alto a sinistra o a destra",
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Scala del grafo delle intenzioni"
+}

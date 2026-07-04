@@ -1,0 +1,19 @@
+﻿{
+    "INTENTGRAPH2.mod_title": "의도 그래프",
+    "INTENTGRAPH2.mod_description": "몬스터의 의도를 상태 기계로 표시합니다.",
+    "INTENTGRAPH2-HOTKEY.title": "단축키",
+    "INTENTGRAPH2-TOGGLE_INTENT_GRAPH_KEY.title": "의도 그래프 토글",
+    "INTENTGRAPH2-DISPLAY.title": "표시",
+    "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title": "몬스터 기술 이름 표시 (전투 재시작 필요)",
+    "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "애니메이션 아이콘 사용",
+    "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "현재 기술 표시",
+    "INTENTGRAPH2-CONTROL.title": "조작",
+    "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title": "고정 가능한 의도 그래프",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.title": "의도 그래프 위치",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.Default": "기본값",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeft": "왼쪽 위",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "오른쪽 위",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "위 중앙",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "왼쪽 위 또는 오른쪽 위",
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "의도 그래프 크기"
+}

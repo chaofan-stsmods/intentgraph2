@@ -1,0 +1,19 @@
+{
+    "INTENTGRAPH2.mod_title": "Niyet grafigi",
+    "INTENTGRAPH2.mod_description": "Canavar niyetini bir durum makinesi olarak gosterir.",
+    "INTENTGRAPH2-HOTKEY.title": "Kisayol tusu",
+    "INTENTGRAPH2-TOGGLE_INTENT_GRAPH_KEY.title": "Niyet grafigini degistir",
+    "INTENTGRAPH2-DISPLAY.title": "Gorunum",
+    "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title": "Canavar hareket adlarini goster (savasi yeniden baslatmak gerekir)",
+    "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "Animasyonlu simge kullan",
+    "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "Gecerli hareketi goster",
+    "INTENTGRAPH2-CONTROL.title": "Kontrol",
+    "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title": "Sabitlenebilir niyet grafigi",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.title": "Niyet grafigi konumu",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.Default": "Varsayilan",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeft": "Sol ust",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Sag ust",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Ust orta",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "Sol ust veya sag ust",
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Niyet grafigi olcegi"
+}

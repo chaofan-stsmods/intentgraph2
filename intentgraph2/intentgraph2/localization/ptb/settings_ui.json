@@ -1,0 +1,19 @@
+{
+    "INTENTGRAPH2.mod_title": "Grafo de intencoes",
+    "INTENTGRAPH2.mod_description": "Mostra a intencao do monstro como uma maquina de estados.",
+    "INTENTGRAPH2-HOTKEY.title": "Tecla de atalho",
+    "INTENTGRAPH2-TOGGLE_INTENT_GRAPH_KEY.title": "Alternar grafo de intencoes",
+    "INTENTGRAPH2-DISPLAY.title": "Exibicao",
+    "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title": "Mostrar nomes dos movimentos do monstro (requer reiniciar o combate)",
+    "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "Usar icone animado",
+    "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "Mostrar movimento atual",
+    "INTENTGRAPH2-CONTROL.title": "Controle",
+    "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title": "Grafo de intencoes fixavel",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.title": "Posicao do grafo de intencoes",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.Default": "Padrao",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeft": "Superior esquerdo",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Superior direito",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Superior central",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "Superior esquerdo ou direito",
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Escala do grafo de intencoes"
+}

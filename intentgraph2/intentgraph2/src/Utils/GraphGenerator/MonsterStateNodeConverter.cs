@@ -59,7 +59,7 @@ internal class MonsterStateNodeConverter
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == stateName);
             if (state != null)
             {
-                initialStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);
+                initialStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null, ref warning);
                 initialStateNode.SetIsInitialState(true);
                 // If next state is the same as initial state, use the initial state can simplify the graph.
                 if (initialStateNode.NextState?.State == initialState)
@@ -71,7 +71,7 @@ internal class MonsterStateNodeConverter
 
         if (initialStateNode == null)
         {
-            initialStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, initialState, existingNodes, parent: null);
+            initialStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, initialState, existingNodes, parent: null, ref warning);
             initialStateNode.SetIsInitialState(true);
         }
 
@@ -87,7 +87,7 @@ internal class MonsterStateNodeConverter
                 var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == secondaryState.Id);
                 if (state != null && !existingNodes.ContainsKey(state))
                 {
-                    var stateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null);
+                    var stateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null, ref warning);
                     var secondaryAllNodes = stateNode.GetAllNodes();
                     MonsterStateNodeSimplifier.SimplifyStateNodes(stateNode, secondaryAllNodes, this);
                     foreach (var item in secondaryAllNodes)
@@ -259,7 +259,7 @@ internal class MonsterStateNodeConverter
     }
 
     [return: NotNullIfNotNull(nameof(state))]
-    private MonsterStateNode? MonsterStateToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState? state, Dictionary<MonsterState, MonsterStateNode> existingNodes, MonsterStateNode? parent)
+    private MonsterStateNode? MonsterStateToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState? state, Dictionary<MonsterState, MonsterStateNode> existingNodes, MonsterStateNode? parent, ref string? warning)
     {
         if (state == null)
         {
@@ -290,7 +290,7 @@ internal class MonsterStateNodeConverter
                 existingNodes[state] = result;
             }
 
-            result.NextState = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, moveState.FollowUpState, existingNodes, parent: null);
+            result.NextState = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, moveState.FollowUpState, existingNodes, parent: null, ref warning);
 
             return result;
         }
@@ -328,7 +328,7 @@ internal class MonsterStateNodeConverter
                     var evaluatedState = stateMachine.States.Values.FirstOrDefault(s => s.Id == evaluatedSstateName);
                     if (evaluatedState != null)
                     {
-                        return MonsterStateToMonsterStateNode(monsterName, font, stateMachine, evaluatedState, existingNodes, parent);
+                        return MonsterStateToMonsterStateNode(monsterName, font, stateMachine, evaluatedState, existingNodes, parent, ref warning);
                     }
                 }
 
@@ -337,7 +337,15 @@ internal class MonsterStateNodeConverter
                 {
                     if (!childCandidates.Any(c => c.state == s))
                     {
-                        childCandidates.Add((s, localizer.GetOrElse($"branch.{monsterName}.{state.Id}.{s}", "condition"), true));
+                        if (localizer.TryGet($"branch.{monsterName}.{state.Id}.{s}", out var overwriteText))
+                        {
+                            childCandidates.Add((s, overwriteText, true));
+                        }
+                        else
+                        {
+                            warning ??= localizer.GetOrElse("ui.UnknownConditions", "Unknown conditions");
+                            childCandidates.Add((s, localizer.GetOrElse("ui.UnknownCondition", "condition?"), true));
+                        }
                     }
                 }
             }
@@ -380,7 +388,7 @@ internal class MonsterStateNodeConverter
                 var childState = stateMachine.States.Values.FirstOrDefault(s => s.Id == childStateId);
                 if (childState != null)
                 {
-                    var childStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, childState, existingNodes, parent: result);
+                    var childStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, childState, existingNodes, parent: result, ref warning);
                     if (childStateNode != null)
                     {
                         childStateNode.Label = label;

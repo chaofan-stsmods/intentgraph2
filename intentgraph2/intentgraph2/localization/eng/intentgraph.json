@@ -3,6 +3,8 @@
 	"ui.Outdated": "Outdated",
 	"ui.Incomplete": "Incomplete",
 	"ui.Otherwise": "Otherwise",
+	"ui.UnknownConditions": "Unknown conditions",
+	"ui.UnknownCondition": "condition?",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "Blocked",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.HEADBUTT_MOVE": "{otherwise}",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.Fabricator.fabricateBranch.RAND": "0~2 minions",

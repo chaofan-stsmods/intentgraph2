@@ -1,0 +1,19 @@
+﻿{
+    "INTENTGRAPH2.mod_title": "意図グラフ",
+    "INTENTGRAPH2.mod_description": "モンスターの意図を状態機械として表示します。",
+    "INTENTGRAPH2-HOTKEY.title": "ホットキー",
+    "INTENTGRAPH2-TOGGLE_INTENT_GRAPH_KEY.title": "意図グラフを切り替え",
+    "INTENTGRAPH2-DISPLAY.title": "表示",
+    "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title": "モンスターの技名を表示（戦闘の再開始が必要）",
+    "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "アニメーションアイコンを使用",
+    "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "現在の技を表示",
+    "INTENTGRAPH2-CONTROL.title": "操作",
+    "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title": "固定可能な意図グラフ",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.title": "意図グラフの位置",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.Default": "デフォルト",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeft": "左上",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "右上",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "上中央",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "左上または右上",
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "意図グラフの拡大率"
+}
