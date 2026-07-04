@@ -2,6 +2,8 @@ using Godot;
 using IntentGraph2.Scenes;
 using IntentGraph2.Utils.GraphGenerator;
 using MegaCrit.Sts2.Core.Assets;
+using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Localization.Fonts;
 using MegaCrit.Sts2.Core.Nodes;
@@ -20,6 +22,14 @@ public static class IntentGraphHost
 
     private static Dictionary<NCreature, IntentGraphItem> availableIntentGraphs = new();
     private static bool intentGraphVisible = true;
+
+    private static CombatState? currentCombatState;
+
+    public static void Initialize()
+    {
+        CombatManager.Instance.CombatSetUp += (s) => currentCombatState = s;
+        CombatManager.Instance.CombatEnded += (s) => currentCombatState = null;
+    }
 
     public static void ToggleIntentGraphVisibility()
     {
@@ -161,15 +171,30 @@ public static class IntentGraphHost
         return () =>
         {
             var screenWidth = NGame.Instance!.GetViewportRect().Size.X;
+            var playerX = screenWidth / 2;
+            try
+            {
+                var player = LocalContext.GetMe(currentCombatState);
+                var nCreature = player?.Creature.GetCreatureNode();
+                if (nCreature != null)
+                {
+                    playerX = nCreature.GlobalPosition.X + nCreature.Size.X / 2;
+                }
+            }
+            catch (Exception ex)
+            {
+                IgLogger.Error("Error getting player from current combat state: " + ex);
+            }
+
             var creatureMid = __instance.GlobalPosition.X + __instance.Size.X / 2;
             if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeft ||
-                (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeftOrRight && creatureMid < screenWidth / 2))
+                (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeftOrRight && creatureMid < playerX))
             {
                 intentGraphPanel.Position = new Vector2(8, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
                 return;
             }
             else if (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopRight ||
-                (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeftOrRight && creatureMid >= screenWidth / 2))
+                (IntentGraphMod.Config.IntentGraphPosition == IntentGraphPosition.TopLeftOrRight && creatureMid >= playerX))
             {
                 intentGraphPanel.Position = new Vector2(screenWidth - intentGraphPanel.Size.X, pinableIntentGraph ? IntentGraphPanelTopPinned : IntentGraphPanelTop);
                 return;

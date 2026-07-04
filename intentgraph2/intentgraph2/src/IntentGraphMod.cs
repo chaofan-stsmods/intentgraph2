@@ -61,6 +61,9 @@ public class IntentGraphMod
         var harmony = new Harmony("chaofan.sts2.intentgraph2");
         harmony.PatchAll(assembly);
 
+        IgLogger.Info("Initializing IntentGraphHost...");
+        IntentGraphHost.Initialize();
+
         IgLogger.Info("IntentGraphMod initialize done.");
     }
 
