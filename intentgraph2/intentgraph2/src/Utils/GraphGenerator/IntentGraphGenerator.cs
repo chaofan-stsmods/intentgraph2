@@ -114,7 +114,7 @@ public class IntentGraphGenerator
 
         if (intentDefinition?.GraphPatch != null)
         {
-            var patch = layouter.MakeGraphFromIntentDefinition(stateMachine, intentDefinition.GraphPatch, intentDefinition, font);
+            var patch = layouter.MakeGraphFromIntentDefinition(stateMachine, intentDefinition.GraphPatch, intentDefinition, font, stateNodes);
             graph.Width = Math.Max(graph.Width, patch.Width);
             graph.Height = Math.Max(graph.Height, patch.Height);
             graph.Icons.AddRange(patch.Icons);

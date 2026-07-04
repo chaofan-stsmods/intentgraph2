@@ -24,29 +24,37 @@ internal class IntentGraphLayouter
         this.localizer = localizer;
     }
 
-    public Graph MakeGraphFromIntentDefinition(MonsterMoveStateMachine stateMachine, Graph graph, IntentDefinition intentDefinition, Font font)
+    public Graph MakeGraphFromIntentDefinition(MonsterMoveStateMachine stateMachine, Graph graph, IntentDefinition intentDefinition, Font font, List<MonsterStateNode>? stateNodes = null)
     {
+        var allStateNodes = stateNodes?.GetAllNodes().Where(n => n.FullId != null).ToDictionary(n => n.FullId!);
         var result = new Graph
         {
             Width = graph.Width,
             Height = graph.Height,
-            Icons = graph.Icons,
-            IconGroups = [.. graph.IconGroups],
-            Arrows = [.. graph.Arrows],
+            Icons = graph.Icons.Select(i => (i, ResolveRelative(i, allStateNodes))).Select(t => t.i with { X = t.Item2.x, Y = t.Item2.y, RelativeTo = null }).ToList(),
+            IconGroups = graph.IconGroups.Select(i => (i, ResolveRelative(i, allStateNodes))).Select(t => t.i with { X = t.Item2.x, Y = t.Item2.y, RelativeTo = null }).ToList(),
+            Arrows = graph.Arrows.Select(i => ResolveRelative(i, allStateNodes)).ToList(),
         };
 
         foreach (var label in graph.Labels)
         {
-            var resolvedLabel = new Models.Label(label.X, label.Y, localizer.GetOrElse(label.Text, label.Text), label.Align, label.FontSize);
+            var (x, y) = ResolveRelative(label, allStateNodes);
+            var resolvedLabel = label with
+            {
+                X = x,
+                Y = y,
+                Text = localizer.GetOrElse(label.Text, label.Text),
+                RelativeTo = null,
+            };
             result.Labels.Add(resolvedLabel);
             if (graph.Expand)
             {
                 var lines = resolvedLabel.Text.Split('\n');
                 var labelWidth = lines.Select(l => font.GetStringSize(l, fontSize: resolvedLabel.FontSize).X).Max() / NIntentGraph.GridSize;
-                result.Height = Math.Max(result.Height, label.Y + (label.FontSize + NIntentGraph.LabelLinePadding) * (lines.Length - 1) / NIntentGraph.GridSize);
-                if (label.Align != "right")
+                result.Height = Math.Max(result.Height, resolvedLabel.Y + (resolvedLabel.FontSize + NIntentGraph.LabelLinePadding) * (lines.Length - 1) / NIntentGraph.GridSize);
+                if (resolvedLabel.Align != "right")
                 {
-                    result.Width = label.Align == "left" ? Math.Max(result.Width, label.X + labelWidth) : Math.Max(result.Width, label.X + labelWidth / 2);
+                    result.Width = resolvedLabel.Align == "left" ? Math.Max(result.Width, resolvedLabel.X + labelWidth) : Math.Max(result.Width, resolvedLabel.X + labelWidth / 2);
                 }
             }
         }
@@ -56,10 +64,11 @@ internal class IntentGraphLayouter
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == move.Id);
             if (state != null && state is MoveState moveState)
             {
+                var (x, y) = ResolveRelative(move, allStateNodes);
                 AddMove(moveState,
                     new HashSet<string>([move.Id, ..move.Ids ?? []]).ToArray(),
                     result,
-                    move.X, move.Y,
+                    x, y,
                     intentOverrides: null,
                     move.PossiblePreviousMoveNodeIndices,
                     subGraph: null);
@@ -100,6 +109,33 @@ internal class IntentGraphLayouter
 
         TuneArrowPosition(result.Arrows, context.ArrowTarget);
         return result;
+    }
+
+    private (float x, float y) ResolveRelative(IRelativeToPosition relativeToPosition, Dictionary<string, MonsterStateNode>? stateNodes)
+    {
+        if (stateNodes == null || relativeToPosition.RelativeTo == null || !stateNodes.TryGetValue(relativeToPosition.RelativeTo, out var node))
+        {
+            return (relativeToPosition.X, relativeToPosition.Y);
+        }
+
+        return (node.X + relativeToPosition.X, node.Y + relativeToPosition.Y);
+    }
+
+    private Arrow ResolveRelative(Arrow relativeToPosition, Dictionary<string, MonsterStateNode>? stateNodes)
+    {
+        if (stateNodes == null || relativeToPosition.RelativeTo == null || !stateNodes.TryGetValue(relativeToPosition.RelativeTo, out var node))
+        {
+            return relativeToPosition;
+        }
+
+        var path = (float[])relativeToPosition.Path.Clone();
+        path[1] += node.X;
+        path[2] += node.Y;
+        for (int i = 3; i < path.Length; i++)
+        {
+            path[i] += path[0] == i % 2 ? node.Y : node.X;
+        }
+        return new Arrow(path);
     }
 
     private void AddStateNodeToGraph(MonsterStateNode stateNode, MonsterStateNode? precessorNode, Graph graph, GraphGenerationContext context, float x)
@@ -581,6 +617,12 @@ internal class IntentGraphLayouter
             return false;
         }
 
+        // Not long enough. Simply hide the arrow.
+        if (arrowOverride.Path.Length <= 3)
+        {
+            return true;
+        }
+
         var path = (float?[])arrowOverride.Path.Clone();
         var startGenerated = 0;
         var endGenerated = path.Length;
@@ -589,7 +631,7 @@ internal class IntentGraphLayouter
             var startHorizontal = path[0] == 0;
             if (startHorizontal)
             {
-                if (path[1] == null && path.Length >= 4 && path[3] != null)
+                if (path[1] == null && path[3] != null)
                 {
                     var outX = path[3] ?? 0;
                     path[1] = outX > stateNode.X + stateNode.Width / 2 ? stateNode.X + stateNode.Width : stateNode.X;
@@ -608,7 +650,7 @@ internal class IntentGraphLayouter
                     path[1] = stateNode.X + stateNode.Width / 2;
                     startGenerated = 1;
                 }
-                if (path[2] == null && path.Length >= 4 && path[3] != null)
+                if (path[2] == null && path[3] != null)
                 {
                     var outY = path[3] ?? 0;
                     path[2] = outY > stateNode.Y + stateNode.Height / 2 ? stateNode.Y + stateNode.Height : stateNode.Y;
@@ -620,7 +662,7 @@ internal class IntentGraphLayouter
             if (endHorizontal)
             {
                 var inXIndex = path.Length > 5 ? path.Length - 3 : 1;
-                if (path[^1] == null && path.Length >= 4 && path[inXIndex] != null)
+                if (path[^1] == null && path[inXIndex] != null)
                 {
                     var inX = path[inXIndex] ?? 0;
                     path[^1] = inX > nextStateNode.X + nextStateNode.Width / 2 ? nextStateNode.X + nextStateNode.Width : nextStateNode.X;
@@ -635,7 +677,7 @@ internal class IntentGraphLayouter
             else
             {
                 var inYIndex = path.Length > 4 ? path.Length - 3 : 2;
-                if (path[^1] == null && path.Length >= 4 && path[inYIndex] != null)
+                if (path[^1] == null && path[inYIndex] != null)
                 {
                     var inY = path[inYIndex] ?? 0;
                     path[^1] = inY > nextStateNode.Y + nextStateNode.Height / 2 ? nextStateNode.Y + nextStateNode.Height : nextStateNode.Y;

@@ -5,9 +5,10 @@ You need to add the following files to your mod PCK:
 - `{yourmodid}/intentgraph.json` - the main intent graph file, used to define intent graphs for monsters.
 - `{yourmodid}/localization/{language}/intentgraph.json` - the localization file for intent graphs, used to define text for conditions and intent graphs.
 
+The contents of these files are described in later sections.
+
 You can use `editintent` command in game to edit the intent graph of a monster. This is detailed described in the last section of this document.
 
-The contents of these files are described in later sections.
 
 ## Automatic generation and condition handling
 
@@ -15,7 +16,7 @@ In most cases, you don't need to manually add an intent graph to your mod. It ca
 
 ```json
 {
-    "branch.{namespace of monster model}.{class name of monster model}.{ID of ConditionalBranchState}.{ID of child state}": "{text to describe the condition}",
+    "branch.{monster model full name}.{branch move ID}.{child move ID}": "{text to describe the condition}",
     // Example
     "branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "Blocked"
 }
@@ -29,7 +30,7 @@ If you want to manually add or modify a generated intent graph, you need to add 
 
 ```json
 {
-    "{namespace of monster model}.{class name of monster model}": [
+    "{monster model full name}": [
         {
             // Graph definition, will be mentioned later
         }
@@ -166,7 +167,7 @@ Alternatively, you can use the `graph` property to define the graph precisely. T
 			"moves": [
 				{
                     // Position on the graph, icons are 1 unit high and wide.
-					"x": 0,
+					"x": 1,
 					"y": 0,
                     // State ID defined in the monster model. If it contains multiple intents, this creates multiple icons.
 					"id": "RAMMING_SPEED_MOVE"
@@ -227,6 +228,31 @@ Alternatively, you can use the `graph` property to define the graph precisely. T
 You can also patch the generated intent graph. This is useful when you just want to add some text, icons, or arrows but don't want to define the whole graph.
 It uses the same format as `graph`, but the property name is `graphPatch`. It can be used together with `stateMachine`.
 
+One difference between `graph` and `graphPatch` is that in `graphPatch`, you can use `relativeTo` to specify the position of an item relative to another node. Here is an example:
+
+```json
+{
+    "MegaCrit.Sts2.Core.Models.Monsters.HauntedShip": [
+        {
+            "graphPatch": {
+                "labels": [
+                    {
+                        // Means the label is 2 units to the right of the node with state ID "HAUNT_MOVE".
+                        // `relativeTo` can also be used in moves, icons, iconGroups, and arrows.
+                        "x": 2,
+                        "y": 0,
+                        "relativeTo": "/HAUNT_MOVE",
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.HauntedShip.HAUNT_MOVE"
+                    }
+                ]
+            }
+        }
+    ]
+}
+```
+
+You may noticed that the `relativeTo` value is `/HAUNT_MOVE`. This is the full name of the state. This is used to distinguish states with the same ID but different parent states. For automatically generated states, the full name is like `/{state id}` or `/{conditional branch state id}/{child state id}`. For states defined in `stateMachine`, the full name is like `/{name}` or `/{name}/{child name}`. Full name is also used in `moveReplacements` to replace values or arrows of a move transition.
+
 ### Replace values of an intent
 
 A monster may have dynamic values for its intents. For example, it may attack one more time every two turns. You may want to replace its value and add a description for it. This can be done with the `moveReplacements` property. Here is an example:
@@ -236,7 +262,8 @@ A monster may have dynamic values for its intents. For example, it may attack on
     "MegaCrit.Sts2.Core.Models.Monsters.TestSubject": [
         {
             "moveReplacements": {
-                // State ID defined in the monster model.
+                // State ID defined in the monster model. Without the prefix "/", this will change all moves with the same state ID,
+                // even if they are child states of a `ConditionalBranchState` or `RandomBranchState`.
                 "MULTI_CLAW_MOVE": [
                     // Each object is related to an intent of the state. You can put `null` here to skip an intent.
                     {
@@ -270,7 +297,7 @@ You can also replace the arrow of a move transition. This can also be done with 
     "MegaCrit.Sts2.Core.Models.Monsters.ShrinkerBeetle": [
         {
             "moveReplacements": {
-                // State ID defined in the monster model. Prefix "/" means it's not a child state of a `ConditionalBranchState` or `RandomBranchState`.
+                // State ID defined in the monster model. Full name is used here because arrowOverride won't work without using full name.
                 // To replace the arrow of a child state, you need to specify the parent state name, e.g. "/RAND/CHOMP_MOVE".
                 // If you use `stateMachine` to define the intent graph, the ID here is constructed from the `name` of the node, not `moveName`.
                 "/CHOMP_MOVE": {
@@ -342,3 +369,16 @@ In game, you can use the `editintent` command to edit the intent graph of a mons
 6. open these two files and cut and paste the content to your mod's `intentgraph.json` and `localization/{language}/intentgraph.json` respectively.
 7. build and reload your mod to see the changes.
 
+## Glossary
+
+**Monster model:** the class of a monster.
+- **Monster model full name:** The full class name, e.g. `MegaCrit.Sts2.Core.Models.Monsters.CeremonialBeast`.
+
+**Intent:** Smallest unit of a monster's action. It can be an attack, a buff, a debuff, etc..
+
+**Move:** A set of intents that a monster can perform in one turn. It's also called "state" in the code and this document.
+- **Branch move:** A move that can lead to different moves based on conditions. Note that a branch move can also be a child of another branch move.
+- **Child move:** A move that is a child of a branch move. It can be selected based on conditions.
+- **Move ID:** The ID of a move, defined in a monster model. It's also called "state ID" in the code and this document.
+
+**State machine:** A set of moves and trasitions generated by `GenerateMoveStateMachine` in a monster model.

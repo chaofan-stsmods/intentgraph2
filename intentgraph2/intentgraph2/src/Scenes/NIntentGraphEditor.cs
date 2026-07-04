@@ -1201,7 +1201,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildMoveReplacementCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "intentOverrides", "arrowOverride" })
+        foreach (var propertyName in new[] { "intentOverrides", "arrowOverride", "path" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }
@@ -1219,7 +1219,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildGraphPatchCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "width", "height", "moves", "icons", "iconGroups", "labels", "arrows", "x", "y", "id", "intentType", "value", "times", "valueText", "timesText", "text", "align", "path", "fontSize", "expand" })
+        foreach (var propertyName in new[] { "width", "height", "moves", "icons", "iconGroups", "labels", "arrows", "x", "y", "id", "intentType", "value", "times", "valueText", "timesText", "text", "align", "path", "fontSize", "expand", "relativeTo" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }

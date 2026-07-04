@@ -239,54 +239,17 @@
         "height": 2.5,
         "icons": [
           {
-            "y": 1.5,
             "intentType": "stun",
             "times": 1,
             "valueText": "",
-            "timesText": ""
+            "timesText": "",
+            "relativeTo": "/stun"
           }
         ],
         "iconGroups": [],
         "labels": [],
-        "arrows": [
-          {
-            "path": [
-              0,
-              1,
-              2,
-              1.5
-            ]
-          },
-          {
-            "path": [
-              0,
-              2.5,
-              2,
-              3
-            ]
-          },
-          {
-            "path": [
-              0,
-              4,
-              2,
-              4.75,
-              1.3
-            ]
-          }
-        ],
-        "moves": [
-          {
-            "id": "HEADBUTT",
-            "x": 1.5,
-            "y": 1.5
-          },
-          {
-            "id": "GO_AIRBORNE",
-            "x": 3,
-            "y": 1.5
-          }
-        ]
+        "arrows": [],
+        "moves": []
       },
       "stateMachine": [
         {
@@ -333,6 +296,20 @@
           ],
           "followUpState": "rand2",
           "horizontalLayout": true
+        },
+        {
+          "name": "stun",
+          "isInitialState": true,
+          "followUpState": "HEADBUTT",
+          "placeholderIntentCount": 1
+        },
+        {
+          "name": "HEADBUTT",
+          "followUpState": "GO_AIRBORNE"
+        },
+        {
+          "name": "GO_AIRBORNE",
+          "followUpState": "rand2"
         }
       ]
     }
@@ -395,11 +372,12 @@
         "iconGroups": [],
         "labels": [
           {
-            "x": 2,
+            "x": 0.5,
             "y": 1.3,
             "text": "ActsFromThePast.Hexaghost.Text",
             "align": "center",
-            "fontSize": 18
+            "fontSize": 18,
+            "relativeTo": "/DIVIDER"
           }
         ],
         "arrows": [],
@@ -583,142 +561,28 @@
         "iconGroups": [],
         "labels": [
           {
-            "x": 2.2,
-            "y": 0.65,
+            "x": 0.1,
+            "y": 0.45,
             "text": "ActsFromThePast.Champ.SeeGraphBelow",
             "align": "left",
-            "fontSize": 14
+            "fontSize": 14,
+            "relativeTo": "/condition1/placeholder1"
           },
           {
-            "x": 3.3,
-            "y": 2.15,
+            "x": 0.3,
+            "y": 0.35,
             "text": "ActsFromThePast.Champ.SeeGraphBelow",
             "align": "left",
-            "fontSize": 14
+            "fontSize": 14,
+            "relativeTo": "/rand1"
           },
           {
-            "x": 4.8,
-            "y": 2.15,
+            "x": 0.3,
+            "y": 0.35,
             "text": "ActsFromThePast.Champ.SeeGraphBelow",
             "align": "left",
-            "fontSize": 14
-          }
-        ],
-        "arrows": [],
-        "moves": []
-      },
-      "stateMachine": [
-        {
-          "name": "condition1",
-          "isInitialState": true,
-          "children": [
-            {
-              "label": "ActsFromThePast.Champ.Turn4812",
-              "node": {
-                "name": "TAUNT"
-              }
-            },
-            {
-              "label": "ui.Otherwise",
-              "node": {
-                "name": "placeholder1",
-                "placeholderIntentCount": 1
-              }
-            }
-          ],
-          "followUpState": "condition1",
-          "horizontalLayout": true
-        },
-        {
-          "name": "ANGER",
-          "isInitialState": true,
-          "followUpState": "EXECUTE"
-        },
-        {
-          "name": "EXECUTE",
-          "followUpState": "rand1"
-        },
-        {
-          "name": "rand1",
-          "children": [],
-          "followUpState": "rand2",
-          "placeholderIntentCount": 1
-        },
-        {
-          "name": "rand2",
-          "children": [],
-          "followUpState": "EXECUTE",
-          "placeholderIntentCount": 1
-        },
-        {
-          "name": "rand",
-          "isInitialState": true,
-          "children": [
-            {
-              "label": "30%, ≤1",
-              "node": {
-                "name": "cond2",
-                "children": [
-                  {
-                    "label": "ActsFromThePast.Champ.DefendStanceUsedTwice",
-                    "node": {
-                      "name": "GLOAT"
-                    }
-                  },
-                  {
-                    "label": "ui.Otherwise",
-                    "node": {
-                      "name": "DEFENSIVE_STANCE"
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "label": "25%, ≤1",
-              "node": {
-                "name": "FACE_SLAP"
-              }
-            },
-            {
-              "label": "45%, ≤1",
-              "node": {
-                "name": "HEAVY_SLASH"
-              }
-            }
-          ],
-          "horizontalLayout": true
-        }
-      ]
-    },
-    {
-      "condition": "showMoveNames",
-      "graphPatch": {
-        "width": 1,
-        "height": 1,
-        "icons": [],
-        "iconGroups": [],
-        "labels": [
-          {
-            "x": 2.2,
-            "y": 0.8,
-            "text": "ActsFromThePast.Champ.SeeGraphBelow",
-            "align": "left",
-            "fontSize": 14
-          },
-          {
-            "x": 3.3,
-            "y": 2.3,
-            "text": "ActsFromThePast.Champ.SeeGraphBelow",
-            "align": "left",
-            "fontSize": 14
-          },
-          {
-            "x": 4.8,
-            "y": 2.3,
-            "text": "ActsFromThePast.Champ.SeeGraphBelow",
-            "align": "left",
-            "fontSize": 14
+            "fontSize": 14,
+            "relativeTo": "/rand2"
           }
         ],
         "arrows": [],
@@ -1390,25 +1254,6 @@
   "ActsFromThePast.Guardian": [
     {
       "condition": "true",
-      "graphPatch": {
-        "width": 1,
-        "height": 1,
-        "icons": [],
-        "iconGroups": [],
-        "labels": [],
-        "arrows": [
-          {
-            "path": [
-              0,
-              4.67,
-              1.8,
-              5,
-              1
-            ]
-          }
-        ],
-        "moves": []
-      },
       "stateMachine": [
         {
           "name": "CHARGE_UP",
@@ -1438,9 +1283,23 @@
           "followUpState": "TWIN_SLAM"
         },
         {
-          "name": "TWIN_SLAM"
+          "name": "TWIN_SLAM",
+          "followUpState": "WHIRLWIND"
         }
-      ]
+      ],
+      "moveReplacements": {
+        "/TWIN_SLAM": {
+          "arrowOverride": {
+            "path": [
+              0,
+              null,
+              null,
+              5,
+              null
+            ]
+          }
+        }
+      }
     }
   ],
   "ActsFromThePast.JawWorm": [

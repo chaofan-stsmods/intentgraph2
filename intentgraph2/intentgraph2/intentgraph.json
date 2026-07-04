@@ -45,10 +45,11 @@
             "graphPatch": {
                 "labels": [
                     {
-                        "x": 7.3,
-                        "y": 2.6,
+                        "x": 0.8,
+                        "y": 1.3,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.WaterfallGiant",
-                        "align": "center"
+                        "align": "center",
+                        "relativeTo": "/PRESSURE_GUN_MOVE"
                     }
                 ],
                 "expand": true
