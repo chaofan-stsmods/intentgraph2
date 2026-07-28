@@ -132,4 +132,65 @@ public class IntentGraphGenerator
 
         return graph;
     }
+
+    public static string? GenerateMermaidDiagram(MonsterModel? monster)
+    {
+        if (monster?.MoveStateMachine == null)
+        {
+            return null;
+        }
+
+        var stateMachine = monster.MoveStateMachine;
+        var initialState = stateMachine.GetInitialState();
+
+        IntentDefinition? intentDefinition = null;
+        IRule? condition = null;
+        if (intentDefinition == null)
+        {
+            var intentDefinitionList = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
+            if (intentDefinitionList != null)
+            {
+                (intentDefinition, condition) = intentDefinitionList.FindFirstMatchCondition(monster);
+            }
+        }
+
+        var localizer = new IntentGraphLocalizer(null);
+        string? warning = null;
+        if (intentDefinition?.UpToDateCondition != null)
+        {
+            try
+            {
+                var rule = RuleParserHelper.Parse(intentDefinition.UpToDateCondition, new RuleContext(monster));
+                if (rule?.GetBool() == false)
+                {
+                    warning = localizer.GetOrElse("ui.Outdated", "Outdated");
+                }
+            }
+            catch (Exception ex)
+            {
+                IgLogger.Warn($"Failed to evaluate up to date condition '{intentDefinition.UpToDateCondition}' for monster '{monster.Id}', error message: {ex.Message}");
+            }
+        }
+
+        var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
+        if (intentDefinition?.Graph != null)
+        {
+            return null;
+        }
+
+        var converter = new MonsterStateNodeConverter(localizer);
+        converter.EvaluateInitialState = false;
+        List<MonsterStateNode> stateNodes;
+        if (intentDefinition?.StateMachine != null)
+        {
+            stateNodes = converter.FromStateMachineNodes(stateMachine, intentDefinition.StateMachine, font);
+        }
+        else
+        {
+            stateNodes = converter.FromMonsterMoveStateMachine(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition, ref warning);
+        }
+
+        var mermaidGenerator = new MermaidDiagramGenerator(monster, localizer);
+        return mermaidGenerator.StateNodesToGraph(stateNodes, intentDefinition);
+    }
 }
