@@ -179,23 +179,17 @@ internal class MonsterStateNodeSimplifier
             {
                 var parent = node.Parent;
                 if (parent == null || node.State is not MoveState moveState || node.Children != null ||
-                    parent.State is not RandomBranchState parentBranchState ||
-                    parent.Children == null || parent.Children.Any(c => !c.IsLabelGenerated))
+                    parent.State is not RandomBranchState ||
+                    parent.Children == null || parent.Children.Any(c => c.Label == null || !c.Label.IsTextGenerated))
                 {
                     continue;
                 }
 
-                var stateWeight = parentBranchState.States.FirstOrDefault(s => s.stateId == moveState.Id);
-                if (stateWeight.stateId == null)
-                {
-                    continue;
-                }
-
-                if (TryRemoveNoRepeatNodePrecededBySame(node, precessors, nodesToRemove, converter, moveState, parentBranchState, stateWeight))
+                if (TryRemoveNoRepeatNodePrecededBySame(node, precessors, nodesToRemove, converter))
                 {
                     modified = true;
                 }
-                else if (TryRemoveNoRepeatTextIfPrecededByOther(node, precessors, converter, stateWeight))
+                else if (TryRemoveNoRepeatTextIfPrecededByOther(node, precessors, converter))
                 {
                     modified = true;
                 }
@@ -244,13 +238,10 @@ internal class MonsterStateNodeSimplifier
         MonsterStateNode node,
         Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> allPrecessors,
         List<MonsterStateNode> nodesToRemove,
-        MonsterStateNodeConverter converter,
-        MoveState moveState,
-        RandomBranchState parentBranchState,
-        RandomBranchState.StateWeight stateWeight)
+        MonsterStateNodeConverter converter)
     {
         var parent = node.Parent;
-        if (stateWeight.repeatType != MoveRepeatType.CannotRepeat && stateWeight.repeatType != MoveRepeatType.UseOnlyOnce)
+        if (node.Label == null || node.Label.MaxRepeat != 1)
         {
             return false;
         }
@@ -267,7 +258,7 @@ internal class MonsterStateNodeSimplifier
         }
 
         var distinctMoveStateIds = precessors.Select(n => n.State!.Id).Distinct().ToList();
-        if (distinctMoveStateIds.Count != 1 || distinctMoveStateIds[0] != moveState.Id)
+        if (distinctMoveStateIds.Count != 1 || distinctMoveStateIds[0] != node.State?.Id)
         {
             return false;
         }
@@ -296,7 +287,6 @@ internal class MonsterStateNodeSimplifier
             nodesToRemove.Add(parent);
             onlyChild.Parent = parent.Parent;
             onlyChild.Label = parent.Label;
-            onlyChild.IsLabelGenerated = parent.IsLabelGenerated;
             if (onlyChild.NextState == null)
             {
                 onlyChild.NextState = parent.NextState;
@@ -311,16 +301,13 @@ internal class MonsterStateNodeSimplifier
         }
         else
         {
-            var sumWeight = parentBranchState.States.Where(s => parent.Children.Any(c => c.State?.Id == s.stateId)).Sum(w => w.GetWeight());
+            var sumWeight = parent.Children.Where(c => c != node).Sum(c => c.Label?.Weight ?? 0);
             foreach (var child in parent.Children)
             {
-                var childStateWeight = parentBranchState.States.FirstOrDefault(s => s.stateId == child.State?.Id);
-                if (childStateWeight.stateId == null)
+                if (child.Label != null)
                 {
-                    continue;
+                    child.Label.Text = converter.MakeText(child.Label, sumWeight);
                 }
-                child.Label = converter.MakeText(childStateWeight, sumWeight);
-                child.IsLabelGenerated = true;
             }
 
             var nextStateOfChildren = parent.Children.Select(c => c.NextState).Distinct().ToList();
@@ -344,11 +331,10 @@ internal class MonsterStateNodeSimplifier
     private static bool TryRemoveNoRepeatTextIfPrecededByOther(
         MonsterStateNode node,
         Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> allPrecessors,
-        MonsterStateNodeConverter converter,
-        RandomBranchState.StateWeight stateWeight)
+        MonsterStateNodeConverter converter)
     {
         var parent = node.Parent;
-        if (stateWeight.repeatType != MoveRepeatType.CannotRepeat)
+        if (node.Label == null || node.Label.MaxRepeat != 1 || node.Label.UseOnlyOnce)
         {
             return false;
         }
@@ -359,13 +345,14 @@ internal class MonsterStateNodeSimplifier
             return false;
         }
 
-        if (node.Label?.Contains("≤1") != true)
+        if (node.Label.Text.Contains("≤1") != true)
         {
             return false;
         }
 
         IgLogger.Info($"TryRemoveNoRepeatTextIfPrecededByOther removed repeat restriction on {node.State?.Id}.");
-        node.Label = node.Label?.Replace(", ≤1", string.Empty);
+        node.Label.Text = node.Label.Text.Replace(", ≤1", string.Empty);
+        node.Label.MaxRepeat = 0;
         return true;
     }
 

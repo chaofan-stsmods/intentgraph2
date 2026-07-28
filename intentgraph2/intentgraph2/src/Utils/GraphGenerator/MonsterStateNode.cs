@@ -16,8 +16,7 @@ internal class MonsterStateNode
     public MonsterStateNode? Parent { get; set; }
     public List<MonsterStateNode>? Children { get; set; }
     public bool HorizontalLayout { get; set; } // Whether child nodes are arranged horizontally.
-    public string? Label { get; set; } // When it's a child
-    public bool IsLabelGenerated { get; set; } // Whether the label is auto generated.
+    public MonsterStateNodeLabel? Label { get; set; } // When it's a child
     public MonsterState? State { get; set; }
     public MonsterStateNode? NextState { get; set; }
     public List<string> MoveStateIds { get; set; } = new(); // Include children's, MoveState only.

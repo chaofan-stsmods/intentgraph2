@@ -222,7 +222,7 @@ internal class IntentGraphLayouter
             for (int i = 0; i < stateNode.Children.Count; i++)
             {
                 var childNode = stateNode.Children[i];
-                graph.Labels.Add(new Models.Label(childX, context.Y + childYOffset - 0.04f, childNode.Label ?? string.Empty));
+                graph.Labels.Add(new Models.Label(childX, context.Y + childYOffset - 0.04f, childNode.Label?.Text ?? string.Empty));
                 subGraph.LabelIndices.Add(graph.Labels.Count - 1);
                 if (stateNode.HorizontalLayout)
                 {
@@ -323,25 +323,7 @@ internal class IntentGraphLayouter
 
     private void AddMoveName(MoveState moveState, Graph graph, float x, float y, SubGraph? subGraph)
     {
-        var locTable = LocManager.Instance.GetTable("monsters");
-        var monsterName = monster.Id.Entry;
-        if (monsterName.StartsWith("DECIMILLIPEDE_SEGMENT_"))
-        {
-            monsterName = "DECIMILLIPEDE_SEGMENT";
-        }
-
-        var moveId = moveState.Id;
-
-        string? title;
-        if (!TryGetTitle(locTable, monsterName, moveId, out title) && moveId.Contains('_'))
-        {
-            var index1 = moveId.LastIndexOf('_');
-            var index2 = moveId.IndexOf('_');
-            _ = TryGetTitle(locTable, monsterName, moveId, out title, endIndex: index1) ||
-                TryGetTitle(locTable, monsterName, moveId, out title, endIndex: moveId.LastIndexOf('_', index1 - 1)) ||
-                TryGetTitle(locTable, monsterName, moveId, out title, startIndex: index2 + 1) ||
-                TryGetTitle(locTable, monsterName, moveId, out title, startIndex: index2 + 1, endIndex: index1);
-        }
+        var title = localizer.GetMoveName(this.monster, moveState.Id);
 
         if (title != null)
         {
@@ -353,25 +335,6 @@ internal class IntentGraphLayouter
                 subGraph.LabelIndices.Add(graph.Labels.Count - 1);
             }
         }
-    }
-
-    private bool TryGetTitle(LocTable table, string monsterName, string moveId, out string? title, int startIndex = 0, int? endIndex = default)
-    {
-        title = null;
-        var endIndexValue = endIndex ?? moveId.Length;
-        if (startIndex == -1 || endIndexValue == -1 || endIndexValue <= startIndex)
-        {
-            return false;
-        }
-
-        var key = $"{monsterName}.moves.{moveId.Substring(startIndex, endIndexValue - startIndex)}.title";
-        if (table.HasEntry(key))
-        {
-            title = table.GetRawText(key);
-            return true;
-        }
-
-        return false;
     }
 
     private void AddSimpleLoopToGraph(MonsterStateNode loopStart, MonsterStateNode? precessorNode, Graph graph, GraphGenerationContext context, float x)

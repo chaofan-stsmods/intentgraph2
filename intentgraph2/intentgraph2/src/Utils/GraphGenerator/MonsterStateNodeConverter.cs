@@ -22,6 +22,8 @@ internal class MonsterStateNodeConverter
         this.localizer = localizer;
     }
 
+    public bool EvaluateInitialState { get; set; } = true;
+
     public List<MonsterStateNode> FromStateMachineNodes(MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, Font font)
     {
         var existingNodes = new Dictionary<string, MonsterStateNode>();
@@ -53,7 +55,7 @@ internal class MonsterStateNodeConverter
         MonsterStateNode? initialStateNode = null;
 
         // For conditional branch to check monster slot.
-        if (initialState is ConditionalBranchState conditionalBranchState)
+        if (EvaluateInitialState && initialState is ConditionalBranchState conditionalBranchState)
         {
             var stateName = conditionalBranchState.EvaluateStates();
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == stateName);
@@ -119,18 +121,16 @@ internal class MonsterStateNodeConverter
         return result;
     }
 
-    public string MakeText(RandomBranchState.StateWeight s, float sumWeight)
+    public string MakeText(MonsterStateNodeLabel label, float sumWeight)
     {
-        var weight = s.GetWeight();
+        var weight = label.Weight;
+        var cooldown = label.Cooldown;
+        var useOnlyOnce = label.UseOnlyOnce;
+        var maxRepeat = label.MaxRepeat;
         var percentage = (int)(weight / sumWeight * 100);
-        return percentage + "%" + (s.cooldown > 0 ? ", ⏱" + s.cooldown : s.repeatType switch
-        {
-            MoveRepeatType.CanRepeatForever => "",
-            MoveRepeatType.CanRepeatXTimes => ", ≤" + s.maxTimes,
-            MoveRepeatType.CannotRepeat => ", ≤1",
-            MoveRepeatType.UseOnlyOnce => ", " + localizer.GetOrElse("ui.UseOnlyOnce", "one use"),
-            _ => ""
-        });
+        return percentage + "%" + (cooldown > 0 ? ", ⏱" + cooldown :
+            (useOnlyOnce ? ", " + localizer.GetOrElse("ui.UseOnlyOnce", "one use") :
+            (maxRepeat > 0 ? ", ≤" + maxRepeat : "")));
     }
 
     private MonsterStateNode? StateMachineNodeToMonsterStateNode(Font font, MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, StateMachineNode? node, Dictionary<string, MonsterStateNode> existingNodes, MonsterStateNode? parent)
@@ -231,7 +231,7 @@ internal class MonsterStateNodeConverter
                 var childStateNode = StateMachineNodeToMonsterStateNode(font, stateMachine, overwriteStateMachine, childNode, existingNodes, parent: result);
                 if (childStateNode != null)
                 {
-                    childStateNode.Label = text;
+                    childStateNode.Label = new MonsterStateNodeLabel { Text = text };
                     childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(text, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
                     children.Add(childStateNode);
                     result.MoveStateIds.AddRange(childStateNode.MoveStateIds);
@@ -297,32 +297,45 @@ internal class MonsterStateNodeConverter
         else
         {
             var unrecognizedStateType = false;
-            var childCandidates = new List<(string state, string label, bool overwriteLabel)>();
+            var childCandidates = new List<(string state, MonsterStateNodeLabel label)>();
             if (state is RandomBranchState randomBranchState)
             {
                 var sumWeight = randomBranchState.States.Sum(s => s.GetWeight());
                 foreach (var s in randomBranchState.States)
                 {
-                    string label;
-                    bool overwriteLabel;
+                    var label = new MonsterStateNodeLabel
+                    {
+                        Type = MonsterStateNodeLabel.LabelType.Random,
+                        Text = string.Empty, // stub
+                        IsTextGenerated = true,
+                        Weight = s.GetWeight(),
+                        MaxRepeat = s.repeatType switch 
+                        {
+                            MoveRepeatType.CanRepeatForever => 0,
+                            MoveRepeatType.CanRepeatXTimes => s.maxTimes,
+                            MoveRepeatType.CannotRepeat or MoveRepeatType.UseOnlyOnce => 1,
+                            _ => 0
+                        },
+                        Cooldown = s.cooldown,
+                        UseOnlyOnce = s.repeatType == MoveRepeatType.UseOnlyOnce,
+                    };
                     if (localizer.TryGet($"branch.{monsterName}.{state.Id}.{s.stateId}", out var overwriteText))
                     {
-                        label = overwriteText;
-                        overwriteLabel = true;
+                        label.Text = overwriteText;
+                        label.IsTextGenerated = false;
                     }
                     else
                     {
-                        label = MakeText(s, sumWeight);
-                        overwriteLabel = false;
+                        label.Text = MakeText(label, sumWeight);
                     }
 
-                    childCandidates.Add((s.stateId, label, overwriteLabel));
+                    childCandidates.Add((s.stateId, label));
                 }
             }
             else if (state is ConditionalBranchState conditionalBranchState)
             {
                 // INIT_MOVE is related to monster slot, which is determined at the beginning of the combat, so we can evaluate it directly to get a more accurate graph.
-                if (state.Id == "INIT_MOVE")
+                if (EvaluateInitialState && state.Id == "INIT_MOVE")
                 {
                     var evaluatedSstateName = conditionalBranchState.EvaluateStates();
                     var evaluatedState = stateMachine.States.Values.FirstOrDefault(s => s.Id == evaluatedSstateName);
@@ -339,12 +352,20 @@ internal class MonsterStateNodeConverter
                     {
                         if (localizer.TryGet($"branch.{monsterName}.{state.Id}.{s}", out var overwriteText))
                         {
-                            childCandidates.Add((s, overwriteText, true));
+                            childCandidates.Add((s, new MonsterStateNodeLabel
+                            {
+                                Type = MonsterStateNodeLabel.LabelType.Condition,
+                                Text = overwriteText,
+                            }));
                         }
                         else
                         {
                             warning ??= localizer.GetOrElse("ui.UnknownConditions", "Unknown conditions");
-                            childCandidates.Add((s, localizer.GetOrElse("ui.UnknownCondition", "condition?"), true));
+                            childCandidates.Add((s, new MonsterStateNodeLabel
+                            {
+                                Type = MonsterStateNodeLabel.LabelType.Condition,
+                                Text = localizer.GetOrElse("ui.UnknownCondition", "condition?")
+                            }));
                         }
                     }
                 }
@@ -359,10 +380,11 @@ internal class MonsterStateNodeConverter
             for (int i = 0; i < childCandidatesCount; i++)
             {
                 var child = childCandidates[i];
-                if (child.label == OtherwiseMark)
+                if (child.label.Text == OtherwiseMark)
                 {
                     childCandidates.RemoveAt(i);
-                    childCandidates.Add((child.state, localizer.GetOrElse("ui.Otherwise", "Otherwise"), child.overwriteLabel));
+                    childCandidates.Add((child.state, child.label));
+                    child.label.Text = localizer.GetOrElse("ui.Otherwise", "Otherwise");
                     i--;
                     childCandidatesCount--;
                 }
@@ -384,7 +406,7 @@ internal class MonsterStateNodeConverter
             var children = new List<MonsterStateNode>();
             for (int i = 0; i < childCandidates.Count; i++)
             {
-                var (childStateId, label, overwriteLabel) = childCandidates[i];
+                var (childStateId, label) = childCandidates[i];
                 var childState = stateMachine.States.Values.FirstOrDefault(s => s.Id == childStateId);
                 if (childState != null)
                 {
@@ -392,8 +414,7 @@ internal class MonsterStateNodeConverter
                     if (childStateNode != null)
                     {
                         childStateNode.Label = label;
-                        childStateNode.IsLabelGenerated = !overwriteLabel;
-                        childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(label, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
+                        childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(label.Text, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
                         children.Add(childStateNode);
                         result.MoveStateIds.AddRange(childStateNode.MoveStateIds);
                     }
