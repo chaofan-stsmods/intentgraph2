@@ -120,5 +120,14 @@
   "ui.editor.field.up_to_date_condition": "upToDateCondition",
   "ui.editor.field.intent_strings": "niyet dizeleri",
   "ui.editor.read_only.summary.none": "Burada duzenlenemez: graph.",
-  "ui.editor.read_only.summary.graph_present": "graph mevcut ve bu duzenleyicide salt okunur kalir."
+  "ui.editor.read_only.summary.graph_present": "graph mevcut ve bu duzenleyicide salt okunur kalir.",
+  "AXE_RUBY_RAIDER.moves.SWING.title": "Savurus",
+  "FOGMOG.moves.HEADBUTT.title": "Kafa At",
+  "GLOBE_HEAD.moves.GALVANIC_BURST.title": "Galvanik Patlama",
+  "MAGI_KNIGHT.moves.PREP.title": "Hazirlan",
+  "NIBBIT.moves.SLICE.title": "Tereddutlu Kesis",
+  "QUEEN.moves.ENRAGE.title": "Sinirlen",
+  "QUEEN.moves.PUPPET_STRINGS.title": "Kukla Ipleri",
+  "SLIMED_BERSERKER.moves.SMOTHER.title": "Bogma",
+  "TORCH_HEAD_AMALGAM.moves.TACKLE.title": "Saldir"
 }

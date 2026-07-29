@@ -120,5 +120,14 @@
   "ui.editor.field.up_to_date_condition": "upToDateCondition",
   "ui.editor.field.intent_strings": "strings de intencao",
   "ui.editor.read_only.summary.none": "Nao editavel aqui: graph.",
-  "ui.editor.read_only.summary.graph_present": "graph esta presente e permanece somente leitura neste editor."
+  "ui.editor.read_only.summary.graph_present": "graph esta presente e permanece somente leitura neste editor.",
+  "AXE_RUBY_RAIDER.moves.SWING.title": "Golpe",
+  "FOGMOG.moves.HEADBUTT.title": "Cabecada",
+  "GLOBE_HEAD.moves.GALVANIC_BURST.title": "Explosao Galvanica",
+  "MAGI_KNIGHT.moves.PREP.title": "Preparacao",
+  "NIBBIT.moves.SLICE.title": "Corte Hesitante",
+  "QUEEN.moves.ENRAGE.title": "Enfurecer",
+  "QUEEN.moves.PUPPET_STRINGS.title": "Cordas da Marionete",
+  "SLIMED_BERSERKER.moves.SMOTHER.title": "Sufocar",
+  "TORCH_HEAD_AMALGAM.moves.TACKLE.title": "Investida"
 }

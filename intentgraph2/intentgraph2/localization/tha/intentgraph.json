@@ -120,5 +120,14 @@
   "ui.editor.field.up_to_date_condition": "upToDateCondition",
   "ui.editor.field.intent_strings": "สตริงเจตนา",
   "ui.editor.read_only.summary.none": "แก้ไขที่นี่ไม่ได้: graph",
-  "ui.editor.read_only.summary.graph_present": "มี graph อยู่และยังคงเป็นแบบอ่านอย่างเดียวในตัวแก้ไขนี้"
+  "ui.editor.read_only.summary.graph_present": "มี graph อยู่และยังคงเป็นแบบอ่านอย่างเดียวในตัวแก้ไขนี้",
+  "AXE_RUBY_RAIDER.moves.SWING.title": "ฟาด",
+  "FOGMOG.moves.HEADBUTT.title": "โขกหัว",
+  "GLOBE_HEAD.moves.GALVANIC_BURST.title": "ระเบิดกระแสไฟ",
+  "MAGI_KNIGHT.moves.PREP.title": "เตรียมพร้อม",
+  "NIBBIT.moves.SLICE.title": "ฟันอย่างลังเล",
+  "QUEEN.moves.ENRAGE.title": "เกรี้ยวกราด",
+  "QUEEN.moves.PUPPET_STRINGS.title": "สายเชิดหุ่น",
+  "SLIMED_BERSERKER.moves.SMOTHER.title": "ขาดอากาศ",
+  "TORCH_HEAD_AMALGAM.moves.TACKLE.title": "พุ่งชน"
 }

@@ -120,5 +120,14 @@
 	"ui.editor.field.up_to_date_condition": "upToDateCondition",
 	"ui.editor.field.intent_strings": "intent strings",
 	"ui.editor.read_only.summary.none": "Not editable here: graph.",
-	"ui.editor.read_only.summary.graph_present": "graph is present and remains read-only in this editor."
+	"ui.editor.read_only.summary.graph_present": "graph is present and remains read-only in this editor.",
+	"AXE_RUBY_RAIDER.moves.SWING.title": "Swing",
+    "FOGMOG.moves.HEADBUTT.title": "Headbutt",
+	"GLOBE_HEAD.moves.GALVANIC_BURST.title": "Galvanic Burst",
+	"MAGI_KNIGHT.moves.PREP.title": "Prepare",
+    "NIBBIT.moves.SLICE.title": "Hesitant Slice",
+	"QUEEN.moves.ENRAGE.title": "Enrage",
+	"QUEEN.moves.PUPPET_STRINGS.title": "Puppet Strings",
+    "SLIMED_BERSERKER.moves.SMOTHER.title": "Smother",
+	"TORCH_HEAD_AMALGAM.moves.TACKLE.title": "Tackle"
 }

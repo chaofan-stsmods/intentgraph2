@@ -1,5 +1,5 @@
 namespace IntentGraph2.Utils.GraphGenerator;
-internal class MonsterStateNodeLabel
+internal record class MonsterStateNodeLabel
 {
     public LabelType Type { get; set; }
 

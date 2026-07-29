@@ -120,5 +120,14 @@
   "ui.editor.field.up_to_date_condition": "upToDateCondition",
   "ui.editor.field.intent_strings": "строки намерений",
   "ui.editor.read_only.summary.none": "Здесь нельзя редактировать: graph.",
-  "ui.editor.read_only.summary.graph_present": "graph присутствует и остается только для чтения в этом редакторе."
+  "ui.editor.read_only.summary.graph_present": "graph присутствует и остается только для чтения в этом редакторе.",
+  "AXE_RUBY_RAIDER.moves.SWING.title": "Замах",
+  "FOGMOG.moves.HEADBUTT.title": "Удар головой",
+  "GLOBE_HEAD.moves.GALVANIC_BURST.title": "Гальванический разряд",
+  "MAGI_KNIGHT.moves.PREP.title": "Изготовка",
+  "NIBBIT.moves.SLICE.title": "Царапина",
+  "QUEEN.moves.ENRAGE.title": "Гнев",
+  "QUEEN.moves.PUPPET_STRINGS.title": "Нити марионетки",
+  "SLIMED_BERSERKER.moves.SMOTHER.title": "Удушение",
+  "TORCH_HEAD_AMALGAM.moves.TACKLE.title": "Бросок"
 }

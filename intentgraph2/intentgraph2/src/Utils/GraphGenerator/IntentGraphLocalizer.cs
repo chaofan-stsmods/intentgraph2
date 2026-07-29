@@ -1,6 +1,5 @@
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
@@ -39,15 +38,42 @@ internal class IntentGraphLocalizer
             monsterName = "DECIMILLIPEDE_SEGMENT";
         }
 
+        var moveIdChanged = true;
+        while (moveIdChanged)
+        {
+            moveIdChanged = false;
+            if (moveId.EndsWith("_MOVE"))
+            {
+                moveId = moveId.Substring(0, moveId.Length - "_MOVE".Length);
+                moveIdChanged = true;
+            }
+
+            var lastIndex = moveId.Length - 1;
+            while (lastIndex >= 0 && ((moveId[lastIndex] >= '0' && moveId[lastIndex] <= '9') || moveId[lastIndex] == '_'))
+            {
+                lastIndex--;
+            }
+            if (lastIndex < moveId.Length - 1)
+            {
+                moveId = moveId.Substring(0, lastIndex + 1);
+                moveIdChanged = true;
+            }
+        }
+
         string? title;
         if (!TryGetTitle(locTable, monsterName, moveId, out title) && moveId.Contains('_'))
         {
-            var index1 = moveId.LastIndexOf('_');
             var index2 = moveId.IndexOf('_');
-            _ = TryGetTitle(locTable, monsterName, moveId, out title, endIndex: index1) ||
-                TryGetTitle(locTable, monsterName, moveId, out title, endIndex: moveId.LastIndexOf('_', index1 - 1)) ||
-                TryGetTitle(locTable, monsterName, moveId, out title, startIndex: index2 + 1) ||
-                TryGetTitle(locTable, monsterName, moveId, out title, startIndex: index2 + 1, endIndex: index1);
+            _ = TryGetTitle(locTable, monsterName, moveId, out title, startIndex: index2 + 1);
+        }
+
+        if (title == null)
+        {
+            if (!TryGetTitle(monsterName, moveId, out title) && moveId.Contains('_'))
+            {
+                var index2 = moveId.IndexOf('_');
+                _ = TryGetTitle(monsterName, moveId, out title, startIndex: index2 + 1);
+            }
         }
 
         return title;
@@ -66,6 +92,25 @@ internal class IntentGraphLocalizer
         if (table.HasEntry(key))
         {
             title = table.GetRawText(key);
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryGetTitle(string monsterName, string moveId, out string? title, int startIndex = 0, int? endIndex = default)
+    {
+        title = null;
+        var endIndexValue = endIndex ?? moveId.Length;
+        if (startIndex == -1 || endIndexValue == -1 || endIndexValue <= startIndex)
+        {
+            return false;
+        }
+
+        var key = $"{monsterName}.moves.{moveId.Substring(startIndex, endIndexValue - startIndex)}.title";
+        if (TryGet(key, out var overwriteTitle))
+        {
+            title = overwriteTitle;
             return true;
         }
 

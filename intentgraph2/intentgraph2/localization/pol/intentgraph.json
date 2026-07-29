@@ -120,5 +120,14 @@
   "ui.editor.field.up_to_date_condition": "upToDateCondition",
   "ui.editor.field.intent_strings": "ciagi intencji",
   "ui.editor.read_only.summary.none": "Tutaj nie mozna edytowac: graph.",
-  "ui.editor.read_only.summary.graph_present": "graph jest obecny i pozostaje tylko do odczytu w tym edytorze."
+  "ui.editor.read_only.summary.graph_present": "graph jest obecny i pozostaje tylko do odczytu w tym edytorze.",
+  "AXE_RUBY_RAIDER.moves.SWING.title": "Zamach",
+  "FOGMOG.moves.HEADBUTT.title": "Uderzenie z glowki",
+  "GLOBE_HEAD.moves.GALVANIC_BURST.title": "Galwaniczny wybuch",
+  "MAGI_KNIGHT.moves.PREP.title": "Przygotowanie",
+  "NIBBIT.moves.SLICE.title": "Niepewne ciecie",
+  "QUEEN.moves.ENRAGE.title": "Rozwscieczenie",
+  "QUEEN.moves.PUPPET_STRINGS.title": "Sznurki marionetki",
+  "SLIMED_BERSERKER.moves.SMOTHER.title": "Uduszenie",
+  "TORCH_HEAD_AMALGAM.moves.TACKLE.title": "Atak"
 }

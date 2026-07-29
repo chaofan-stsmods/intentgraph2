@@ -120,5 +120,14 @@
   "ui.editor.field.up_to_date_condition": "upToDateCondition",
   "ui.editor.field.intent_strings": "意図文字列",
   "ui.editor.read_only.summary.none": "ここでは編集できません: graph。",
-  "ui.editor.read_only.summary.graph_present": "graph は存在しますが、このエディターでは読み取り専用のままです。"
+  "ui.editor.read_only.summary.graph_present": "graph は存在しますが、このエディターでは読み取り専用のままです。",
+  "AXE_RUBY_RAIDER.moves.SWING.title": "振り回し",
+  "FOGMOG.moves.HEADBUTT.title": "頭突き",
+  "GLOBE_HEAD.moves.GALVANIC_BURST.title": "ガルバニックバースト",
+  "MAGI_KNIGHT.moves.PREP.title": "構え",
+  "NIBBIT.moves.SLICE.title": "ためらいの切り裂き",
+  "QUEEN.moves.ENRAGE.title": "激怒",
+  "QUEEN.moves.PUPPET_STRINGS.title": "操り糸",
+  "SLIMED_BERSERKER.moves.SMOTHER.title": "窒息",
+  "TORCH_HEAD_AMALGAM.moves.TACKLE.title": "体当たり"
 }

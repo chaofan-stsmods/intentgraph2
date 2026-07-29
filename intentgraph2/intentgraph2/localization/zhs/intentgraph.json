@@ -120,5 +120,14 @@
 	"ui.editor.field.up_to_date_condition": "upToDateCondition",
 	"ui.editor.field.intent_strings": "意图字符串",
 	"ui.editor.read_only.summary.none": "这里不可编辑：graph。",
-	"ui.editor.read_only.summary.graph_present": "graph 存在，并且在此编辑器中保持只读。"
+	"ui.editor.read_only.summary.graph_present": "graph 存在，并且在此编辑器中保持只读。",
+	"AXE_RUBY_RAIDER.moves.SWING.title": "挥击",
+    "FOGMOG.moves.HEADBUTT.title": "头槌",
+	"GLOBE_HEAD.moves.GALVANIC_BURST.title": "流电爆发",
+	"MAGI_KNIGHT.moves.PREP.title": "准备",
+    "NIBBIT.moves.SLICE.title": "犹豫斩击",
+	"QUEEN.moves.ENRAGE.title": "激怒",
+	"QUEEN.moves.PUPPET_STRINGS.title": "提线木偶",
+    "SLIMED_BERSERKER.moves.SMOTHER.title": "窒息",
+	"TORCH_HEAD_AMALGAM.moves.TACKLE.title": "冲撞"
 }

@@ -120,5 +120,14 @@
   "ui.editor.field.up_to_date_condition": "upToDateCondition",
   "ui.editor.field.intent_strings": "의도 문자열",
   "ui.editor.read_only.summary.none": "여기서는 수정할 수 없음: graph.",
-  "ui.editor.read_only.summary.graph_present": "graph 가 존재하며 이 편집기에서는 계속 읽기 전용입니다."
+  "ui.editor.read_only.summary.graph_present": "graph 가 존재하며 이 편집기에서 는 계속 읽기 전용입니다.",
+  "AXE_RUBY_RAIDER.moves.SWING.title": "휘두르기",
+  "FOGMOG.moves.HEADBUTT.title": "박치기",
+  "GLOBE_HEAD.moves.GALVANIC_BURST.title": "전류 폭발",
+  "MAGI_KNIGHT.moves.PREP.title": "준비",
+  "NIBBIT.moves.SLICE.title": "속전속결",
+  "QUEEN.moves.ENRAGE.title": "격분",
+  "QUEEN.moves.PUPPET_STRINGS.title": "꼭두각시 줄",
+  "SLIMED_BERSERKER.moves.SMOTHER.title": "질식",
+  "TORCH_HEAD_AMALGAM.moves.TACKLE.title": "태클"
 }

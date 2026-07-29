@@ -17,8 +17,10 @@ using MegaCrit.Sts2.Core.Random;
 using MegaCrit.Sts2.Core.Runs;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace IntentGraph2.DevConsole;
 public class ExportIntentsConsoleCmd : AbstractConsoleCmd
@@ -56,24 +58,31 @@ public class ExportIntentsConsoleCmd : AbstractConsoleCmd
             foreach (var (monsterModel, slot) in encounter.MonstersWithSlots)
             {
                 index++;
-                monsterModel.Rng = Rng.Chaotic;
-                monsterModel.SetUpForCombat();
-                Creature entity = new Creature(monsterModel, CombatSide.Enemy, null)
+                try
                 {
-                    CombatState = new NullCombatState(),
-                    SlotName = slot,
-                };
-                var graph = IntentGraphGenerator.GenerateGraph(monsterModel);
-                if (graph == null)
-                {
-                    continue;
+                    monsterModel.Rng = Rng.Chaotic;
+                    monsterModel.SetUpForCombat();
+                    Creature entity = new Creature(monsterModel, CombatSide.Enemy, null)
+                    {
+                        CombatState = new NullCombatState(),
+                        SlotName = slot,
+                    };
+                    var graph = IntentGraphGenerator.GenerateGraph(monsterModel);
+                    if (graph == null)
+                    {
+                        continue;
+                    }
+                    if (addedGraphs.Contains(graph))
+                    {
+                        continue;
+                    }
+                    addedGraphs.Add(graph);
+                    graphMetadata[graph] = (monsterModel, $"_{canonicalEncounter.Title.GetFormattedText()}_{(string.IsNullOrEmpty(slot) ? index : slot)}");
                 }
-                if (addedGraphs.Contains(graph))
+                catch (Exception ex)
                 {
-                    continue;
+                    IgLogger.Error($"Failed to generate intent graph for {monsterModel.Title} in encounter {canonicalEncounter.Title} with slot {slot}: {ex}");
                 }
-                addedGraphs.Add(graph);
-                graphMetadata[graph] = (monsterModel, $"_{canonicalEncounter.Title.GetFormattedText()}_{(string.IsNullOrEmpty(slot) ? index : slot)}");
             }
 
             // Consider all possible monsters in case summoning
@@ -89,43 +98,50 @@ public class ExportIntentsConsoleCmd : AbstractConsoleCmd
                 foreach (var slot in slots)
                 {
                     index++;
-                    var monsterModel = canonicalMonsterModel.ToMutable();
-                    monsterModel.Rng = Rng.Chaotic;
-                    monsterModel.SetUpForCombat();
-                    Creature entity = new Creature(monsterModel, CombatSide.Enemy, null)
+                    try
                     {
-                        CombatState = new NullCombatState(),
-                        SlotName = slot,
-                    };
-                    var graph = IntentGraphGenerator.GenerateGraph(monsterModel);
-                    if (graph == null)
-                    {
-                        continue;
-                    }
+                        var monsterModel = canonicalMonsterModel.ToMutable();
+                        monsterModel.Rng = Rng.Chaotic;
+                        monsterModel.SetUpForCombat();
+                        Creature entity = new Creature(monsterModel, CombatSide.Enemy, null)
+                        {
+                            CombatState = new NullCombatState(),
+                            SlotName = slot,
+                        };
+                        var graph = IntentGraphGenerator.GenerateGraph(monsterModel);
+                        if (graph == null)
+                        {
+                            continue;
+                        }
 
-                    if (addedGraphs.Contains(graph))
-                    {
-                        continue;
-                    }
+                        if (addedGraphs.Contains(graph))
+                        {
+                            continue;
+                        }
 
-                    addedGraphs.Add(graph);
-                    graphMetadata[graph] = (monsterModel, $"_{canonicalEncounter.Title.GetFormattedText()}_{(string.IsNullOrEmpty(slot) ? index : slot)}");
+                        addedGraphs.Add(graph);
+                        graphMetadata[graph] = (monsterModel, $"_{canonicalEncounter.Title.GetFormattedText()}_{(string.IsNullOrEmpty(slot) ? index : slot)}");
+                    }
+                    catch (Exception ex)
+                    {
+                        IgLogger.Error($"Failed to generate intent graph for {canonicalMonsterModel.Title} in encounter {canonicalEncounter.Title} with slot {slot}: {ex}");
+                    }
                 }
             }
         }
 
         var singleGraphMonsterTypes = addedGraphs
             .Select(g => graphMetadata[g])
-            .GroupBy(x => x.monster.GetType())
+            .GroupBy(x => x.monster.Title.GetFormattedText())
             .Where(g => g.Count() == 1)
             .SelectMany(g => g)
-            .Select(g => g.monster.GetType())
+            .Select(g => g.monster.Title.GetFormattedText())
             .ToHashSet();
 
         foreach (var graph in addedGraphs)
         {
             var (monster, suffix) = graphMetadata[graph];
-            if (singleGraphMonsterTypes.Contains(monster.GetType()))
+            if (singleGraphMonsterTypes.Contains(monster.Title.GetFormattedText()))
             {
                 suffix = "";
             }
@@ -137,6 +153,8 @@ public class ExportIntentsConsoleCmd : AbstractConsoleCmd
             IntentGraphMod.Config.IntentGraphScale = intentGraphScale;
             IntentGraphMod.Config.UseAnimatedIntentIcon = animatedIcons;
             IntentGraphMod.Config.ShowCurrentMove = currentMove;
+
+            OS.ShellShowInFileManager(Path.Combine(OS.GetUserDataDir(), "intentgraphs"));
         });
 
         return new CmdResult(task, success: true, "Intent graph images exported");
