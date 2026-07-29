@@ -125,7 +125,7 @@ public partial class NIntentGraphCanvas : Control
     {
         this.labelFont = this.font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
 
-        if (LocManager.Instance.Language == "zhs")
+        if (LocManager.Instance.Language == "zhs" || LocManager.Instance.Language == "zht")
         {
             this.labelFont = ResourceLoader.Load<Font>("res://intentgraph2/themes/kreon_bold_glyph_space_one_zhs.tres");
         }

@@ -1,0 +1,19 @@
+{
+    "INTENTGRAPH2.mod_title": "意圖狀態機",
+    "INTENTGRAPH2.mod_description": "把怪物意圖顯示成狀態機的形式。",
+    "INTENTGRAPH2-HOTKEY.title": "快捷鍵",
+    "INTENTGRAPH2-TOGGLE_INTENT_GRAPH_KEY.title": "開關意圖狀態機",
+    "INTENTGRAPH2-DISPLAY.title": "顯示",
+    "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title": "顯示怪物行動名稱（需要重新開始戰鬥）",
+    "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "使用動畫圖示",
+    "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "顯示目前行動",
+    "INTENTGRAPH2-CONTROL.title": "控制",
+    "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title": "意圖狀態機可固定",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.title": "意圖狀態機位置",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.Default": "預設",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeft": "左上",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "右上",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "中上",
+    "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "左上或右上",
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "意圖狀態機縮放比例"
+}
