@@ -123,6 +123,7 @@
   "ui.editor.read_only.summary.graph_present": "graph присутствует и остается только для чтения в этом редакторе.",
   "AXE_RUBY_RAIDER.moves.SWING.title": "Замах",
   "FOGMOG.moves.HEADBUTT.title": "Удар головой",
+  "FOGMOG.moves.SWIPE_RANDOM.title": "Шмяк",
   "GLOBE_HEAD.moves.GALVANIC_BURST.title": "Гальванический разряд",
   "MAGI_KNIGHT.moves.PREP.title": "Изготовка",
   "NIBBIT.moves.SLICE.title": "Царапина",

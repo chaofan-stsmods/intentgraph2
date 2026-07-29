@@ -123,6 +123,7 @@
 	"ui.editor.read_only.summary.graph_present": "graph 存在，并且在此编辑器中保持只读。",
 	"AXE_RUBY_RAIDER.moves.SWING.title": "挥击",
     "FOGMOG.moves.HEADBUTT.title": "头槌",
+    "FOGMOG.moves.SWIPE_RANDOM.title": "重击",
 	"GLOBE_HEAD.moves.GALVANIC_BURST.title": "流电爆发",
 	"MAGI_KNIGHT.moves.PREP.title": "准备",
     "NIBBIT.moves.SLICE.title": "犹豫斩击",

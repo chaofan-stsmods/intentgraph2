@@ -123,6 +123,7 @@
   "ui.editor.read_only.summary.graph_present": "graph 가 존재하며 이 편집기에서 는 계속 읽기 전용입니다.",
   "AXE_RUBY_RAIDER.moves.SWING.title": "휘두르기",
   "FOGMOG.moves.HEADBUTT.title": "박치기",
+  "FOGMOG.moves.SWIPE_RANDOM.title": "찰싹 때리기",
   "GLOBE_HEAD.moves.GALVANIC_BURST.title": "전류 폭발",
   "MAGI_KNIGHT.moves.PREP.title": "준비",
   "NIBBIT.moves.SLICE.title": "속전속결",

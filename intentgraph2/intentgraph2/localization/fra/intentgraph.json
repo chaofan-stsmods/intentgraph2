@@ -123,6 +123,7 @@
   "ui.editor.read_only.summary.graph_present": "graph est present et reste en lecture seule dans cet editeur.",
   "AXE_RUBY_RAIDER.moves.SWING.title": "Balancier",
   "FOGMOG.moves.HEADBUTT.title": "Coup de boule",
+  "FOGMOG.moves.SWIPE_RANDOM.title": "Mandale",
   "GLOBE_HEAD.moves.GALVANIC_BURST.title": "Explosion galvanique",
   "MAGI_KNIGHT.moves.PREP.title": "Preparation",
   "NIBBIT.moves.SLICE.title": "Frappe hesitante",

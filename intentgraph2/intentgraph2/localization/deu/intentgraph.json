@@ -123,6 +123,7 @@
   "ui.editor.read_only.summary.graph_present": "graph ist vorhanden und bleibt in diesem Editor schreibgeschutzt.",
   "AXE_RUBY_RAIDER.moves.SWING.title": "Hieb",
   "FOGMOG.moves.HEADBUTT.title": "Kopfnuss",
+  "FOGMOG.moves.SWIPE_RANDOM.title": "Tschack",
   "GLOBE_HEAD.moves.GALVANIC_BURST.title": "Galvanischer Ausbruch",
   "MAGI_KNIGHT.moves.PREP.title": "Vorbereiten",
   "NIBBIT.moves.SLICE.title": "Zogerlicher Schnitt",

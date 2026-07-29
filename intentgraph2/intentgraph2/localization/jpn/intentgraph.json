@@ -123,6 +123,7 @@
   "ui.editor.read_only.summary.graph_present": "graph は存在しますが、このエディターでは読み取り専用のままです。",
   "AXE_RUBY_RAIDER.moves.SWING.title": "振り回し",
   "FOGMOG.moves.HEADBUTT.title": "頭突き",
+  "FOGMOG.moves.SWIPE_RANDOM.title": "痛撃",
   "GLOBE_HEAD.moves.GALVANIC_BURST.title": "ガルバニックバースト",
   "MAGI_KNIGHT.moves.PREP.title": "構え",
   "NIBBIT.moves.SLICE.title": "ためらいの切り裂き",
