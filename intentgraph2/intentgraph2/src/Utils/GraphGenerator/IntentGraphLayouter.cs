@@ -313,7 +313,7 @@ internal class IntentGraphLayouter
             subGraph.MoveIndices.Add(graph.Moves.Count - 1);
         }
 
-        if (ShowMonsterMoveNames)
+        if (ShowMonsterMoveNames && icons.Length > 0)
         {
             AddMoveName(moveState, graph, x, y, subGraph);
         }
@@ -1141,10 +1141,10 @@ internal class IntentGraphLayouter
         public Dictionary<float, MonsterStateNode> VLineTargetNode { get; set; } = new();
         public Dictionary<(int x, int y), MonsterStateNode> IndexToNode { get; set; } = new();
         public IntentDefinition? IntentDefinition { get; init; }
-        public Dictionary<Arrow, MonsterStateNode> ArrowTarget { get; set; } = new();
+        public Dictionary<Arrow, MonsterStateNode> ArrowTarget { get; set; } = new(ReferenceEqualityComparer.Instance);
         public Dictionary<MonsterStateNode, HashSet<MonsterStateNode>> PreviousStateNodes { get; set; } = new();
-        public Dictionary<MonsterStateNode, Move> StateNodeToMove { get; set; } = new();
-        public Dictionary<Move, MonsterStateNode> MoveToStateNode { get; set; } = new();
+        public Dictionary<MonsterStateNode, Move> StateNodeToMove { get; set; } = new(ReferenceEqualityComparer.Instance);
+        public Dictionary<Move, MonsterStateNode> MoveToStateNode { get; set; } = new(ReferenceEqualityComparer.Instance);
         public Dictionary<int, SubGraph> SubGraphs { get; set; } = new();
 
         internal void NewLine(float y)
