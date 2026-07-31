@@ -22,3 +22,7 @@ theme_override_fonts/font = ExtResource("3_mfs47")
 theme_override_font_sizes/font_size = 24
 text = "Label"
 vertical_alignment = 1
+
+[node name="Padding" type="Control" parent="."]
+custom_minimum_size = Vector2(5, 0)
+layout_mode = 2

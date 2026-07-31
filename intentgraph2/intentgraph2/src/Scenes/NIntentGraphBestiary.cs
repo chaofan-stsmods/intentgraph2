@@ -23,8 +23,8 @@ public partial class NIntentGraphBestiary : Control
     private int currentGraphIndex = 0;
 
     private NIntentGraph? intentGraph;
-    private Button? previousGraph;
-    private Button? nextGraph;
+    private NIgArrowButton? previousGraph;
+    private NIgArrowButton? nextGraph;
     private bool ascension9 = false;
 
     public MonsterModel? Monster
@@ -47,15 +47,15 @@ public partial class NIntentGraphBestiary : Control
     public override void _Ready()
     {
         intentGraph = GetNode<NIntentGraph>("%IntentGraph");
-        previousGraph = GetNode<Button>("%PreviousGraph");
-        nextGraph = GetNode<Button>("%NextGraph");
+        previousGraph = GetNode<NIgArrowButton>("%PreviousGraph");
+        nextGraph = GetNode<NIgArrowButton>("%NextGraph");
         var ascension9Check = GetNode<NIgTickbox>("%Ascension9");
         var showIntentGraphCheck = GetNode<NIgTickbox>("%ShowIntentGraph");
         var description = GetParent()?.GetNode<Control>("%Description");
 
         intentGraph.AnimatedIcons = IntentGraphMod.Config.UseAnimatedIntentIcon;
 
-        previousGraph.Pressed += () =>
+        previousGraph.Released += (evt) =>
         {
             if (graphs.Count > 0)
             {
@@ -64,7 +64,7 @@ public partial class NIntentGraphBestiary : Control
             }
         };
 
-        nextGraph.Pressed += () =>
+        nextGraph.Released += (evt) =>
         {
             if (graphs.Count > 0)
             {

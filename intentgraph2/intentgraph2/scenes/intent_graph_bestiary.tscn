@@ -1,18 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://csflgpfpcqvwh"]
+[gd_scene load_steps=6 format=3 uid="uid://csflgpfpcqvwh"]
 
-[ext_resource type="Script" uid="uid://cy7vwyyxf3k0a" path="res://intentgraph2/src/scenes/NIntentGraphBestiary.cs" id="1_vrc2e"]
+[ext_resource type="Script" uid="uid://cy7vwyyxf3k0a" path="res://intentgraph2/src/Scenes/NIntentGraphBestiary.cs" id="1_vrc2e"]
 [ext_resource type="PackedScene" uid="uid://dlxlgbs7cv2xv" path="res://intentgraph2/scenes/intent_graph.tscn" id="3_1dqa1"]
+[ext_resource type="PackedScene" uid="uid://ckmiiugp4fp7j" path="res://intentgraph2/scenes/ig_arrow_button.tscn" id="3_vrc2e"]
 [ext_resource type="PackedScene" uid="uid://dun7752cb3n1i" path="res://intentgraph2/scenes/ig_tickbox.tscn" id="3_ybb5g"]
-[ext_resource type="Texture2D" uid="uid://b4ffylh" path="res://images/atlases/ui_atlas.sprites/settings_tiny_left_arrow.tres" id="4_1dqa1"]
 [ext_resource type="Texture2D" uid="uid://kjsi4o" path="res://images/atlases/ui_atlas.sprites/settings_tiny_right_arrow.tres" id="5_ybb5g"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ybb5g"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vrc2e"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1dqa1"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bv7us"]
 
 [node name="IntentGraphBestiary" type="Control"]
 layout_mode = 3
@@ -49,19 +41,26 @@ size_flags_vertical = 4
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="PreviousGraph" type="Button" parent="VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 48)
+[node name="PreviousGraphContainer" type="Control" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(54, 48)
 layout_mode = 2
-theme_override_colors/icon_normal_color = Color(0.89059, 0.89059, 0.8905901, 1)
-theme_override_colors/icon_focus_color = Color(0.8901961, 0.8901961, 0.8901961, 1)
-theme_override_colors/icon_pressed_color = Color(0.8776157, 0.8776158, 0.8776157, 1)
-theme_override_styles/normal = SubResource("StyleBoxEmpty_ybb5g")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_vrc2e")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_1dqa1")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_bv7us")
-icon = ExtResource("4_1dqa1")
-expand_icon = true
+
+[node name="PreviousGraph" parent="VBoxContainer/HBoxContainer/PreviousGraphContainer" instance=ExtResource("3_vrc2e")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 72.0
+offset_bottom = 72.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.5, 0.5)
+pivot_offset = Vector2(0, 0)
 
 [node name="ShowIntentGraph" parent="VBoxContainer/HBoxContainer" instance=ExtResource("3_ybb5g")]
 unique_name_in_owner = true
@@ -71,16 +70,24 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="NextGraph" type="Button" parent="VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 48)
+[node name="NextGraphContainer" type="Control" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(54, 48)
 layout_mode = 2
-theme_override_colors/icon_normal_color = Color(0.89059, 0.89059, 0.8905901, 1)
-theme_override_colors/icon_focus_color = Color(0.8901961, 0.8901961, 0.8901961, 1)
-theme_override_colors/icon_pressed_color = Color(0.8776157, 0.8776158, 0.8776157, 1)
-theme_override_styles/normal = SubResource("StyleBoxEmpty_ybb5g")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_vrc2e")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_1dqa1")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_bv7us")
-icon = ExtResource("5_ybb5g")
-expand_icon = true
+
+[node name="NextGraph" parent="VBoxContainer/HBoxContainer/NextGraphContainer" instance=ExtResource("3_vrc2e")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 72.0
+offset_bottom = 72.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.5, 0.5)
+pivot_offset = Vector2(0, 0)
+Texture = ExtResource("5_ybb5g")
