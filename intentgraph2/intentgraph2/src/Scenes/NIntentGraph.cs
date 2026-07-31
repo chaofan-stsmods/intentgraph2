@@ -11,8 +11,11 @@ public partial class NIntentGraph : Control
     public const float LabelLinePadding = 2;
 
     private Graph? graph;
+    private Vector2 graphScale = new Vector2(1, 1);
     private MonsterModel? monster;
     private NIntentGraphCanvas? canvas;
+    private bool animatedIcons = false;
+    private bool showCurrentMove = false;
 
     public Graph? Graph
     {
@@ -20,11 +23,24 @@ public partial class NIntentGraph : Control
         set
         {
             graph = value;
-            CustomMinimumSize = new Vector2(GridSize * graph?.Width ?? GridSize, GridSize * graph?.Height ?? GridSize)
-                * new Vector2(IntentGraphMod.Config.IntentGraphScale, IntentGraphMod.Config.IntentGraphScale);
+            CustomMinimumSize = new Vector2(GridSize * graph?.Width ?? GridSize, GridSize * graph?.Height ?? GridSize) * graphScale;
             if (canvas != null)
             {
                 canvas.Graph = value;
+            }
+        }
+    }
+
+    public Vector2 GraphScale
+    {
+        get => graphScale;
+        set
+        {
+            graphScale = value;
+            CustomMinimumSize = new Vector2(GridSize * graph?.Width ?? GridSize, GridSize * graph?.Height ?? GridSize) * graphScale;
+            if (canvas != null)
+            {
+                canvas.Scale = value;
             }
         }
     }
@@ -42,11 +58,39 @@ public partial class NIntentGraph : Control
         }
     }
 
+    public bool AnimatedIcons
+    {
+        get => animatedIcons;
+        set
+        {
+            animatedIcons = value;
+            if (canvas != null)
+            {
+                canvas.AnimatedIcons = value;
+            }
+        }
+    }
+
+    public bool ShowCurrentMove
+    {
+        get => showCurrentMove;
+        set
+        {
+            showCurrentMove = value;
+            if (canvas != null)
+            {
+                canvas.ShowCurrentMove = value;
+            }
+        }
+    }
+
     public override void _Ready()
     {
         this.canvas = GetNode<NIntentGraphCanvas>("%IntentGraphCanvas");
-        canvas.Scale = new Vector2(IntentGraphMod.Config.IntentGraphScale, IntentGraphMod.Config.IntentGraphScale);
+        canvas.Scale = graphScale;
         canvas.Graph = graph;
         canvas.Monster = monster;
+        canvas.AnimatedIcons = animatedIcons;
+        canvas.ShowCurrentMove = showCurrentMove;
     }
 }

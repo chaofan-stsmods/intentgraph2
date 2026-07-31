@@ -180,6 +180,7 @@ public partial class NIntentGraphEditor : Control
         ConfigureCodeEditor(intentStringsEdit, enableCompletion: false);
         ConfigureCodeEditor(readOnlySummaryEdit, enableCompletion: false);
 
+        previewGraph.AnimatedIcons = IntentGraphMod.Config.UseAnimatedIntentIcon;
         readOnlySummaryEdit.Editable = false;
         isReady = true;
         CallDeferred(MethodName.ApplyViewportLayout);

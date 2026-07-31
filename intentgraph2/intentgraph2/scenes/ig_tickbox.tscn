@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://dun7752cb3n1i"]
+
+[ext_resource type="Script" uid="uid://bl7uwi8175p3r" path="res://intentgraph2/src/Scenes/NIgTickbox.cs" id="1_rktcb"]
+[ext_resource type="PackedScene" uid="uid://bw8f1jtcj62xv" path="res://scenes/ui/tickbox.tscn" id="2_vrjxm"]
+[ext_resource type="FontVariation" uid="uid://ux4d708e7mk6" path="res://themes/kreon_bold_glyph_space_one.tres" id="3_mfs47"]
+
+[node name="IgTickbox" type="HBoxContainer"]
+script = ExtResource("1_rktcb")
+_ignoreDragThreshold = null
+
+[node name="TickboxVisuals" parent="." instance=ExtResource("2_vrjxm")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.25098)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("3_mfs47")
+theme_override_font_sizes/font_size = 24
+text = "Label"
+vertical_alignment = 1

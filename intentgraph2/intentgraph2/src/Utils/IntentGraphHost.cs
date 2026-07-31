@@ -93,12 +93,14 @@ public static class IntentGraphHost
 
         var monsterNameLabel = intentGraphPanel.GetNode<Label>("%MonsterName");
         monsterNameLabel.Text = creature.Name;
-        monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Regular, "font");
         monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Bold, "font");
 
         var intentGraph = intentGraphPanel.GetNode<NIntentGraph>("%IntentGraph");
         intentGraph.Graph = graph;
+        intentGraph.GraphScale = new Vector2(IntentGraphMod.Config.IntentGraphScale, IntentGraphMod.Config.IntentGraphScale);
         intentGraph.Monster = creature.Monster;
+        intentGraph.AnimatedIcons = IntentGraphMod.Config.UseAnimatedIntentIcon;
+        intentGraph.ShowCurrentMove = IntentGraphMod.Config.ShowCurrentMove;
 
         var pinableIntentGraph = IntentGraphMod.Config.PinableIntentGraph;
         var handleResized = OnIntentGraphPanelResized(nCreature, intentGraphPanel, pinableIntentGraph);
@@ -114,7 +116,6 @@ public static class IntentGraphHost
             var outdatedLabel = outdatedContainer.GetNode<Label>("OutdatedMark");
             outdatedContainer.Show();
             outdatedLabel.Text = "⚠️" + graph.Warning;
-            outdatedLabel.ApplyLocaleFontSubstitution(FontType.Regular, "font");
             outdatedLabel.ApplyLocaleFontSubstitution(FontType.Bold, "font");
         }
 

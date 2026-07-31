@@ -1,9 +1,12 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Utils.Rule;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.Monsters;
+using MegaCrit.Sts2.Core.Random;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -45,6 +48,33 @@ public class IntentGraphGenerator
             stopwatch.Stop();
             IgLogger.Info($"Finished generating intent graph for monster: {creature.Name} in {stopwatch.ElapsedMilliseconds} ms.");
         }
+    }
+
+    public static Graph? GenerateGraphForBestiary(MonsterModel monsterModel, EncounterModel encounter, string? slot)
+    {
+        try
+        {
+            monsterModel.Rng = Rng.Chaotic;
+            monsterModel.SetUpForCombat();
+            Creature entity = new Creature(monsterModel, CombatSide.Enemy, null)
+            {
+                CombatState = new NullCombatState(),
+                SlotName = slot,
+            };
+            var monster = MonsterSpecificInitialize(monsterModel);
+            if (monster == null)
+            {
+                return null;
+            }
+
+            return GenerateGraph(monster);
+        }
+        catch (Exception ex)
+        {
+            IgLogger.Error($"Failed to generate intent graph for {monsterModel.Title.GetFormattedText()} in encounter {encounter.Title.GetFormattedText()} with slot {slot}: {ex}");
+        }
+
+        return null;
     }
 
     public static Graph? GenerateGraph(MonsterModel? monster, IntentDefinition? overwriteIntentDefinition = null, IReadOnlyDictionary<string, string>? overwriteIntentStrings = null)
@@ -131,5 +161,20 @@ public class IntentGraphGenerator
         }
 
         return graph;
+    }
+
+    private static MonsterModel? MonsterSpecificInitialize(MonsterModel monsterModel)
+    {
+        if (monsterModel is WaterfallGiant waterfallGiant)
+        {
+            waterfallGiant.AfterAddedToRoom().Wait();
+        }
+
+        if (monsterModel is Wriggler && monsterModel.Creature.SlotName == "phrog")
+        {
+            return null;
+        }
+
+        return monsterModel;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using MegaCrit.Sts2.Core.Debug;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Modding;
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
@@ -86,9 +87,9 @@ public class Initializer
             if (ReleaseInfoManager.Instance.ReleaseInfo != null)
             {
                 var version = new Version(ReleaseInfoManager.Instance.ReleaseInfo.Version.TrimStart('v'));
-                if (version >= new Version("0.110.0"))
+                if (version < new Version("0.110.0"))
                 {
-                    return "-0.110.0";
+                    return "-lt-0.110.0";
                 }
             }
         }

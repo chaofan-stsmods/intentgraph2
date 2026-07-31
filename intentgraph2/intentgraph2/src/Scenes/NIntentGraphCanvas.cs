@@ -119,7 +119,9 @@ public partial class NIntentGraphCanvas : Control
 
     public MonsterModel? Monster { get; set; }
 
-    private bool ShowCurrentMove => IntentGraphMod.Config.ShowCurrentMove;
+    public bool AnimatedIcons { get; set; }
+
+    public bool ShowCurrentMove { get; set; }
 
     public override void _Ready()
     {
@@ -152,7 +154,7 @@ public partial class NIntentGraphCanvas : Control
     public override void _Process(double delta)
     {
         if ((hasAnimatedIcons || ShowCurrentMove) &&
-            graph != null && Visible && IntentGraphMod.Config.UseAnimatedIntentIcon)
+            graph != null && Visible && AnimatedIcons)
         {
             QueueRedraw();
         }
@@ -167,7 +169,7 @@ public partial class NIntentGraphCanvas : Control
 
         if (ShowCurrentMove)
         {
-            var glowOpacity = IntentGraphMod.Config.UseAnimatedIntentIcon ? 0.3f + 0.4f * Mathf.Sin(Time.GetTicksMsec() / 1000f * Mathf.Pi) : 0.5f;
+            var glowOpacity = AnimatedIcons ? 0.3f + 0.4f * Mathf.Sin(Time.GetTicksMsec() / 1000f * Mathf.Pi) : 0.5f;
             glowColor = new Color(1, 1, 1, glowOpacity);
         }
 
@@ -347,7 +349,7 @@ public partial class NIntentGraphCanvas : Control
     {
         texture = null;
 
-        if (!IntentGraphMod.Config.UseAnimatedIntentIcon
+        if (!AnimatedIcons
             || !IntentImageAnimationFrameCounts.TryGetValue(intentType, out int frameCount)
             || frameCount <= 0
             || !IntentImageAnimationResourcePath.TryGetValue(intentType, out string? animationPathFormat))

@@ -39,14 +39,6 @@ public class ExportIntentsConsoleCmd : AbstractConsoleCmd
     {
         var tasks = new List<Task>();
 
-        var intentGraphScale = IntentGraphMod.Config.IntentGraphScale;
-        var animatedIcons = IntentGraphMod.Config.UseAnimatedIntentIcon;
-        var currentMove = IntentGraphMod.Config.ShowCurrentMove;
-
-        IntentGraphMod.Config.IntentGraphScale = 1;
-        IntentGraphMod.Config.UseAnimatedIntentIcon = false;
-        IntentGraphMod.Config.ShowCurrentMove = false;
-
         try
         {
             HasAscensionLevelPatches.OverwriteAsensionLevel = AscensionLevel.None;
@@ -62,10 +54,6 @@ public class ExportIntentsConsoleCmd : AbstractConsoleCmd
 
         var task = Task.WhenAll(tasks).ContinueWith(task =>
         {
-            IntentGraphMod.Config.IntentGraphScale = intentGraphScale;
-            IntentGraphMod.Config.UseAnimatedIntentIcon = animatedIcons;
-            IntentGraphMod.Config.ShowCurrentMove = currentMove;
-
             OS.ShellShowInFileManager(Path.Combine(OS.GetUserDataDir(), "intentgraphs"));
         });
 
@@ -130,40 +118,14 @@ public class ExportIntentsConsoleCmd : AbstractConsoleCmd
 
     private static void GenerateGraph(MonsterModel monsterModel, EncounterModel encounter, HashSet<Graph> addedGraphs, Dictionary<Graph, (MonsterModel monster, string suffix)> graphMetadata, int index, string? slot)
     {
-        try
+        var graph = IntentGraphGenerator.GenerateGraphForBestiary(monsterModel, encounter, slot);
+        if (graph == null || addedGraphs.Contains(graph))
         {
-            monsterModel.Rng = Rng.Chaotic;
-            monsterModel.SetUpForCombat();
-            Creature entity = new Creature(monsterModel, CombatSide.Enemy, null)
-            {
-                CombatState = new NullCombatState(),
-                SlotName = slot,
-            };
-            MonsterSpecificInitialize(monsterModel);
-            var graph = IntentGraphGenerator.GenerateGraph(monsterModel);
-            if (graph == null)
-            {
-                return;
-            }
-            if (addedGraphs.Contains(graph))
-            {
-                return;
-            }
-            addedGraphs.Add(graph);
-            graphMetadata[graph] = (monsterModel, $"_{encounter.Title.GetFormattedText()}_{(string.IsNullOrEmpty(slot) ? index : slot)}");
+            return;
         }
-        catch (Exception ex)
-        {
-            IgLogger.Error($"Failed to generate intent graph for {monsterModel.Title} in encounter {encounter.Title} with slot {slot} ({index}): {ex}");
-        }
-    }
 
-    private static void MonsterSpecificInitialize(MonsterModel monsterModel)
-    {
-        if (monsterModel is WaterfallGiant waterfallGiant)
-        {
-            waterfallGiant.AfterAddedToRoom().Wait();
-        }
+        addedGraphs.Add(graph);
+        graphMetadata[graph] = (monsterModel, $"_{encounter.Title.GetFormattedText()}_{(string.IsNullOrEmpty(slot) ? index : slot)}");
     }
 
     private static async Task ExportGraphAsImageAsync(Graph graph, MonsterModel monster, string prefix, string suffix)

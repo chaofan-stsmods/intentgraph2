@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3 uid="uid://bw8f1jtcj62xv"]
+
+[ext_resource type="Texture2D" uid="uid://b4k34n0" path="res://images/atlases/ui_atlas.sprites/checkbox_ticked.tres" id="1_gil8g"]
+[ext_resource type="Texture2D" uid="uid://bkf6qpe" path="res://images/atlases/ui_atlas.sprites/checkbox_unticked.tres" id="2_gil8g"]
+
+[node name="TickboxVisuals" type="Control"]
+process_mode = 3
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 3
+anchors_preset = 0
+pivot_offset = Vector2(32, 32)
+size_flags_horizontal = 8
+size_flags_vertical = 4
+mouse_filter = 2
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
+
+[node name="Ticked" type="TextureRect" parent="."]
+use_parent_material = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.8, 0.8)
+pivot_offset = Vector2(32, 32)
+mouse_filter = 2
+texture = ExtResource("1_gil8g")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NotTicked" type="TextureRect" parent="."]
+visible = false
+use_parent_material = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.8, 0.8)
+pivot_offset = Vector2(32, 32)
+mouse_filter = 2
+texture = ExtResource("2_gil8g")
+expand_mode = 1
+stretch_mode = 5

@@ -27,13 +27,10 @@
       <HintPath>$(Steamlib)\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <Target Name="CopyDll" AfterTargets="PostBuildEvent">
-    <Message Text="Copying $(TargetPath) to $(Steamlib)\steamapps\common\Slay the Spire 2\mods\$(TargetName)$(VersionSuffix)$(TargetExt)" Importance="high" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /-I &quot;$(TargetPath)&quot; &quot;$(Steamlib)\steamapps\common\Slay the Spire 2\mods\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(Steamlib)\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; /-I &quot;$(ProjectDir)\publish\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(ProjectDir)\publish\&quot; /Y" />
   </Target>
   <Target Name="BuildMultipleVersion" AfterTargets="BeforeBuild" Condition="'$(BuildMultipleVersion)' == 'true'">
-    <MSBuild Projects="$(MSBuildProjectFile)"
-      Targets="Build"
-      Properties="DefineConstants=$(DefineConstants);LARGER_THAN_0_110_0;VersionSuffix=-0.110.0;BuildMultipleVersion=false"/>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="DefineConstants=$(DefineConstants);LESS_THAN_0_110_0;VersionSuffix=-lt-0.110.0;BuildMultipleVersion=false" />
   </Target>
 </Project>
