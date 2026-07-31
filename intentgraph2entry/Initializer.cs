@@ -1,4 +1,5 @@
-﻿using MegaCrit.Sts2.Core.Logging;
+﻿using MegaCrit.Sts2.Core.Debug;
+using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Modding;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -15,7 +16,9 @@ public class Initializer
         Libgcc();
 
         LoadDll("Antlr4.Runtime.Standard");
-        var coreAssembly = LoadDll("intentgraph2core");
+
+        string version = SelectVersion();
+        var coreAssembly = LoadDll("intentgraph2core" + version);
 
         coreAssembly?.GetType("IntentGraph2.IntentGraphMod")?
             .GetMethod("InitializeMod", BindingFlags.Public | BindingFlags.Static)?
@@ -26,6 +29,7 @@ public class Initializer
 
     public static Assembly? LoadDll(string dllName)
     {
+        LogInfo("Loading dll: " + dllName);
         try
         {
             var currentAssembly = typeof(Initializer).Assembly;
@@ -73,5 +77,26 @@ public class Initializer
                 LogInfo("Or Nor: " + Marshal.PtrToStringAnsi(dlerror()));
             }
         }
+    }
+
+    private static string SelectVersion()
+    {
+        try
+        {
+            if (ReleaseInfoManager.Instance.ReleaseInfo != null)
+            {
+                var version = new Version(ReleaseInfoManager.Instance.ReleaseInfo.Version.TrimStart('v'));
+                if (version >= new Version("0.110.0"))
+                {
+                    return "-0.110.0";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            LogInfo($"Failed to select version: {ex}");
+        }
+
+        return string.Empty;
     }
 }

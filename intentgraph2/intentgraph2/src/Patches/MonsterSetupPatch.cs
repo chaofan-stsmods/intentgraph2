@@ -5,7 +5,11 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 
 namespace IntentGraph2.Patches;
 
-[HarmonyPatch(typeof(CombatManager), nameof(CombatManager.AfterCreatureAdded))]
+#if LARGER_THAN_0_110_0
+[HarmonyPatch(typeof(CombatManager), nameof(CombatManager.AfterCreatureAdded), typeof(Creature), typeof(CombatState))]
+#else
+[HarmonyPatch(typeof(CombatManager), nameof(CombatManager.AfterCreatureAdded), typeof(Creature))]
+#endif
 public class MonsterSetupPatch
 {
     public static void Postfix(CombatManager __instance, Creature creature)

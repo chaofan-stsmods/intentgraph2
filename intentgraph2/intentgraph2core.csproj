@@ -6,6 +6,7 @@
     <RootNamespace>IntentGraph2</RootNamespace>
     <Nullable>enable</Nullable>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+    <BuildMultipleVersion>true</BuildMultipleVersion>
   </PropertyGroup>
   <Import Project="..\common.props" />
   <ItemGroup>
@@ -25,7 +26,17 @@
       <HintPath>$(Steamlib)\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="CopyOriginalDll" AfterTargets="PostBuildEvent" Condition="'$(BuildMultipleVersion)' == 'true'">
+    <Message Text="Copying $(TargetPath) to $(Steamlib)\steamapps\common\Slay the Spire 2\mods\" Importance="high" />
     <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(Steamlib)\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(Steamlib)\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\publish\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(ProjectDir)\publish\&quot; /Y" />
+  </Target>
+  <Target Name="Copy110Dll" AfterTargets="PostBuildEvent" Condition="'$(BuildMultipleVersion)' == 'false'">
+    <Message Text="Copying $(TargetPath) to $(Steamlib)\steamapps\common\Slay the Spire 2\mods\$(TargetName)$(VersionSuffix)$(TargetExt)" Importance="high" />
+    <Exec Command="xcopy /-I &quot;$(TargetPath)&quot; &quot;$(Steamlib)\steamapps\common\Slay the Spire 2\mods\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(Steamlib)\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; /-I &quot;$(ProjectDir)\publish\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(ProjectDir)\publish\&quot; /Y" />
+  </Target>
+  <Target Name="BuildMultipleVersion" AfterTargets="BeforeBuild" Condition="'$(BuildMultipleVersion)' == 'true'">
+    <MSBuild Projects="$(MSBuildProjectFile)"
+      Targets="Build"
+      Properties="DefineConstants=$(DefineConstants);LARGER_THAN_0_110_0;VersionSuffix=-0.110.0;BuildMultipleVersion=false"/>
   </Target>
 </Project>
