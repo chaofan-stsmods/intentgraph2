@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using static IntentGraph2.Utils.GraphGenerator.IntentGraphGenerator;
+using static IntentGraph2.Utils.GraphGenerator.IntentGraphLocalizer;
 
 namespace IntentGraph2.Utils.GraphGenerator;
 
 internal class MonsterStateNodeConverter
 {
-    private const string OtherwiseMark = "{otherwise}";
+    private const string Otherwise = "otherwise";
+    private const string OtherwiseMark = "{" + Otherwise + "}";
 
     private readonly IntentGraphLocalizer localizer;
 
@@ -228,6 +230,7 @@ internal class MonsterStateNodeConverter
                 var childNode = node.Children[i].Node;
                 var text = node.Children[i].Label;
                 text = localizer.GetOrElse(text, text);
+                text = localizer.FormatWithVariables(text);
                 var childStateNode = StateMachineNodeToMonsterStateNode(font, stateMachine, overwriteStateMachine, childNode, existingNodes, parent: result);
                 if (childStateNode != null)
                 {
@@ -296,6 +299,8 @@ internal class MonsterStateNodeConverter
         }
         else
         {
+            OnFoundVariableDelegate ignoreOtherwise = string? (string var, string? type) => var == Otherwise ? OtherwiseMark : null;
+
             var unrecognizedStateType = false;
             var childCandidates = new List<(string state, MonsterStateNodeLabel label)>();
             if (state is RandomBranchState randomBranchState)
@@ -321,7 +326,7 @@ internal class MonsterStateNodeConverter
                     };
                     if (localizer.TryGet($"branch.{monsterName}.{state.Id}.{s.stateId}", out var overwriteText))
                     {
-                        label.Text = overwriteText;
+                        label.Text = localizer.FormatWithVariables(overwriteText, ignoreOtherwise);
                         label.IsTextGenerated = false;
                     }
                     else
@@ -355,7 +360,7 @@ internal class MonsterStateNodeConverter
                             childCandidates.Add((s, new MonsterStateNodeLabel
                             {
                                 Type = MonsterStateNodeLabel.LabelType.Condition,
-                                Text = overwriteText,
+                                Text = localizer.FormatWithVariables(overwriteText, ignoreOtherwise),
                             }));
                         }
                         else

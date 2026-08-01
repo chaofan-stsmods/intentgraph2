@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "สมุน 0-3 ตัว",
   "ActsFromThePast.SpireGrowth.Cond": "คุณไม่ได้ถูกพันธนาการ",
   "ActsFromThePast.TimeEater.Cond": "HP <= 50%, ใช้ได้ครั้งเดียว",
-  "ActsFromThePast.Transient.Text": "N เริ่มที่ 40,\n+10 ทุกเทิร์น",
-  "ActsFromThePast.Transient.Text2": "N เริ่มที่ 30,\n+10 ทุกเทิร์น",
+  "ActsFromThePast.Transient.Text": "N เริ่มที่ {m.StartingDeathDmg},\n+10 ทุกเทิร์น",
   "ActsFromThePast.WrithingMass.Cond": "10%, ใช้ได้ครั้งเดียว"
 }

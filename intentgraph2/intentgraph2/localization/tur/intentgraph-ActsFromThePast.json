@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "0-3 yardakci",
   "ActsFromThePast.SpireGrowth.Cond": "Kisilanmis degilsiniz",
   "ActsFromThePast.TimeEater.Cond": "HP <= 50%, tek kullanim",
-  "ActsFromThePast.Transient.Text": "N 40'tan baslar,\nher tur +10",
-  "ActsFromThePast.Transient.Text2": "N 30'dan baslar,\nher tur +10",
+  "ActsFromThePast.Transient.Text": "N {m.StartingDeathDmg}'tan baslar,\nher tur +10",
   "ActsFromThePast.WrithingMass.Cond": "%10, tek kullanim"
 }

@@ -1,6 +1,7 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Utils.Rule;
+using IntentGraph2.Utils.Variable;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Logging;
@@ -67,7 +68,7 @@ public class IntentGraphGenerator
                 return null;
             }
 
-            return GenerateGraph(monster);
+            return GenerateGraph(monster, inBestiary: true);
         }
         catch (Exception ex)
         {
@@ -77,7 +78,11 @@ public class IntentGraphGenerator
         return null;
     }
 
-    public static Graph? GenerateGraph(MonsterModel? monster, IntentDefinition? overwriteIntentDefinition = null, IReadOnlyDictionary<string, string>? overwriteIntentStrings = null)
+    public static Graph? GenerateGraph(
+        MonsterModel? monster,
+        IntentDefinition? overwriteIntentDefinition = null,
+        IReadOnlyDictionary<string, string>? overwriteIntentStrings = null,
+        bool inBestiary = false)
     {
         if (monster?.MoveStateMachine == null)
         {
@@ -88,23 +93,24 @@ public class IntentGraphGenerator
         var initialState = stateMachine.GetInitialState();
 
         var intentDefinition = overwriteIntentDefinition;
+        var variableContext = new VariableContext(monster) { InBestiary = inBestiary };
         IRule? condition = null;
         if (intentDefinition == null)
         {
             var intentDefinitionList = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
             if (intentDefinitionList != null)
             {
-                (intentDefinition, condition) = intentDefinitionList.FindFirstMatchCondition(monster);
+                (intentDefinition, condition) = intentDefinitionList.FindFirstMatchCondition(variableContext);
             }
         }
 
-        var localizer = new IntentGraphLocalizer(overwriteIntentStrings);
+        var localizer = new IntentGraphLocalizer(overwriteIntentStrings, variableContext);
         string? warning = null;
         if (intentDefinition?.UpToDateCondition != null)
         {
             try
             {
-                var rule = RuleParserHelper.Parse(intentDefinition.UpToDateCondition, new RuleContext(monster));
+                var rule = RuleParserHelper.Parse(intentDefinition.UpToDateCondition, variableContext);
                 if (rule?.GetBool() == false)
                 {
                     warning = localizer.GetOrElse("ui.Outdated", "Outdated");
@@ -165,11 +171,6 @@ public class IntentGraphGenerator
 
     private static MonsterModel? MonsterSpecificInitialize(MonsterModel monsterModel)
     {
-        if (monsterModel is WaterfallGiant waterfallGiant)
-        {
-            waterfallGiant.AfterAddedToRoom().Wait();
-        }
-
         if (monsterModel is Wriggler && monsterModel.Creature.SlotName == "phrog")
         {
             return null;

@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "0-3 приспешника",
   "ActsFromThePast.SpireGrowth.Cond": "Вы не скованы",
   "ActsFromThePast.TimeEater.Cond": "ОЗ <= 50%, один раз",
-  "ActsFromThePast.Transient.Text": "N начинается с 40,\n+10 каждый ход",
-  "ActsFromThePast.Transient.Text2": "N начинается с 30,\n+10 каждый ход",
+  "ActsFromThePast.Transient.Text": "N начинается с {m.StartingDeathDmg},\n+10 каждый ход",
   "ActsFromThePast.WrithingMass.Cond": "10%, один раз"
 }

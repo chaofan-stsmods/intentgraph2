@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "0-3 poplecznikow",
   "ActsFromThePast.SpireGrowth.Cond": "Nie jestes skrepowany",
   "ActsFromThePast.TimeEater.Cond": "PW <= 50%, jednorazowo",
-  "ActsFromThePast.Transient.Text": "N zaczyna od 40,\n+10 co ture",
-  "ActsFromThePast.Transient.Text2": "N zaczyna od 30,\n+10 co ture",
+  "ActsFromThePast.Transient.Text": "N zaczyna od {m.StartingDeathDmg},\n+10 co ture",
   "ActsFromThePast.WrithingMass.Cond": "10%, jednorazowo"
 }

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using IntentGraph2.Utils.Variable;
 
 namespace IntentGraph2.Scenes;
 
@@ -1038,7 +1039,7 @@ public partial class NIntentGraphEditor : Control
 
         try
         {
-            if (IRule.Parse(condition, new RuleContext(monster)) == null)
+            if (IRule.Parse(condition, new VariableContext(monster)) == null)
             {
                 error = LocalizeText("ui.editor.rule.parse_error", "{0} could not be parsed.", fieldName);
                 return false;

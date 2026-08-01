@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "0-3 Diener",
   "ActsFromThePast.SpireGrowth.Cond": "Du bist nicht eingeschnurt",
   "ActsFromThePast.TimeEater.Cond": "LP <= 50 %, einmalig",
-  "ActsFromThePast.Transient.Text": "N beginnt bei 40,\n+10 pro Zug",
-  "ActsFromThePast.Transient.Text2": "N beginnt bei 30,\n+10 pro Zug",
+  "ActsFromThePast.Transient.Text": "N beginnt bei {m.StartingDeathDmg},\n+10 pro Zug",
   "ActsFromThePast.WrithingMass.Cond": "10 %, einmalig"
 }

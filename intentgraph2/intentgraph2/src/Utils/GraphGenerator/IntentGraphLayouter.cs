@@ -43,7 +43,7 @@ internal class IntentGraphLayouter
             {
                 X = x,
                 Y = y,
-                Text = localizer.GetOrElse(label.Text, label.Text),
+                Text = localizer.FormatWithVariables(localizer.GetOrElse(label.Text, label.Text)),
                 RelativeTo = null,
             };
             result.Labels.Add(resolvedLabel);
@@ -292,13 +292,18 @@ internal class IntentGraphLayouter
             var intentOverride = i < intentOverrides?.Length ? intentOverrides[i] : null;
             if (intent is AttackIntent attackIntent)
             {
+                var value = (int?)attackIntent.DamageCalc?.Invoke();
+                var times = attackIntent.Repeats;
                 icons[i] = new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType,
-                    (int?)attackIntent.DamageCalc?.Invoke(), attackIntent.Repeats,
-                    intentOverride?.ValueText ?? string.Empty, intentOverride?.TimesText ?? string.Empty);
+                    value, times,
+                    GetLocalizedValueText(intentOverride?.ValueText, value ?? 0),
+                    GetLocalizedValueText(intentOverride?.TimesText, times));
             }
             else if (intent is StatusIntent statusIntent)
             {
-                icons[i] = new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType, statusIntent.CardCount, ValueText: intentOverride?.ValueText ?? string.Empty);
+                var value = statusIntent.CardCount;
+                icons[i] = new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType, value,
+                    ValueText: GetLocalizedValueText(intentOverride?.ValueText, value));
             }
             else
             {
@@ -319,6 +324,18 @@ internal class IntentGraphLayouter
         }
 
         return move;
+    }
+
+    private string GetLocalizedValueText(string? text, int originalValue)
+    {
+        if (text == null)
+        {
+            return string.Empty;
+        }
+
+        text = localizer.GetOrElse(text, text);
+        text = localizer.FormatWithVariables(text, (v, t) => v == "originalValue" ? originalValue.ToString() : null);
+        return text;
     }
 
     private void AddMoveName(MoveState moveState, Graph graph, float x, float y, SubGraph? subGraph)

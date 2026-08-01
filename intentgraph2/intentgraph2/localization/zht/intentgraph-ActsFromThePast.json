@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "爪牙數為0~3",
   "ActsFromThePast.SpireGrowth.Cond": "你未被纏繞",
   "ActsFromThePast.TimeEater.Cond": "HP<=50%, 只能用1次",
-  "ActsFromThePast.Transient.Text": "N從40開始,\n每回合+10",
-  "ActsFromThePast.Transient.Text2": "N從30開始,\n每回合+10",
+  "ActsFromThePast.Transient.Text": "N從{m.StartingDeathDmg}開始,\n每回合+10",
   "ActsFromThePast.WrithingMass.Cond": "10%, 只能用1次"
 }

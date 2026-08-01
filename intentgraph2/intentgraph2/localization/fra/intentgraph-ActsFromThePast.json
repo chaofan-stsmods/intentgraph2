@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "0-3 sbires",
   "ActsFromThePast.SpireGrowth.Cond": "Vous n'etes pas entrave",
   "ActsFromThePast.TimeEater.Cond": "PV <= 50 %, usage unique",
-  "ActsFromThePast.Transient.Text": "N commence a 40,\n+10 a chaque tour",
-  "ActsFromThePast.Transient.Text2": "N commence a 30,\n+10 a chaque tour",
+  "ActsFromThePast.Transient.Text": "N commence a {m.StartingDeathDmg},\n+10 a chaque tour",
   "ActsFromThePast.WrithingMass.Cond": "10 %, usage unique"
 }

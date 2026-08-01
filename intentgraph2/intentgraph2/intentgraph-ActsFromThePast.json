@@ -817,6 +817,178 @@
           "followUpState": "rand1"
         }
       ]
+    },
+    {
+      "condition": "inBestiary",
+      "stateMachine": [
+        {
+          "name": "rand1",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "50%",
+              "node": {
+                "name": "NIP"
+              }
+            },
+            {
+              "label": "50%",
+              "node": {
+                "name": "HARDEN"
+              }
+            }
+          ],
+          "followUpState": "rand2"
+        },
+        {
+          "name": "rand2",
+          "children": [
+            {
+              "label": "30%, ≤2",
+              "node": {
+                "name": "NIP"
+              }
+            },
+            {
+              "label": "30%, ≤1",
+              "node": {
+                "name": "HARDEN"
+              }
+            },
+            {
+              "label": "40%, ≤1",
+              "node": {
+                "name": "CHOMP"
+              }
+            }
+          ],
+          "followUpState": "rand2"
+        }
+      ],
+      "moveReplacements": {
+        "NIP": [
+          {
+            "valueText": "7~11"
+          }
+        ]
+      }
+    },
+    {
+      "condition": "inBestiary && ascension >= 9",
+      "stateMachine": [
+        {
+          "name": "rand1",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "50%",
+              "node": {
+                "name": "NIP"
+              }
+            },
+            {
+              "label": "50%",
+              "node": {
+                "name": "HARDEN"
+              }
+            }
+          ],
+          "followUpState": "rand2"
+        },
+        {
+          "name": "rand2",
+          "children": [
+            {
+              "label": "30%, ≤2",
+              "node": {
+                "name": "NIP"
+              }
+            },
+            {
+              "label": "30%, ≤1",
+              "node": {
+                "name": "HARDEN"
+              }
+            },
+            {
+              "label": "40%, ≤1",
+              "node": {
+                "name": "CHOMP"
+              }
+            }
+          ],
+          "followUpState": "rand2"
+        }
+      ],
+      "moveReplacements": {
+        "NIP": [
+          {
+            "valueText": "9~13"
+          }
+        ]
+      }
+    },
+    {
+      "condition": "inBestiary && m.SlotIndex == 1",
+      "stateMachine": [
+        {
+          "name": "rand1",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "50%, ≤2",
+              "node": {
+                "name": "NIP"
+              }
+            },
+            {
+              "label": "50%, ≤1",
+              "node": {
+                "name": "HARDEN"
+              }
+            }
+          ],
+          "followUpState": "rand1"
+        }
+      ],
+      "moveReplacements": {
+        "NIP": [
+          {
+            "valueText": "7~11"
+          }
+        ]
+      }
+    },
+    {
+      "condition": "inBestiary && m.SlotIndex == 1 && ascension >= 9",
+      "stateMachine": [
+        {
+          "name": "rand1",
+          "isInitialState": true,
+          "children": [
+            {
+              "label": "50%, ≤2",
+              "node": {
+                "name": "NIP"
+              }
+            },
+            {
+              "label": "50%, ≤1",
+              "node": {
+                "name": "HARDEN"
+              }
+            }
+          ],
+          "followUpState": "rand1"
+        }
+      ],
+      "moveReplacements": {
+        "NIP": [
+          {
+            "valueText": "9~13"
+          }
+        ]
+      }
     }
   ],
   "ActsFromThePast.SpikeSlimeMedium": [
@@ -2196,34 +2368,6 @@
           }
         ]
       }
-    },
-    {
-      "condition": "ascension < 9",
-      "graphPatch": {
-        "width": 1,
-        "height": 1,
-        "icons": [],
-        "iconGroups": [],
-        "labels": [
-          {
-            "x": 1,
-            "y": 0.4,
-            "text": "ActsFromThePast.Transient.Text2",
-            "align": "left",
-            "fontSize": 18
-          }
-        ],
-        "arrows": [],
-        "moves": [],
-        "expand": true
-      },
-      "moveReplacements": {
-        "ATTACK": [
-          {
-            "valueText": "N"
-          }
-        ]
-      }
     }
   ],
   "ActsFromThePast.Acts.TheBeyond.Enemies.WrithingMass": [
@@ -2292,6 +2436,56 @@
           "followUpState": "rand2"
         }
       ]
+    }
+  ],
+  "ActsFromThePast.LouseRed": [
+    {
+      "condition": "true"
+    },
+    {
+      "condition": "inBestiary",
+      "moveReplacements": {
+        "BITE": [
+          {
+            "valueText": "5~7"
+          }
+        ]
+      }
+    },
+    {
+      "condition": "inBestiary && ascension >= 9",
+      "moveReplacements": {
+        "BITE": [
+          {
+            "valueText": "6~8"
+          }
+        ]
+      }
+    }
+  ],
+  "ActsFromThePast.LouseGreen": [
+    {
+      "condition": "true"
+    },
+    {
+      "condition": "inBestiary",
+      "moveReplacements": {
+        "BITE": [
+          {
+            "valueText": "5~7"
+          }
+        ]
+      }
+    },
+    {
+      "condition": "inBestiary && ascension >= 9",
+      "moveReplacements": {
+        "BITE": [
+          {
+            "valueText": "6~8"
+          }
+        ]
+      }
     }
   ]
 }

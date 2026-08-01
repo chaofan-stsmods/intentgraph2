@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "0~3 minions",
   "ActsFromThePast.SpireGrowth.Cond": "You are not constricted",
   "ActsFromThePast.TimeEater.Cond": "HP ≤ 50%, one use",
-  "ActsFromThePast.Transient.Text": "N starts at 40,\n+10 every turn",
-  "ActsFromThePast.Transient.Text2": "N starts at 30,\n+10 every turn",
+  "ActsFromThePast.Transient.Text": "N starts at {m.StartingDeathDmg},\n+10 every turn",
   "ActsFromThePast.WrithingMass.Cond": "10%, one use"
 }

@@ -1,6 +1,7 @@
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using IntentGraph2.Antlr;
+using IntentGraph2.Utils.Variable;
 using System.Collections.Generic;
 
 namespace IntentGraph2.Utils.Rule;
@@ -19,7 +20,7 @@ public static class RuleParserHelper
         ["||"] = IRule.Operator.OR,
     };
 
-    public static IRule? Parse(string expression, IRuleContext ruleContext)
+    public static IRule? Parse(string expression, IVariableContext ruleContext)
     {
         var lexer = new RuleLexer(CharStreams.fromString(expression));
         var tokenStream = new CommonTokenStream(lexer);
@@ -28,7 +29,7 @@ public static class RuleParserHelper
         return Expr(tree, ruleContext);
     }
 
-    private static IRule? Expr(IParseTree tree, IRuleContext ruleContext)
+    private static IRule? Expr(IParseTree tree, IVariableContext ruleContext)
     {
         if (tree.ChildCount == 1)
         {

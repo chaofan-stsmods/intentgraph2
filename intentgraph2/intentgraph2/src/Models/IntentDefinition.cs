@@ -1,7 +1,7 @@
 using IntentGraph2.Utils;
 using IntentGraph2.Utils.JsonConverters;
 using IntentGraph2.Utils.Rule;
-using MegaCrit.Sts2.Core.Models;
+using IntentGraph2.Utils.Variable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +11,13 @@ namespace IntentGraph2.Models;
 
 public class IntentDefinitionList : List<IntentDefinition>
 {
-    public (IntentDefinition?, IRule?) FindFirstMatchCondition(MonsterModel monster)
+    public (IntentDefinition?, IRule?) FindFirstMatchCondition(VariableContext ruleContext)
     {
         foreach (var def in this.Reverse<IntentDefinition>())
         {
             try
             {
-                var rule = IRule.Parse(def.Condition, new RuleContext(monster));
+                var rule = IRule.Parse(def.Condition, ruleContext);
                 if (rule?.GetBool() == true)
                 {
                     return (def, rule);
@@ -25,7 +25,7 @@ public class IntentDefinitionList : List<IntentDefinition>
             }
             catch (Exception ex)
             {
-                IgLogger.Warn($"Error parsing condition '{def.Condition}' for monster '{monster.Id}': {ex.Message}");
+                IgLogger.Warn($"Error parsing condition '{def.Condition}' for monster '{ruleContext.Monster.Id}': {ex.Message}");
             }
         }
 

@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "手下0〜3体",
   "ActsFromThePast.SpireGrowth.Cond": "あなたは拘束されていない",
   "ActsFromThePast.TimeEater.Cond": "HP <= 50%、1回限り",
-  "ActsFromThePast.Transient.Text": "Nは40から開始、\n毎ターン+10",
-  "ActsFromThePast.Transient.Text2": "Nは30から開始、\n毎ターン+10",
+  "ActsFromThePast.Transient.Text": "Nは{m.StartingDeathDmg}から開始、\n毎ターン+10",
   "ActsFromThePast.WrithingMass.Cond": "10%、1回限り"
 }

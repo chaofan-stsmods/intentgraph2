@@ -53,6 +53,11 @@
                     }
                 ],
                 "expand": true
+            },
+            "moveReplacements": {
+                "PRESSURE_GUN_MOVE": [
+                    { "valueText": "{m.BasePressureGunDamage}" }
+                ]
             }
         }
     ],

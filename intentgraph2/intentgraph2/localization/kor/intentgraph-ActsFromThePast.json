@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "하수인 0~3",
   "ActsFromThePast.SpireGrowth.Cond": "당신은 속박되지 않음",
   "ActsFromThePast.TimeEater.Cond": "체력 <= 50%, 1회 한정",
-  "ActsFromThePast.Transient.Text": "N은 40에서 시작,\n매 턴 +10",
-  "ActsFromThePast.Transient.Text2": "N은 30에서 시작,\n매 턴 +10",
+  "ActsFromThePast.Transient.Text": "N은 {m.StartingDeathDmg}에서 시작,\n매 턴 +10",
   "ActsFromThePast.WrithingMass.Cond": "10%, 1회 한정"
 }

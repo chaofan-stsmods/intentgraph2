@@ -1,3 +1,5 @@
+using IntentGraph2.Utils.Variable;
+
 namespace IntentGraph2.Utils.Rule;
 
 public interface IRule
@@ -19,7 +21,7 @@ public interface IRule
         NOT,
     }
 
-    static IRule? Parse(string expression, IRuleContext ruleContext)
+    static IRule? Parse(string expression, IVariableContext ruleContext)
     {
         return RuleParserHelper.Parse(expression, ruleContext);
     }

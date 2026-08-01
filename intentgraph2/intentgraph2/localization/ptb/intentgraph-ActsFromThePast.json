@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "0-3 lacaios",
   "ActsFromThePast.SpireGrowth.Cond": "Voce nao esta constrito",
   "ActsFromThePast.TimeEater.Cond": "PV <= 50%, uso unico",
-  "ActsFromThePast.Transient.Text": "N comeca em 40,\n+10 a cada turno",
-  "ActsFromThePast.Transient.Text2": "N comeca em 30,\n+10 a cada turno",
+  "ActsFromThePast.Transient.Text": "N comeca em {m.StartingDeathDmg},\n+10 a cada turno",
   "ActsFromThePast.WrithingMass.Cond": "10%, uso unico"
 }

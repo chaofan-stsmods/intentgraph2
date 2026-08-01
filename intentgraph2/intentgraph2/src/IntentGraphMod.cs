@@ -3,8 +3,11 @@ using Godot.Bridge;
 using HarmonyLib;
 using IntentGraph2.Crossovers;
 using IntentGraph2.Models;
+using IntentGraph2.Patches;
 using IntentGraph2.Utils;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Debug;
+using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Saves;
@@ -172,9 +175,11 @@ public class IntentGraphMod
     public static void ReloadIntentDefinitionsAndGraphs()
     {
         LoadIntentDefinitions();
-        LoadIntentStrings(MegaCrit.Sts2.Core.Localization.LocManager.Instance.Language);
+        LoadIntentStrings(LocManager.Instance.Language);
 
-        var combatState = MegaCrit.Sts2.Core.Combat.CombatManager.Instance.DebugOnlyGetState();
+        BestiaryPatches.ReloadIntents();
+
+        var combatState = CombatManager.Instance.DebugOnlyGetState();
         if (combatState == null || combatState.Encounter == null)
         {
             return;
@@ -183,7 +188,7 @@ public class IntentGraphMod
         GeneratedGraphs.Clear();
         foreach (var creature in combatState.Enemies)
         {
-            Patches.MonsterSetupPatch.Postfix(MegaCrit.Sts2.Core.Combat.CombatManager.Instance, creature);
+            MonsterSetupPatch.Postfix(CombatManager.Instance, creature);
         }
     }
 

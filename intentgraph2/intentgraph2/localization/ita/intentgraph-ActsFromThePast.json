@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "0-3 servitori",
   "ActsFromThePast.SpireGrowth.Cond": "Non sei costretto",
   "ActsFromThePast.TimeEater.Cond": "PS <= 50%, una sola volta",
-  "ActsFromThePast.Transient.Text": "N parte da 40,\n+10 ogni turno",
-  "ActsFromThePast.Transient.Text2": "N parte da 30,\n+10 ogni turno",
+  "ActsFromThePast.Transient.Text": "N parte da {m.StartingDeathDmg},\n+10 ogni turno",
   "ActsFromThePast.WrithingMass.Cond": "10%, una sola volta"
 }

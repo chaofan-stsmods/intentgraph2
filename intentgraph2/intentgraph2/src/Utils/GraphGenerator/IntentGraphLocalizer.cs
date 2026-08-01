@@ -1,17 +1,25 @@
+using IntentGraph2.Utils.Variable;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace IntentGraph2.Utils.GraphGenerator;
 
 internal class IntentGraphLocalizer
 {
     private readonly IReadOnlyDictionary<string, string>? overwriteIntentStrings;
+    private readonly VariableContext variableContext;
 
-    public IntentGraphLocalizer(IReadOnlyDictionary<string, string>? overwriteIntentStrings)
+    private static Regex PlaceholderFinder = new Regex(@"{{|{([^}]+)}", RegexOptions.Compiled);
+
+    public delegate string? OnFoundVariableDelegate(string variableName, string? variableType);
+
+    public IntentGraphLocalizer(IReadOnlyDictionary<string, string>? overwriteIntentStrings, VariableContext variableContext)
     {
         this.overwriteIntentStrings = overwriteIntentStrings;
+        this.variableContext = variableContext;
     }
 
     public bool TryGet(string key, [NotNullWhen(true)] out string? value)
@@ -27,6 +35,37 @@ internal class IntentGraphLocalizer
     public string GetOrElse(string key, string fallbackValue)
     {
         return TryGet(key, out var value) ? value : fallbackValue;
+    }
+
+    public string FormatWithVariables(string text, OnFoundVariableDelegate? onFoundVariable = null)
+    {
+        return PlaceholderFinder.Replace(text, match =>
+        {
+            if (match.Value == "{{")
+            {
+                return "{";
+            }
+
+            var variable = match.Groups[1].Value;
+            var split = variable.Split(':', 2);
+            var variableName = split[0];
+            var variableType = split.Length > 1 ? split[1] : null;
+            if (onFoundVariable != null)
+            {
+                var replacement = onFoundVariable(variableName, variableType);
+                if (replacement != null)
+                {
+                    return replacement;
+                }
+            }
+
+            return variableType switch
+            {
+                "int" => variableContext.GetIntVariable(variableName).ToString(),
+                "bool" => variableContext.GetBoolVariable(variableName).ToString(),
+                _ => variableContext.GetStringVariable(variableName),
+            };
+        });
     }
 
     public string? GetMoveName(MonsterModel monster, string moveId)

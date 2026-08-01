@@ -21,7 +21,6 @@
   "ActsFromThePast.Reptomancer.Cond": "0-3 esbirros",
   "ActsFromThePast.SpireGrowth.Cond": "No estas restringido",
   "ActsFromThePast.TimeEater.Cond": "PV <= 50 %, un solo uso",
-  "ActsFromThePast.Transient.Text": "N empieza en 40,\n+10 cada turno",
-  "ActsFromThePast.Transient.Text2": "N empieza en 30,\n+10 cada turno",
+  "ActsFromThePast.Transient.Text": "N empieza en {m.StartingDeathDmg},\n+10 cada turno",
   "ActsFromThePast.WrithingMass.Cond": "10 %, un solo uso"
 }
