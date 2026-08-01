@@ -1,19 +1,15 @@
-using Godot;
 using HarmonyLib;
 using IntentGraph2.Scenes;
 using IntentGraph2.Utils;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Helpers;
-using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Screens.Bestiary;
 using System;
-using System.Linq;
 
 namespace IntentGraph2.Patches;
 public class BestiaryPatches
 {
     private static NIntentGraphBestiary? intentGraphBestiary;
-    private static MonsterModel? currentMonster;
 
     [HarmonyPatch(typeof(NBestiary), nameof(NBestiary._Ready))]
     public static class BestiaryReadyPatch
@@ -52,19 +48,19 @@ public class BestiaryPatches
             var monster = entry.Entry.monsterModel;
             if (monster != null)
             {
-                intentGraphBestiary.Monster = currentMonster = monster.CanonicalInstance;
+                intentGraphBestiary.Monster = monster.CanonicalInstance;
             }
             else
             {
                 var encounter = entry.Entry.encounterModel;
                 if (encounter != null)
                 {
-                    monster = encounter.AllPossibleMonsters.FirstOrDefault();
-                    intentGraphBestiary.Monster = currentMonster = monster;
+                    intentGraphBestiary.Encounter = encounter.CanonicalInstance;
                 }
                 else
                 {
-                    intentGraphBestiary.Monster = currentMonster = null;
+                    intentGraphBestiary.Monster = null;
+                    intentGraphBestiary.Encounter = null;
                 }
             }
         }
@@ -77,6 +73,6 @@ public class BestiaryPatches
             return;
         }
 
-        intentGraphBestiary.Monster = currentMonster;
+        intentGraphBestiary.GenerateGraphs();
     }
 }

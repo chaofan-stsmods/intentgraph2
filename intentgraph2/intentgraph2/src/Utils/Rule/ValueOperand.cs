@@ -8,13 +8,13 @@ public class ValueOperand : IRule
     public ValueOperand(int value)
     {
         intValue = value;
-        boolValue = false;
+        boolValue = value != 0;
     }
 
     public ValueOperand(bool value)
     {
         boolValue = value;
-        intValue = 0;
+        intValue = value ? 1 : 0;
     }
 
     public int GetInt()

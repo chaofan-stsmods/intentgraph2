@@ -39,6 +39,8 @@ public class IntentDefinition
 
     public string? UpToDateCondition { get; set; }
 
+    public string? AlternativeMonsterId { get; set; }
+
     public SecondaryInitialState[]? SecondaryInitialStates { get; set; }
 
     public Graph? Graph { get; set; }

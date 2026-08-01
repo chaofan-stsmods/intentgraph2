@@ -116,6 +116,12 @@ public class VariableContext : IVariableContext
                 }
             }
 
+            if (variableName.StartsWith("slotName_is_"))
+            {
+                var slotName = variableName.Substring(12);
+                return Monster.Creature.SlotName == slotName;
+            }
+
             return variableName switch
             {
                 "act" => Monster.CombatState.RunState.CurrentActIndex,

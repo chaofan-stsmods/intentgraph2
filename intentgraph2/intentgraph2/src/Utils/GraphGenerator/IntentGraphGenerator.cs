@@ -104,7 +104,7 @@ public class IntentGraphGenerator
             }
         }
 
-        var localizer = new IntentGraphLocalizer(overwriteIntentStrings, variableContext);
+        var localizer = new IntentGraphLocalizer(overwriteIntentStrings, variableContext, intentDefinition);
         string? warning = null;
         if (intentDefinition?.UpToDateCondition != null)
         {
@@ -171,11 +171,7 @@ public class IntentGraphGenerator
 
     private static MonsterModel? MonsterSpecificInitialize(MonsterModel monsterModel)
     {
-        if (monsterModel is Wriggler && monsterModel.Creature.SlotName == "phrog")
-        {
-            return null;
-        }
-
+        // Keep this method in case I need it in the future.
         return monsterModel;
     }
 }

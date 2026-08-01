@@ -1,3 +1,4 @@
+using IntentGraph2.Models;
 using IntentGraph2.Utils.Variable;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
@@ -11,15 +12,17 @@ internal class IntentGraphLocalizer
 {
     private readonly IReadOnlyDictionary<string, string>? overwriteIntentStrings;
     private readonly VariableContext variableContext;
+    private readonly IntentDefinition? intentDefinition;
 
     private static Regex PlaceholderFinder = new Regex(@"{{|{([^}]+)}", RegexOptions.Compiled);
 
     public delegate string? OnFoundVariableDelegate(string variableName, string? variableType);
 
-    public IntentGraphLocalizer(IReadOnlyDictionary<string, string>? overwriteIntentStrings, VariableContext variableContext)
+    public IntentGraphLocalizer(IReadOnlyDictionary<string, string>? overwriteIntentStrings, VariableContext variableContext, IntentDefinition? intentDefinition)
     {
         this.overwriteIntentStrings = overwriteIntentStrings;
         this.variableContext = variableContext;
+        this.intentDefinition = intentDefinition;
     }
 
     public bool TryGet(string key, [NotNullWhen(true)] out string? value)
@@ -70,12 +73,19 @@ internal class IntentGraphLocalizer
 
     public string? GetMoveName(MonsterModel monster, string moveId)
     {
-        var locTable = LocManager.Instance.GetTable("monsters");
-        var monsterName = monster.Id.Entry;
-        if (monsterName.StartsWith("DECIMILLIPEDE_SEGMENT_"))
+        var title = GetMoveName(monster.Id.Entry, moveId);
+
+        if (title == null && intentDefinition?.AlternativeMonsterId != null)
         {
-            monsterName = "DECIMILLIPEDE_SEGMENT";
+            return GetMoveName(intentDefinition.AlternativeMonsterId, moveId);
         }
+
+        return title;
+    }
+
+    private string? GetMoveName(string monsterName, string moveId)
+    {
+        var locTable = LocManager.Instance.GetTable("monsters");
 
         var moveIdChanged = true;
         while (moveIdChanged)

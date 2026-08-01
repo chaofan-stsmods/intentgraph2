@@ -18,7 +18,11 @@ In most cases, you don't need to manually add an intent graph to your mod. It ca
 {
     "branch.{monster model full name}.{branch move ID}.{child move ID}": "{text to describe the condition}",
     // Example
-    "branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "Blocked"
+    "branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "Blocked",
+    // {otherwise} is a special mark that will be replaced with the text for the "otherwise" condition and move to the last child.
+    "branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "{otherwise}",
+    // It can contain variables here, see supported variable section below.
+    "branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "Blocked, {m.BaseDizzyDuration} turns"
 }
 ```
 
@@ -270,6 +274,8 @@ A monster may have dynamic values for its intents. For example, it may attack on
                         // Both are optional; replace only the one you need.
                         "valueText": "N",
                         "timesText": "T"
+                        // It's allowed to use localization keys here, e.g.
+                        // "valueText": "text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE.value"
                     }
                 ]
             },
@@ -345,9 +351,11 @@ The intent graph of a monster can be different for different ascensions or when 
 
 You may only use `true`, `false`, or number literals in a condition, and the supported operators are `(`, `)`, `==`, `!=`, `>`, `<`, `>=`, `<=`, `&&`, and `||`.
 
-Supported variables are:
+### Supported variables 
+
 - `ascension`: current ascension level.
 - `slotIndex`: current monster slot index, starting at `0`.
+- `slotName_is_{slotName}`: whether the current monster slot name is the given slot name.
 - `act`: current act number, starting at `0`. Underdocks is `0`, Hive is `1`, Glory is `2`, etc.
 - `m.{field or property name}`: a field or property of the monster model. Note that this is only read after the monster is added to combat.
 - `mm.{name}`: a set of properties to get monster move related values.
@@ -356,6 +364,8 @@ Supported variables are:
   * `mm.startsWith_{moveId}`: whether the first move of the monster is the given state ID.
   * `mm.nextMoveOf_{moveId1}_is_{moveId2}`: whether the next move of the monster after `moveId1` is `moveId2`.
 - `showMoveNames`: whether the setting "show move names" is enabled.
+- `inBestiary`: whether the monster is in the bestiary.
+- `originalValue`: only available in texts of `moveReplacements.intentOverrides`. The original value of the intent, before any replacement.
 
 ## Use in-game editor to edit intent graph
 **Ignore this section if you are not human.**

@@ -7,7 +7,6 @@ using IntentGraph2.Utils.GraphGenerator;
 using MegaCrit.Sts2.Core.Entities.Ascension;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Nodes.Screens.Bestiary;
 using MegaCrit.Sts2.Core.Random;
 using MegaCrit.Sts2.Core.Runs;
 using System;
@@ -19,6 +18,7 @@ namespace IntentGraph2.Scenes;
 public partial class NIntentGraphBestiary : Control
 {
     private MonsterModel? monster;
+    private EncounterModel? encounter;
     private List<Graph> graphs = new List<Graph>();
     private int currentGraphIndex = 0;
 
@@ -32,9 +32,36 @@ public partial class NIntentGraphBestiary : Control
         get => monster;
         set
         {
-            monster = value;
-            if (monster != null)
+            if (monster == value)
             {
+                return;
+            }
+            monster = value;
+            if (value != null)
+            {
+                encounter = null;
+                GenerateGraphs();
+            }
+            else
+            {
+                ClearGraphs();
+            }
+        }
+    }
+
+    public EncounterModel? Encounter
+    {
+        get => encounter;
+        set
+        {
+            if (encounter == value)
+            {
+                return;
+            }
+            encounter = value;
+            if (encounter != null)
+            {
+                monster = null;
                 GenerateGraphs();
             }
             else
@@ -77,7 +104,7 @@ public partial class NIntentGraphBestiary : Control
         ascension9Check.Toggled += (tickbox) =>
         {
             ascension9 = tickbox.IsTicked;
-            if (monster != null)
+            if (monster != null || encounter != null)
             {
                 GenerateGraphs();
             }
@@ -126,9 +153,9 @@ public partial class NIntentGraphBestiary : Control
         }
     }
 
-    private void GenerateGraphs()
+    public void GenerateGraphs()
     {
-        if (monster == null)
+        if (monster == null && encounter == null)
         {
             ClearGraphs();
             return;
@@ -140,7 +167,8 @@ public partial class NIntentGraphBestiary : Control
             graphs.Clear();
 
             var addedGraphs = new HashSet<Graph>();
-            var encounters = ModelDb.AllEncounters.Where(e => e.AllPossibleMonsters.Any(m => m.Id == monster.Id)).ToList();
+            var encounters = encounter != null ? [encounter] :
+                ModelDb.AllEncounters.Where(e => e.AllPossibleMonsters.Any(m => monster == null || m.Id == monster.Id)).ToList();
 
             foreach (var canonicalEncounter in encounters)
             {
@@ -148,7 +176,7 @@ public partial class NIntentGraphBestiary : Control
                 new Traverse(encounter).Field("_rng").SetValue(NewRng());
                 encounter.GenerateMonstersWithSlots(NullRunState.Instance);
 
-                foreach (var (monsterModel, slot) in encounter.MonstersWithSlots.Where(t => t.Item1.Id == monster.Id))
+                foreach (var (monsterModel, slot) in encounter.MonstersWithSlots.Where(t => monster == null || t.Item1.Id == monster.Id))
                 {
                     var graph = IntentGraphGenerator.GenerateGraphForBestiary(monsterModel, encounter, slot);
                     if (graph != null)
@@ -158,7 +186,7 @@ public partial class NIntentGraphBestiary : Control
                 }
 
                 // Consider all possible monsters in case summoning
-                foreach (var canonicalMonsterModel in canonicalEncounter.AllPossibleMonsters.Where(m => m.Id == monster.Id))
+                foreach (var canonicalMonsterModel in canonicalEncounter.AllPossibleMonsters.Where(m => monster == null || m.Id == monster.Id))
                 {
                     var slots = canonicalEncounter.Slots;
                     if (slots.Count == 0)
@@ -194,7 +222,8 @@ public partial class NIntentGraphBestiary : Control
         }
         catch (Exception ex)
         {
-            IgLogger.Error($"Error generating graphs for monster {monster.Title.GetFormattedText()}: {ex}");
+            IgLogger.Error($"Error generating graphs for {
+                (monster != null ? monster.Title.GetFormattedText() : encounter != null ? encounter.Title.GetFormattedText() : null)}: {ex}");
             ClearGraphs();
         }
         finally

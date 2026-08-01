@@ -1,7 +1,6 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Scenes;
-using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;

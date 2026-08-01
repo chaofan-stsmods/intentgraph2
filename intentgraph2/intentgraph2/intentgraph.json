@@ -61,6 +61,31 @@
             }
         }
     ],
+    "MegaCrit.Sts2.Core.Models.Monsters.DecimillipedeSegmentBack": [
+        {
+            "alternativeMonsterId": "DECIMILLIPEDE_SEGMENT"
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.DecimillipedeSegmentFront": [
+        {
+            "alternativeMonsterId": "DECIMILLIPEDE_SEGMENT"
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.DecimillipedeSegmentMiddle": [
+        {
+            "alternativeMonsterId": "DECIMILLIPEDE_SEGMENT"
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.Wriggler": [
+        {
+            "condition": "true"
+        },
+        {
+            "condition": "inBestiary && slotName_is_phrog",
+            "__comment": "Use empty stateMachine to hide in the bestiary",
+            "stateMachine": []
+        }
+    ],
     "MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat": [
         {
             "condition": "true",

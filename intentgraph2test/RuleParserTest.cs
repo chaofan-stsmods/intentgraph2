@@ -5,12 +5,19 @@ namespace IntentGraph2.Test;
 
 public class RuleParserTest
 {
-    [Fact]
-    public void Test1()
+    [Theory]
+    [InlineData("true", true)]
+    [InlineData("true == false", false)]
+    [InlineData("true == 1", true)]
+    [InlineData("false == 1", false)]
+    [InlineData("false == 0", true)]
+    [InlineData("1 == 0", false)]
+    [InlineData("1 == 1", true)]
+    public void Parse(string condition, bool expectedResult)
     {
-        var rule = IRule.Parse("true", new MockRuleContext());
+        var rule = IRule.Parse(condition, new MockRuleContext());
         Assert.NotNull(rule);
-        Assert.True(rule.GetBool());
+        Assert.Equal(expectedResult, rule.GetBool());
     }
 
     private class MockRuleContext : IVariableContext
