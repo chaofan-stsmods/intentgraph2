@@ -121,8 +121,13 @@ public partial class NIntentGraphBestiary : Control
         showIntentGraphCheck.IsTicked = true;
         if (description != null)
         {
-            description.Visible = false;
+            showIntentGraphCheck.IsTicked = false;
+            intentGraph.Visible = false;
+            ascension9Check.Visible = false;
+            previousGraph.Visible = false;
+            nextGraph.Visible = false;
         }
+
         showIntentGraphCheck.Toggled += (tickbox) =>
         {
             intentGraph.Visible = tickbox.IsTicked;
