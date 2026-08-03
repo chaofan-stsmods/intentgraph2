@@ -21,14 +21,21 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>$(Steamlib)\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\0Harmony.dll</HintPath>
+      <HintPath>$(Sts2DataDir)\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="sts2">
-      <HintPath>$(Steamlib)\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll</HintPath>
+      <HintPath>$(Sts2DataDir)\sts2.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /-I &quot;$(TargetPath)&quot; &quot;$(Steamlib)\steamapps\common\Slay the Spire 2\mods\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(Steamlib)\steamapps\common\Slay the Spire 2\mods\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; /-I &quot;$(ProjectDir)\publish\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(ProjectDir)\publish\&quot; /Y" />
+    <Exec Command="xcopy /-I &quot;$(TargetPath)&quot; &quot;$(Sts2ModsDir)\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(Sts2ModsDir)\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; /-I &quot;$(ProjectDir)\publish\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(ProjectDir)\publish\&quot; /Y" />
+  </Target>
+  <Target Name="DeployGodotFiles">
+    <ItemGroup>
+      <GodotFilesToDeploy Include="$(ProjectDir)publish\intentgraph2.pck" />
+      <GodotFilesToDeploy Include="$(ProjectDir)intentgraph2.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(GodotFilesToDeploy)" DestinationFolder="$(Sts2ModsDir)" />
   </Target>
   <Target Name="BuildMultipleVersion" AfterTargets="BeforeBuild" Condition="'$(BuildMultipleVersion)' == 'true'">
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="DefineConstants=$(DefineConstants);LESS_THAN_0_110_0;VersionSuffix=-lt-0.110.0;BuildMultipleVersion=false" />

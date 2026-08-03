@@ -1,6 +1,10 @@
 <Project>
   <PropertyGroup>
     <Steamlib>E:\Games\steamlib</Steamlib>
+    <Sts2Dir>$(Steamlib)\steamapps\common\Slay the Spire 2</Sts2Dir>
+    <Sts2DataDir>$(Sts2Dir)\data_sts2_windows_x86_64</Sts2DataDir>
+    <Sts2ModsDir>$(Sts2Dir)\mods</Sts2ModsDir>
+    <Authors>Chaofan</Authors>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="**\*.lscache" />
