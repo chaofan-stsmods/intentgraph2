@@ -94,14 +94,9 @@ public class IntentGraphGenerator
 
         var intentDefinition = overwriteIntentDefinition;
         var variableContext = new VariableContext(monster) { InBestiary = inBestiary };
-        IRule? condition = null;
         if (intentDefinition == null)
         {
-            var intentDefinitionList = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
-            if (intentDefinitionList != null)
-            {
-                (intentDefinition, condition) = intentDefinitionList.FindFirstMatchCondition(variableContext);
-            }
+            intentDefinition = GetIntentDefinition(monster, variableContext);
         }
 
         var localizer = new IntentGraphLocalizer(overwriteIntentStrings, variableContext, intentDefinition);
@@ -129,7 +124,7 @@ public class IntentGraphGenerator
         {
             graph = layouter.MakeGraphFromIntentDefinition(stateMachine, intentDefinition.Graph, intentDefinition, font);
             graph.Warning = warning;
-            graph.Condition = condition;
+            graph.IntentDefinition = intentDefinition;
             return graph;
         }
 
@@ -146,7 +141,7 @@ public class IntentGraphGenerator
 
         graph = layouter.StateNodesToGraph(stateNodes, intentDefinition);
         graph.Warning = warning;
-        graph.Condition = condition;
+        graph.IntentDefinition = intentDefinition;
 
         if (intentDefinition?.GraphPatch != null)
         {
@@ -167,6 +162,17 @@ public class IntentGraphGenerator
         }
 
         return graph;
+    }
+
+    public static IntentDefinition? GetIntentDefinition(MonsterModel monster, VariableContext variableContext)
+    {
+        var intentDefinitionList = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
+        if (intentDefinitionList != null)
+        {
+            return intentDefinitionList.FindFirstMatchIntentDefinition(variableContext);
+        }
+
+        return null;
     }
 
     private static MonsterModel? MonsterSpecificInitialize(MonsterModel monsterModel)

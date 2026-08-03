@@ -34,7 +34,7 @@ public class IntentGraphMod
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        Converters = 
+        Converters =
         {
             new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
         }

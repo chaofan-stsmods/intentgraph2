@@ -1,3 +1,4 @@
+using Godot;
 using HarmonyLib;
 using IntentGraph2.Scenes;
 using IntentGraph2.Utils;
@@ -68,6 +69,11 @@ public class BestiaryPatches
 
     public static void ReloadIntents()
     {
+        if (!GodotObject.IsInstanceValid(intentGraphBestiary))
+        {
+            intentGraphBestiary = null;
+        }
+
         if (intentGraphBestiary == null)
         {
             return;

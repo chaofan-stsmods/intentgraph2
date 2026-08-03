@@ -1,6 +1,7 @@
 using Godot;
 using IntentGraph2.Scenes;
 using IntentGraph2.Utils.GraphGenerator;
+using IntentGraph2.Utils.Variable;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Context;
@@ -52,30 +53,47 @@ public static class IntentGraphHost
 
     public static void Create(NCreature nCreature)
     {
-        if (availableIntentGraphs.TryGetValue(nCreature, out var item))
-        {
-            item.IntentGraphPanel.MoveToFrontSafely();
-            return;
-        }
-
         if (NGame.Instance?.HoverTipsContainer == null || NCombatRoom.Instance?.Ui.Hand.InCardPlay != false || nCreature.Entity?.IsMonster != true)
         {
             return;
         }
 
         var creature = nCreature.Entity;
-        if (creature.Monster == null || !IntentGraphMod.GeneratedGraphs.TryGetValue(creature.Monster, out var graph))
+        if (creature.Monster == null)
         {
             return;
         }
 
-        if (graph.Condition?.GetBool() == false)
+        IntentGraphMod.GeneratedGraphs.TryGetValue(creature.Monster, out var graph);
+        if (graph == null ||
+            IntentGraphGenerator.GetIntentDefinition(creature.Monster, new VariableContext(creature.Monster)) != graph.IntentDefinition)
         {
             graph = IntentGraphGenerator.GenerateAndCacheGraphForCreature(creature);
-            if (graph == null)
+        }
+
+        if (availableIntentGraphs.TryGetValue(nCreature, out var item))
+        {
+            item.IntentGraphPanel.MoveToFrontSafely();
+            var intentGraph1 = item.IntentGraphPanel.GetNode<NIntentGraph>("%IntentGraph");
+            if (!ReferenceEquals(intentGraph1.Graph, graph))
             {
-                return;
+                if (graph == null && !item.IntentGraphPanel.Pinned)
+                {
+                    item.RemoveIntentGraphPanel();
+                    availableIntentGraphs.Remove(nCreature);
+                }
+                else
+                {
+                    UpdateGraph(item.IntentGraphPanel, intentGraph1, graph);
+                    item.IntentGraphPanel.ResetSize();
+                }
             }
+            return;
+        }
+
+        if (graph == null)
+        {
+            return;
         }
 
         foreach (var (c, i) in availableIntentGraphs.ToList())
@@ -96,11 +114,12 @@ public static class IntentGraphHost
         monsterNameLabel.ApplyLocaleFontSubstitution(FontType.Bold, "font");
 
         var intentGraph = intentGraphPanel.GetNode<NIntentGraph>("%IntentGraph");
-        intentGraph.Graph = graph;
         intentGraph.GraphScale = new Vector2(IntentGraphMod.Config.IntentGraphScale, IntentGraphMod.Config.IntentGraphScale);
         intentGraph.Monster = creature.Monster;
         intentGraph.AnimatedIcons = IntentGraphMod.Config.UseAnimatedIntentIcon;
         intentGraph.ShowCurrentMove = IntentGraphMod.Config.ShowCurrentMove;
+
+        UpdateGraph(intentGraphPanel, intentGraph, graph);
 
         var pinableIntentGraph = IntentGraphMod.Config.PinableIntentGraph;
         var handleResized = OnIntentGraphPanelResized(nCreature, intentGraphPanel, pinableIntentGraph);
@@ -109,16 +128,6 @@ public static class IntentGraphHost
             nCreature.Resized += handleResized;
         }
         intentGraphPanel.Resized += handleResized;
-
-        if (graph.Warning != null)
-        {
-            var outdatedContainer = intentGraphPanel.GetNode<MarginContainer>("%OutdatedMarkContainer");
-            var outdatedLabel = outdatedContainer.GetNode<Label>("OutdatedMark");
-            outdatedContainer.Show();
-            outdatedLabel.Text = "⚠️" + graph.Warning;
-            outdatedLabel.ApplyLocaleFontSubstitution(FontType.Bold, "font");
-        }
-
         intentGraphPanel.ResetSize();
 
         if (pinableIntentGraph)
@@ -158,6 +167,23 @@ public static class IntentGraphHost
         };
     }
 
+    private static void UpdateGraph(NIntentGraphPanel intentGraphPanel, NIntentGraph intentGraph, Models.Graph? graph)
+    {
+        intentGraph.Graph = graph;
+        var outdatedContainer = intentGraphPanel.GetNode<MarginContainer>("%OutdatedMarkContainer");
+        if (graph?.Warning != null)
+        {
+            var outdatedLabel = outdatedContainer.GetNode<Label>("OutdatedMark");
+            outdatedContainer.Show();
+            outdatedLabel.Text = "⚠️" + graph.Warning;
+            outdatedLabel.ApplyLocaleFontSubstitution(FontType.Bold, "font");
+        }
+        else
+        {
+            outdatedContainer.Hide();
+        }
+    }
+
     public static void Remove(NCreature creature)
     {
         if (availableIntentGraphs.TryGetValue(creature, out var intentGraphItem))
@@ -167,10 +193,15 @@ public static class IntentGraphHost
         }
     }
 
-    private static Action OnIntentGraphPanelResized(NCreature __instance, MarginContainer intentGraphPanel, bool pinableIntentGraph)
+    private static Action OnIntentGraphPanelResized(NCreature __instance, NIntentGraphPanel intentGraphPanel, bool pinableIntentGraph)
     {
         return () =>
         {
+            if (intentGraphPanel.Pinned)
+            {
+                return;
+            }
+
             var screenWidth = NGame.Instance!.GetViewportRect().Size.X;
             var playerX = screenWidth / 2;
             try

@@ -46,7 +46,7 @@ public partial class NIntentGraph : Control
     }
 
     public MonsterModel? Monster
-    { 
+    {
         get => monster;
         set
         {

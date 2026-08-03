@@ -41,8 +41,8 @@ internal class MonsterStateNode
     public float ArrowBottom { get; set; }
 
     // Derived properties
-    public string? FullId 
-    { 
+    public string? FullId
+    {
         get
         {
             if (Parent == null)

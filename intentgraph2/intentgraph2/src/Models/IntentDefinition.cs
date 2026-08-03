@@ -11,7 +11,7 @@ namespace IntentGraph2.Models;
 
 public class IntentDefinitionList : List<IntentDefinition>
 {
-    public (IntentDefinition?, IRule?) FindFirstMatchCondition(VariableContext ruleContext)
+    public IntentDefinition? FindFirstMatchIntentDefinition(VariableContext ruleContext)
     {
         foreach (var def in this.Reverse<IntentDefinition>())
         {
@@ -20,7 +20,7 @@ public class IntentDefinitionList : List<IntentDefinition>
                 var rule = IRule.Parse(def.Condition, ruleContext);
                 if (rule?.GetBool() == true)
                 {
-                    return (def, rule);
+                    return def;
                 }
             }
             catch (Exception ex)
@@ -29,7 +29,7 @@ public class IntentDefinitionList : List<IntentDefinition>
             }
         }
 
-        return (null, null);
+        return null;
     }
 }
 

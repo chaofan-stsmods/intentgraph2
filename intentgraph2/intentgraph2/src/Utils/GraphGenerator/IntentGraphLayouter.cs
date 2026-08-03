@@ -65,7 +65,7 @@ internal class IntentGraphLayouter
             {
                 var (x, y) = ResolveRelative(move, allStateNodes);
                 AddMove(moveState,
-                    new HashSet<string>([move.Id, ..move.Ids ?? []]).ToArray(),
+                    new HashSet<string>([move.Id, .. move.Ids ?? []]).ToArray(),
                     result,
                     x, y,
                     intentOverrides: null,
@@ -1015,7 +1015,7 @@ internal class IntentGraphLayouter
             if (prevNodes != null)
             {
                 var indices = prevNodes
-                    .SelectMany<MonsterStateNode, MonsterStateNode>(n => [n, ..n.GetAllDescendants()])
+                    .SelectMany<MonsterStateNode, MonsterStateNode>(n => [n, .. n.GetAllDescendants()])
                     .Where(n => n.Children == null)
                     .Select<MonsterStateNode, int?>(n => moves.IndexOf(context.StateNodeToMove.GetValueOrDefault(n)!)).Where(v => v != -1 && v != null).ToHashSet();
                 if (node.IsInitialState)

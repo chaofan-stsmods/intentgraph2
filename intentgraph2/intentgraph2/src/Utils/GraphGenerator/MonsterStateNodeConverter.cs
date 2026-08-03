@@ -314,7 +314,7 @@ internal class MonsterStateNodeConverter
                         Text = string.Empty, // stub
                         IsTextGenerated = true,
                         Weight = s.GetWeight(),
-                        MaxRepeat = s.repeatType switch 
+                        MaxRepeat = s.repeatType switch
                         {
                             MoveRepeatType.CanRepeatForever => 0,
                             MoveRepeatType.CanRepeatXTimes => s.maxTimes,

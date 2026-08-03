@@ -103,7 +103,10 @@ public partial class NIntentGraphCanvas : Control
     private Graph? graph;
     private bool hasAnimatedIcons;
     private int previousStateLogLength;
+    private string? previousStateId;
     private List<Move> glowingMoves = new();
+
+    private ulong lastDrawTime;
 
     public Graph? Graph
     {
@@ -113,6 +116,8 @@ public partial class NIntentGraphCanvas : Control
             graph = value;
             hasAnimatedIcons = graph?.Moves?.Any(m => m.Icons?.Any(icon => IntentImageAnimationFrameCounts.ContainsKey(icon.IntentType)) == true) == true;
             CustomMinimumSize = new Vector2(GridSize * graph?.Width ?? GridSize, GridSize * graph?.Height ?? GridSize);
+            // force recalculate current move
+            previousStateId = null;
             QueueRedraw();
         }
     }
@@ -158,10 +163,15 @@ public partial class NIntentGraphCanvas : Control
         {
             QueueRedraw();
         }
+        else if (Visible && Time.GetTicksMsec() - lastDrawTime > 1000)
+        {
+            QueueRedraw();
+        }
     }
 
     public override void _Draw()
     {
+        lastDrawTime = Time.GetTicksMsec();
         if (graph == null)
         {
             return;
@@ -169,7 +179,7 @@ public partial class NIntentGraphCanvas : Control
 
         if (ShowCurrentMove)
         {
-            var glowOpacity = AnimatedIcons ? 0.3f + 0.4f * Mathf.Sin(Time.GetTicksMsec() / 1000f * Mathf.Pi) : 0.5f;
+            var glowOpacity = AnimatedIcons ? 0.3f + 0.4f * Mathf.Sin(lastDrawTime / 1000f * Mathf.Pi) : 0.5f;
             glowColor = new Color(1, 1, 1, glowOpacity);
         }
 
@@ -217,7 +227,7 @@ public partial class NIntentGraphCanvas : Control
             return;
         }
 
-        if (previousStateLogLength == fullStateLog.Count)
+        if (previousStateLogLength == fullStateLog.Count && (fullStateLog.Count == 0 || previousStateId == fullStateLog[^1].Id))
         {
             foreach (var move in glowingMoves)
             {
@@ -227,6 +237,7 @@ public partial class NIntentGraphCanvas : Control
         }
 
         previousStateLogLength = fullStateLog.Count;
+        previousStateId = fullStateLog[^1].Id;
         glowingMoves.Clear();
 
         var lastIndex = 1;
@@ -357,7 +368,7 @@ public partial class NIntentGraphCanvas : Control
             return false;
         }
 
-        var frame = (int)((Time.GetTicksMsec() / AnimatedIconFrameDurationMs) % (ulong)frameCount);
+        var frame = (int)((lastDrawTime / AnimatedIconFrameDurationMs) % (ulong)frameCount);
         var textureKey = $"{intentType}_{frame}";
         if (!intentTextures.TryGetValue(textureKey, out texture))
         {

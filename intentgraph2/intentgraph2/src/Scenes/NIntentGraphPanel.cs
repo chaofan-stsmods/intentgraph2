@@ -32,23 +32,23 @@ public partial class NIntentGraphPanel : MarginContainer
     public override void _GuiInput(InputEvent evt)
     {
         if (evt is InputEventMouseButton evtMb && evtMb.ButtonIndex == MouseButton.Left)
-		{
-			if (evtMb.Pressed)
-			{
+        {
+            if (evtMb.Pressed)
+            {
                 MoveToFront();
-				dragging = true;
-				dragOffset = GetGlobalMousePosition() - GlobalPosition;
+                dragging = true;
+                dragOffset = GetGlobalMousePosition() - GlobalPosition;
             }
-			else
-			{
-				dragging = false;
-			}
-		}
+            else
+            {
+                dragging = false;
+            }
+        }
 
-		if (evt is InputEventMouseMotion && dragging)
-		{
-			GlobalPosition = GetGlobalMousePosition() - dragOffset;
-		}
+        if (evt is InputEventMouseMotion && dragging)
+        {
+            GlobalPosition = GetGlobalMousePosition() - dragOffset;
+        }
     }
 
     public override void _Input(InputEvent evt)

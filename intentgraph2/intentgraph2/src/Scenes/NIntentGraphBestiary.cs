@@ -227,8 +227,7 @@ public partial class NIntentGraphBestiary : Control
         }
         catch (Exception ex)
         {
-            IgLogger.Error($"Error generating graphs for {
-                (monster != null ? monster.Title.GetFormattedText() : encounter != null ? encounter.Title.GetFormattedText() : null)}: {ex}");
+            IgLogger.Error($"Error generating graphs for {(monster != null ? monster.Title.GetFormattedText() : encounter != null ? encounter.Title.GetFormattedText() : null)}: {ex}");
             ClearGraphs();
         }
         finally

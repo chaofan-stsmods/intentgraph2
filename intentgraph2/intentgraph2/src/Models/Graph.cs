@@ -22,7 +22,7 @@ public class Graph
     public string? Warning { get; set; }
 
     [JsonIgnore]
-    public IRule? Condition { get; set; }
+    public IntentDefinition? IntentDefinition { get; set; }
 
     // Used in intents.json only
     public bool Expand { get; set; } = false;
@@ -87,7 +87,7 @@ public record class IconGroup(
     string? RelativeTo = null) : IRelativeToPosition;
 
 public record class Label(
-    float X = 0, 
+    float X = 0,
     float Y = 0,
     string Text = "",
     string Align = "left",
