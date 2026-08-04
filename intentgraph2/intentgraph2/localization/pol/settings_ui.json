@@ -5,6 +5,7 @@
     "INTENTGRAPH2-TOGGLE_INTENT_GRAPH_KEY.title": "Przelacz graf intencji",
     "INTENTGRAPH2-DISPLAY.title": "Wyswietlanie",
     "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title": "Pokaz nazwy ruchow potwora (wymaga ponownego uruchomienia walki)",
+    "INTENTGRAPH2-SHOW_MOVE_DETAIL.title": "Pokaż szczegóły ruchu (wymaga ponownego uruchomienia walki)",
     "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "Uzyj animowanej ikony",
     "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "Pokaz biezacy ruch",
     "INTENTGRAPH2-CONTROL.title": "Sterowanie",

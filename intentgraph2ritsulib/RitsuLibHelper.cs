@@ -59,6 +59,17 @@ public class RitsuLibHelper : IRitsuLibHelper
                 settings.NotifyUpdated(nameof(IntentGraphModConfig.UseAnimatedIntentIcon));
             });
 
+        var showMoveDetail = new ModSettingsValueBinding<IntentGraphModConfig, bool>(
+            IntentGraphMod.ModId,
+            SettingKey,
+            SaveScope.Global,
+            settings => settings.ShowMoveDetail,
+            (settings, value) =>
+            {
+                settings.ShowMoveDetail = value;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.ShowMoveDetail));
+            });
+
         var showCurrentMove = new ModSettingsValueBinding<IntentGraphModConfig, bool>(
             IntentGraphMod.ModId,
             SettingKey,
@@ -115,6 +126,10 @@ public class RitsuLibHelper : IRitsuLibHelper
                     "show_monster_move_names",
                     ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title", "Show Monster Move Names"),
                     showMonsterMoveNames);
+                section.AddToggle(
+                    "show_move_detail",
+                    ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-SHOW_MOVE_DETAIL.title", "Show Move Detail"),
+                    showMoveDetail);
                 section.AddToggle(
                     "use_animated_intent_icon",
                     ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title", "Use Animated Intent Icon"),

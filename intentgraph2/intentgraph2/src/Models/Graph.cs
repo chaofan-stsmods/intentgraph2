@@ -76,7 +76,17 @@ public record class Icon(
     string ValueText = "",
     string TimesText = "",
     // Only works in graph patch
-    string? RelativeTo = null) : IRelativeToPosition;
+    string? RelativeTo = null,
+    // Generated action-content icons only
+    string ImageResourcePath = "",
+    MoveDetailIconType MoveDetailType = MoveDetailIconType.None) : IRelativeToPosition;
+
+public enum MoveDetailIconType
+{
+    None,
+    Power,
+    Status,
+}
 
 public record class IconGroup(
     float X = 0,

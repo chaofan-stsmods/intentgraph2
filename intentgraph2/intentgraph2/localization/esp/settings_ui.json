@@ -5,6 +5,7 @@
     "INTENTGRAPH2-TOGGLE_INTENT_GRAPH_KEY.title": "Alternar grafo de intenciones",
     "INTENTGRAPH2-DISPLAY.title": "Visualizacion",
     "INTENTGRAPH2-SHOW_MONSTER_MOVE_NAMES.title": "Mostrar nombres de movimientos del monstruo (requiere reiniciar el combate)",
+    "INTENTGRAPH2-SHOW_MOVE_DETAIL.title": "Mostrar detalles del movimiento (requiere reiniciar el combate)",
     "INTENTGRAPH2-USE_ANIMATED_INTENT_ICON.title": "Usar icono animado",
     "INTENTGRAPH2-SHOW_CURRENT_MOVE.title": "Mostrar movimiento actual",
     "INTENTGRAPH2-CONTROL.title": "Control",

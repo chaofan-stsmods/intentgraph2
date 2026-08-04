@@ -9,6 +9,7 @@ using MegaCrit.Sts2.Core.TestSupport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using static IntentGraph2.Scenes.NIntentGraph;
 
@@ -297,10 +298,13 @@ public partial class NIntentGraphCanvas : Control
 
     private void DrawIcon(Icon icon)
     {
-        DrawIconIntent(icon);
+        if (icon.MoveDetailType == MoveDetailIconType.None || !TryDrawDetailedIconIntent(icon))
+        {
+            DrawNormalIconIntent(icon);
+        }
 
         var text = string.Empty;
-        var valueText = !string.IsNullOrEmpty(icon.ValueText) ? icon.ValueText.Replace("{}", icon.Value?.ToString()) : (icon.Value?.ToString() ?? string.Empty);
+        var valueText = !string.IsNullOrEmpty(icon.ValueText) ? icon.ValueText : (icon.Value?.ToString() ?? string.Empty);
         if (!string.IsNullOrEmpty(valueText))
         {
             if (icon.Times <= 1 && string.IsNullOrEmpty(icon.TimesText))
@@ -309,7 +313,7 @@ public partial class NIntentGraphCanvas : Control
             }
             else
             {
-                var timesText = !string.IsNullOrEmpty(icon.TimesText) ? icon.TimesText.Replace("{}", icon.Times.ToString()) : icon.Times.ToString();
+                var timesText = !string.IsNullOrEmpty(icon.TimesText) ? icon.TimesText : icon.Times.ToString();
                 text = $"{valueText}x{timesText}";
             }
         }
@@ -322,7 +326,21 @@ public partial class NIntentGraphCanvas : Control
         }
     }
 
-    private void DrawIconIntent(Icon icon)
+    private void DrawNormalIconIntent(Icon icon)
+    {
+        if (icon.IntentType == IntentType.Attack)
+        {
+            var texture = GetIconTexture(icon);
+            DrawTextureRect(texture, new Rect2(icon.X * GridSize + 4, icon.Y * GridSize + 4, 72, 72), false);
+        }
+        else
+        {
+            var texture = GetIconTexture(icon);
+            DrawTextureRect(texture, new Rect2(icon.X * GridSize + 4, icon.Y * GridSize, 72, 72), false);
+        }
+    }
+
+    private Texture2D GetIconTexture(Icon icon)
     {
         if (icon.IntentType == IntentType.Attack)
         {
@@ -342,7 +360,7 @@ public partial class NIntentGraphCanvas : Control
                 texture = intentTextures[textureKey] = ResourceLoader.Load<Texture2D>($"res://images/packed/intents/attack/intent_attack_{imageIndex}.png");
             }
 
-            DrawTextureRect(texture, new Rect2(icon.X * GridSize + 4, icon.Y * GridSize + 4, 72, 72), false);
+            return texture;
         }
         else
         {
@@ -352,11 +370,80 @@ public partial class NIntentGraphCanvas : Control
                 texture = intentTextures[icon.IntentType.ToString()] = ResourceLoader.Load<Texture2D>(IntentImageResourcePath[icon.IntentType]);
             }
 
-            DrawTextureRect(texture, new Rect2(icon.X * GridSize + 4, icon.Y * GridSize, 72, 72), false);
+            return texture;
         }
     }
 
-    private bool TryGetAnimatedIntentTexture(IntentType intentType, out Texture2D? texture)
+    private void DrawOriginalIntentBadge(Icon icon)
+    {
+        const float originalIntentIconSize = 72f;
+        const float badgeScale = 0.5f;
+        const float badgeMargin = 8f;
+        var badgeSize = originalIntentIconSize * badgeScale;
+        var texture = GetIconTexture(icon);
+        var destination = new Rect2(
+            icon.X * GridSize + GridSize - badgeSize - badgeMargin,
+            icon.Y * GridSize + GridSize - badgeSize - badgeMargin,
+            badgeSize,
+            badgeSize);
+        DrawTextureRect(texture, destination, false);
+    }
+
+    private bool TryDrawDetailedIconIntent(Icon icon)
+    {
+        if (string.IsNullOrEmpty(icon.ImageResourcePath))
+        {
+            return false;
+        }
+
+        const float originalContentIconSize = 68f;
+        const float contentImageScale = 0.65f;
+        var contentIconSize = originalContentIconSize * contentImageScale;
+        var contentIconOffset = (GridSize - contentIconSize) / 2;
+        var destination = new Rect2(
+            icon.X * GridSize + contentIconOffset,
+            icon.Y * GridSize + contentIconOffset,
+            contentIconSize,
+            contentIconSize);
+
+        var textureKey = "resource:" + icon.ImageResourcePath;
+        if (!intentTextures.TryGetValue(textureKey, out var texture))
+        {
+            texture = intentTextures[textureKey] = ResourceLoader.Load<Texture2D>(icon.ImageResourcePath);
+        }
+
+        if (icon.MoveDetailType == MoveDetailIconType.Status)
+        {
+            DrawTextureCover(texture, destination);
+        }
+        else
+        {
+            DrawTextureRect(texture, destination, false);
+        }
+
+        DrawOriginalIntentBadge(icon);
+        return true;
+    }
+
+    private void DrawTextureCover(Texture2D texture, Rect2 destination)
+    {
+        var textureSize = texture.GetSize();
+        if (textureSize.X <= 0 || textureSize.Y <= 0)
+        {
+            DrawTextureRect(texture, destination, false);
+            return;
+        }
+
+        var side = Math.Min(textureSize.X, textureSize.Y);
+        var source = new Rect2(
+            (textureSize.X - side) / 2,
+            (textureSize.Y - side) / 2,
+            side,
+            side);
+        DrawTextureRectRegion(texture, destination, source);
+    }
+
+    private bool TryGetAnimatedIntentTexture(IntentType intentType, [NotNullWhen(true)] out Texture2D? texture)
     {
         texture = null;
 

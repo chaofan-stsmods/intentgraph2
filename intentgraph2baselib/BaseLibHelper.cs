@@ -35,6 +35,16 @@ public class HelperModConfig : SimpleModConfig
         }
     }
 
+    public static bool ShowMoveDetail
+    {
+        get => BaseConfig.ShowMoveDetail;
+        set
+        {
+            BaseConfig.ShowMoveDetail = value;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.ShowMoveDetail));
+        }
+    }
+
     public static bool UseAnimatedIntentIcon
     {
         get => BaseConfig.UseAnimatedIntentIcon;

@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Monsters;
+using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 using MegaCrit.Sts2.Core.Random;
 using System;
 using System.Collections.Generic;
@@ -164,7 +165,7 @@ public class IntentGraphGenerator
         return graph;
     }
 
-    public static IntentDefinition? GetIntentDefinition(MonsterModel monster, VariableContext variableContext)
+    internal static IntentDefinition? GetIntentDefinition(MonsterModel monster, VariableContext variableContext)
     {
         var intentDefinitionList = IntentGraphMod.IntentDefinitions.GetValueOrDefault(monster.GetType().FullName ?? string.Empty);
         if (intentDefinitionList != null)
@@ -173,6 +174,11 @@ public class IntentGraphGenerator
         }
 
         return null;
+    }
+
+    internal static float GetMoveWidth(int iconCount)
+    {
+        return iconCount == 0 ? 0 : iconCount + (iconCount - 1) * IconPaddingInMove;
     }
 
     private static MonsterModel? MonsterSpecificInitialize(MonsterModel monsterModel)

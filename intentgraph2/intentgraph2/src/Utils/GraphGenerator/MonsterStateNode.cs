@@ -18,6 +18,7 @@ internal class MonsterStateNode
     public bool HorizontalLayout { get; set; } // Whether child nodes are arranged horizontally.
     public MonsterStateNodeLabel? Label { get; set; } // When it's a child
     public MonsterState? State { get; set; }
+    public List<ResolvedIntentIcon>? ResolvedIntentIcons { get; set; }
     public MonsterStateNode? NextState { get; set; }
     public List<string> MoveStateIds { get; set; } = new(); // Include children's, MoveState only.
     public bool IsInitialState { get; set; }

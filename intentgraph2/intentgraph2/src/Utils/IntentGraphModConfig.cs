@@ -9,6 +9,8 @@ public class IntentGraphModConfig
 
     public bool ShowMonsterMoveNames { get; set; } = true;
 
+    public bool ShowMoveDetail { get; set; } = false;
+
     public bool UseAnimatedIntentIcon { get; set; } = true;
 
     public bool ShowCurrentMove { get; set; } = true;
@@ -30,6 +32,7 @@ public class IntentGraphModConfig
     {
         ToggleIntentGraphKey = config.ToggleIntentGraphKey;
         ShowMonsterMoveNames = config.ShowMonsterMoveNames;
+        ShowMoveDetail = config.ShowMoveDetail;
         UseAnimatedIntentIcon = config.UseAnimatedIntentIcon;
         ShowCurrentMove = config.ShowCurrentMove;
         PinableIntentGraph = config.PinableIntentGraph;

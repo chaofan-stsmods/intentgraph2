@@ -64,7 +64,9 @@ internal class IntentGraphLayouter
             if (state != null && state is MoveState moveState)
             {
                 var (x, y) = ResolveRelative(move, allStateNodes);
+                var resolvedIntents = MoveDetailResolver.ResolveIntentIcons(moveState);
                 AddMove(moveState,
+                    resolvedIntents,
                     new HashSet<string>([move.Id, .. move.Ids ?? []]).ToArray(),
                     result,
                     x, y,
@@ -268,13 +270,15 @@ internal class IntentGraphLayouter
             replacement = fullIdReplacement;
         }
         var intentOverrides = replacement?.IntentOverrides;
-        var move = AddMove(moveState, node.MoveStateIds.ToArray(), graph, x, y, intentOverrides, possiblePreviousMoveIndices: null, subGraph);
+        var resolvedIntents = node.ResolvedIntentIcons ?? MoveDetailResolver.ResolveIntentIcons(moveState);
+        var move = AddMove(moveState, resolvedIntents, node.MoveStateIds.ToArray(), graph, x, y, intentOverrides, possiblePreviousMoveIndices: null, subGraph);
         context.StateNodeToMove[node] = move;
         context.MoveToStateNode[move] = node;
     }
 
     private Move AddMove(
         MoveState moveState,
+        List<ResolvedIntentIcon> resolvedIntents,
         string[] ids,
         Graph graph,
         float x,
@@ -283,17 +287,34 @@ internal class IntentGraphLayouter
         int?[]? possiblePreviousMoveIndices,
         SubGraph? subGraph)
     {
-        var intents = moveState.Intents;
-        var icons = new Icon[intents.Count];
-        for (int i = 0; i < intents.Count; i++)
+        var icons = new Icon[resolvedIntents.Count];
+        for (int i = 0; i < resolvedIntents.Count; i++)
         {
-            var intent = intents[i];
-            var intentOverride = i < intentOverrides?.Length ? intentOverrides[i] : null;
-            if (intent is AttackIntent attackIntent)
+            var resolvedIntent = resolvedIntents[i];
+            var intent = resolvedIntent.Intent;
+            var intentOverride = resolvedIntent.OriginalIntentIndex < intentOverrides?.Length
+                ? intentOverrides[resolvedIntent.OriginalIntentIndex]
+                : null;
+            var iconX = i * (1 + IconPaddingInMove) + x;
+            if (resolvedIntent.MoveDetailType != MoveDetailIconType.None)
+            {
+                var value = resolvedIntent.Value;
+                icons[i] = new Icon(
+                    iconX,
+                    y,
+                    intent.IntentType,
+                    value,
+                    ValueText: intent is StatusIntent
+                        ? GetLocalizedValueText(intentOverride?.ValueText, value ?? 0)
+                        : string.Empty,
+                    ImageResourcePath: resolvedIntent.ImageResourcePath,
+                    MoveDetailType: resolvedIntent.MoveDetailType);
+            }
+            else if (intent is AttackIntent attackIntent)
             {
                 var value = (int?)attackIntent.DamageCalc?.Invoke();
                 var times = attackIntent.Repeats;
-                icons[i] = new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType,
+                icons[i] = new Icon(iconX, y, intent.IntentType,
                     value, times,
                     GetLocalizedValueText(intentOverride?.ValueText, value ?? 0),
                     GetLocalizedValueText(intentOverride?.TimesText, times));
@@ -301,12 +322,12 @@ internal class IntentGraphLayouter
             else if (intent is StatusIntent statusIntent)
             {
                 var value = statusIntent.CardCount;
-                icons[i] = new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType, value,
+                icons[i] = new Icon(iconX, y, intent.IntentType, value,
                     ValueText: GetLocalizedValueText(intentOverride?.ValueText, value));
             }
             else
             {
-                icons[i] = new Icon(i * (1 + IconPaddingInMove) + x, y, intent.IntentType);
+                icons[i] = new Icon(iconX, y, intent.IntentType);
             }
         }
 
@@ -319,7 +340,7 @@ internal class IntentGraphLayouter
 
         if (ShowMonsterMoveNames && icons.Length > 0)
         {
-            AddMoveName(moveState, graph, x, y, subGraph);
+            AddMoveName(moveState, graph, x, y, GetMoveWidth(resolvedIntents.Count), subGraph);
         }
 
         return move;
@@ -337,14 +358,13 @@ internal class IntentGraphLayouter
         return text;
     }
 
-    private void AddMoveName(MoveState moveState, Graph graph, float x, float y, SubGraph? subGraph)
+    private void AddMoveName(MoveState moveState, Graph graph, float x, float y, float moveWidth, SubGraph? subGraph)
     {
         var title = localizer.GetMoveName(this.monster, moveState.Id);
 
         if (title != null)
         {
-            var width = moveState.Intents.Count + (moveState.Intents.Count - 1) * IconPaddingInMove;
-            var label = new Models.Label(x + width / 2, y + 0.2f, title, Align: "center", FontSize: 15);
+            var label = new Models.Label(x + moveWidth / 2, y + 0.2f, title, Align: "center", FontSize: 15);
             graph.Labels.Add(label);
             if (subGraph != null)
             {

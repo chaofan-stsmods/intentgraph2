@@ -18,6 +18,7 @@ internal class MonsterStateNodeConverter
     private const string OtherwiseMark = "{" + Otherwise + "}";
 
     private readonly IntentGraphLocalizer localizer;
+    private readonly Dictionary<MoveState, List<ResolvedIntentIcon>> resolvedIntentsByMoveState = new();
 
     public MonsterStateNodeConverter(IntentGraphLocalizer localizer)
     {
@@ -154,11 +155,13 @@ internal class MonsterStateNodeConverter
             MonsterStateNode result;
             if (state != null)
             {
+                var resolvedIntentIcons = GetResolvedIntentIcons(state);
                 result = new MonsterStateNode
                 {
                     Id = node.Name,
                     State = state,
-                    Width = state.Intents.Count + (state.Intents.Count - 1) * IconPaddingInMove,
+                    ResolvedIntentIcons = resolvedIntentIcons,
+                    Width = GetMoveWidth(resolvedIntentIcons.Count),
                     Height = 1,
                     NextStateCount = 1,
                     Parent = parent,
@@ -178,7 +181,7 @@ internal class MonsterStateNodeConverter
                 {
                     Id = node.Name,
                     State = null,
-                    Width = node.PlaceholderIntentCount + (node.PlaceholderIntentCount - 1) * IconPaddingInMove,
+                    Width = GetMoveWidth(node.PlaceholderIntentCount),
                     Height = 1,
                     NextStateCount = 1,
                     Parent = parent,
@@ -261,6 +264,17 @@ internal class MonsterStateNodeConverter
         }
     }
 
+    private List<ResolvedIntentIcon> GetResolvedIntentIcons(MoveState moveState)
+    {
+        if (!resolvedIntentsByMoveState.TryGetValue(moveState, out var resolvedIntents))
+        {
+            resolvedIntents = MoveDetailResolver.ResolveIntentIcons(moveState);
+            resolvedIntentsByMoveState[moveState] = resolvedIntents;
+        }
+
+        return resolvedIntents;
+    }
+
     [return: NotNullIfNotNull(nameof(state))]
     private MonsterStateNode? MonsterStateToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState? state, Dictionary<MonsterState, MonsterStateNode> existingNodes, MonsterStateNode? parent, ref string? warning)
     {
@@ -276,11 +290,13 @@ internal class MonsterStateNodeConverter
 
         if (state is MoveState moveState)
         {
+            var resolvedIntentIcons = GetResolvedIntentIcons(moveState);
             var result = new MonsterStateNode
             {
                 Id = state.Id,
                 State = state,
-                Width = moveState.Intents.Count + (moveState.Intents.Count - 1) * IconPaddingInMove,
+                ResolvedIntentIcons = resolvedIntentIcons,
+                Width = GetMoveWidth(resolvedIntentIcons.Count),
                 Height = 1,
                 NextStateCount = 1,
                 Parent = parent,
