@@ -1,6 +1,6 @@
 using IntentGraph2.Utils;
 using IntentGraph2.Utils.JsonConverters;
-using IntentGraph2.Utils.Rule;
+using IntentGraph2.Utils.Expression;
 using IntentGraph2.Utils.Variable;
 using System;
 using System.Collections.Generic;
@@ -11,21 +11,21 @@ namespace IntentGraph2.Models;
 
 public class IntentDefinitionList : List<IntentDefinition>
 {
-    public IntentDefinition? FindFirstMatchIntentDefinition(VariableContext ruleContext)
+    public IntentDefinition? FindFirstMatchIntentDefinition(VariableContext expressionContext)
     {
         foreach (var def in this.Reverse<IntentDefinition>())
         {
             try
             {
-                var rule = IRule.Parse(def.Condition, ruleContext);
-                if (rule?.GetBool() == true)
+                var expression = IExpression.Parse(def.Condition, expressionContext);
+                if (expression?.GetBool() == true)
                 {
                     return def;
                 }
             }
             catch (Exception ex)
             {
-                IgLogger.Warn($"Error parsing condition '{def.Condition}' for monster '{ruleContext.Monster.Id}': {ex.Message}");
+                IgLogger.Warn($"Error parsing condition '{def.Condition}' for monster '{expressionContext.Monster.Id}': {ex.Message}");
             }
         }
 

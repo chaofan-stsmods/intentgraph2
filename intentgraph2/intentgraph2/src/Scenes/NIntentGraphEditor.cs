@@ -2,7 +2,7 @@ using Godot;
 using IntentGraph2.Utils.GraphGenerator;
 using IntentGraph2.Models;
 using IntentGraph2.Utils;
-using IntentGraph2.Utils.Rule;
+using IntentGraph2.Utils.Expression;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
@@ -923,7 +923,7 @@ public partial class NIntentGraphEditor : Control
 
         var source = IntentDefinitionEditorService.Clone(draftDefinitions[selectedVariantIndex]) ?? new IntentDefinition();
         source.Condition = NormalizeConditionText(conditionEdit?.Text);
-        source.UpToDateCondition = NormalizeOptionalRuleText(upToDateConditionEdit?.Text);
+        source.UpToDateCondition = NormalizeOptionalExpressionText(upToDateConditionEdit?.Text);
 
         if (!TryParsePositionComponent(offsetXEdit?.Text, LocalizeText("ui.editor.field.offset_x", "offsetX"), out var offsetX, out error))
         {
@@ -960,7 +960,7 @@ public partial class NIntentGraphEditor : Control
         source.MoveReplacements = moveReplacements;
         source.GraphPatch = NormalizeGraphPatch(graphPatch);
         source.Offset = new Position(offsetX, offsetY);
-        if (validateCondition && !ValidateVariantRuleExpressions(source, out error))
+        if (validateCondition && !ValidateVariantExpressions(source, out error))
         {
             return false;
         }
@@ -984,7 +984,7 @@ public partial class NIntentGraphEditor : Control
     {
         for (int i = 0; i < draftDefinitions.Count; i++)
         {
-            if (!ValidateVariantRuleExpressions(draftDefinitions[i], out error))
+            if (!ValidateVariantExpressions(draftDefinitions[i], out error))
             {
                 error = $"Variant #{i + 1}: {error}";
                 return false;
@@ -995,7 +995,7 @@ public partial class NIntentGraphEditor : Control
         return true;
     }
 
-    private bool ValidateVariantRuleExpressions(IntentDefinition definition, out string error)
+    private bool ValidateVariantExpressions(IntentDefinition definition, out string error)
     {
         if (!ValidateCondition(definition.Condition, out error))
         {
@@ -1014,22 +1014,22 @@ public partial class NIntentGraphEditor : Control
 
     private bool ValidateCondition(string condition, out string error)
     {
-        return ValidateRuleExpression(NormalizeConditionText(condition), LocalizeText("ui.editor.field.condition", "condition"), out error);
+        return ValidateExpression(NormalizeConditionText(condition), LocalizeText("ui.editor.field.condition", "condition"), out error);
     }
 
     private bool ValidateUpToDateCondition(string? condition, out string error)
     {
-        var normalizedCondition = NormalizeOptionalRuleText(condition);
+        var normalizedCondition = NormalizeOptionalExpressionText(condition);
         if (normalizedCondition == null)
         {
             error = string.Empty;
             return true;
         }
 
-        return ValidateRuleExpression(normalizedCondition, LocalizeText("ui.editor.field.up_to_date_condition", "upToDateCondition"), out error);
+        return ValidateExpression(normalizedCondition, LocalizeText("ui.editor.field.up_to_date_condition", "upToDateCondition"), out error);
     }
 
-    private bool ValidateRuleExpression(string condition, string fieldName, out string error)
+    private bool ValidateExpression(string condition, string fieldName, out string error)
     {
         error = string.Empty;
         if (monster == null)
@@ -1039,7 +1039,7 @@ public partial class NIntentGraphEditor : Control
 
         try
         {
-            if (IRule.Parse(condition, new VariableContext(monster)) == null)
+            if (IExpression.Parse(condition, new VariableContext(monster)) == null)
             {
                 error = LocalizeText("ui.editor.rule.parse_error", "{0} could not be parsed.", fieldName);
                 return false;
@@ -1357,7 +1357,7 @@ public partial class NIntentGraphEditor : Control
 
     private static string NormalizeConditionText(string? condition)
     {
-        return NormalizeOptionalRuleText(condition) ?? "true";
+        return NormalizeOptionalExpressionText(condition) ?? "true";
     }
 
     private static string FormatPositionComponent(float value)
@@ -1365,7 +1365,7 @@ public partial class NIntentGraphEditor : Control
         return value == 0f ? string.Empty : value.ToString(CultureInfo.InvariantCulture);
     }
 
-    private static string? NormalizeOptionalRuleText(string? condition)
+    private static string? NormalizeOptionalExpressionText(string? condition)
     {
         return string.IsNullOrWhiteSpace(condition) ? null : condition.Trim();
     }

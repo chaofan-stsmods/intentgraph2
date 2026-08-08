@@ -1,4 +1,5 @@
 using IntentGraph2.Models;
+using IntentGraph2.Utils.Expression;
 using IntentGraph2.Utils.Variable;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
@@ -62,11 +63,17 @@ internal class IntentGraphLocalizer
                 }
             }
 
+            var expression = IExpression.Parse(variableName, variableContext);
+            if (expression == null)
+            {
+                return string.Empty;
+            }
+
             return variableType switch
             {
-                "int" => variableContext.GetIntVariable(variableName).ToString(),
-                "bool" => variableContext.GetBoolVariable(variableName).ToString(),
-                _ => variableContext.GetStringVariable(variableName),
+                "int" => expression.GetInt().ToString(),
+                "bool" => expression.GetBool().ToString(),
+                _ => expression.GetString(),
             };
         });
     }

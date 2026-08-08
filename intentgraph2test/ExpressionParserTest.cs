@@ -1,9 +1,9 @@
-﻿using IntentGraph2.Utils.Rule;
+﻿using IntentGraph2.Utils.Expression;
 using IntentGraph2.Utils.Variable;
 
 namespace IntentGraph2.Test;
 
-public class RuleParserTest
+public class ExpressionParserTest
 {
     [Theory]
     [InlineData("true", true)]
@@ -15,12 +15,12 @@ public class RuleParserTest
     [InlineData("1 == 1", true)]
     public void Parse(string condition, bool expectedResult)
     {
-        var rule = IRule.Parse(condition, new MockRuleContext());
-        Assert.NotNull(rule);
-        Assert.Equal(expectedResult, rule.GetBool());
+        var expression = IExpression.Parse(condition, new MockExpressionContext());
+        Assert.NotNull(expression);
+        Assert.Equal(expectedResult, expression.GetBool());
     }
 
-    private class MockRuleContext : IVariableContext
+    private class MockExpressionContext : IVariableContext
     {
         public int GetIntVariable(string variableName)
         {
@@ -35,6 +35,11 @@ public class RuleParserTest
         public string GetStringVariable(string variableName)
         {
             return "mock";
+        }
+
+        public Type? GetVariableType(string variableName)
+        {
+            return typeof(string);
         }
     }
 }

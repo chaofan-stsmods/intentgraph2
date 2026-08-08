@@ -1,4 +1,4 @@
-grammar Rule;
+grammar Expression;
 prog:   expr EOF ;
 expr:   '!' expr
     |   expr ('>'|'<'|'>='|'<='|'=='|'!=') expr

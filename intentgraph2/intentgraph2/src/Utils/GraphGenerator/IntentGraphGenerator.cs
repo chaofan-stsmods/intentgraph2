@@ -1,6 +1,6 @@
 using Godot;
 using IntentGraph2.Models;
-using IntentGraph2.Utils.Rule;
+using IntentGraph2.Utils.Expression;
 using IntentGraph2.Utils.Variable;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;
@@ -104,8 +104,8 @@ public class IntentGraphGenerator
         {
             try
             {
-                var rule = RuleParserHelper.Parse(intentDefinition.UpToDateCondition, variableContext);
-                if (rule?.GetBool() == false)
+                var expression = ExpressionParserHelper.Parse(intentDefinition.UpToDateCondition, variableContext);
+                if (expression?.GetBool() == false)
                 {
                     warning = localizer.GetOrElse("ui.Outdated", "Outdated");
                 }

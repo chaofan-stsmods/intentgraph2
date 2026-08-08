@@ -140,4 +140,65 @@ public class VariableContext : IVariableContext
             return null;
         }
     }
+
+    public Type? GetVariableType(string variableName)
+    {
+        try
+        {
+            if (variableName.StartsWith("m."))
+            {
+                var fieldName = variableName.Substring(2);
+                var monsterType = Traverse.Create(Monster);
+                return monsterType.Property(fieldName).GetValueType() ?? monsterType.Field(fieldName).GetValueType();
+            }
+
+            // For outdate check
+            if (variableName.StartsWith("mm.") && Monster.MoveStateMachine != null)
+            {
+                var stateMachine = Monster.MoveStateMachine;
+                var fieldName = variableName.Substring(3);
+                if (fieldName == "count")
+                {
+                    return typeof(int);
+                }
+                else if (fieldName.StartsWith("hasMove_"))
+                {
+                    return typeof(bool);
+                }
+                else if (fieldName.StartsWith("startsWith_"))
+                {
+                    return typeof(bool);
+                }
+                else if (fieldName.StartsWith("nextMoveOf_") && fieldName.Contains("_is_"))
+                {
+                    return typeof(bool);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            if (variableName.StartsWith("slotName_is_"))
+            {
+                return typeof(bool);
+            }
+
+            return variableName switch
+            {
+                "act" => typeof(int),
+                "slotIndex" => typeof(int),
+                "ascension" => typeof(int),
+                "showMoveNames" => typeof(bool),
+                "inBestiary" => typeof(bool),
+                "showMoveDetail" => typeof(bool),
+                _ => null,
+            };
+        }
+        catch (Exception ex)
+        {
+            IgLogger.Warn($"Error getting object variable '{variableName}': {ex}. Return null.");
+            return null;
+        }
+    }
 }

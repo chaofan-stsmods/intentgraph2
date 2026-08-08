@@ -18,7 +18,7 @@
     <InternalsVisibleTo Include="intentgraph2test" />
   </ItemGroup>
   <ItemGroup>
-    <Antlr4 Include="intentgraph2\src\Antlr\Rule.g4">
+    <Antlr4 Include="intentgraph2\src\Antlr\Expression.g4">
       <Package>IntentGraph2.Antlr</Package>
     </Antlr4>
   </ItemGroup>

@@ -1,3 +1,5 @@
+using System;
+
 namespace IntentGraph2.Utils.Variable;
 
 public interface IVariableContext
@@ -7,4 +9,6 @@ public interface IVariableContext
     bool GetBoolVariable(string variableName);
 
     string GetStringVariable(string variableName);
+
+    Type? GetVariableType(string variableName);
 }
