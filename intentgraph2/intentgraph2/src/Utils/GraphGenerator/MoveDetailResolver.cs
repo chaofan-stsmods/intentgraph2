@@ -20,9 +20,6 @@ internal static class MoveDetailResolver
 
     private static readonly FieldInfo? OnPerformField = typeof(MoveState).GetField("_onPerform", BindingFlags.Instance | BindingFlags.NonPublic);
     private static readonly ConditionalWeakTable<MoveState, List<RawMoveDetail>> RawMoveDetailCache = new();
-    private static readonly Dictionary<Type, PowerModel?> PowerModelCache = new();
-    private static readonly Dictionary<Type, CardModel?> CardModelCache = new();
-    private static readonly object ModelCacheLock = new();
 
     private static readonly OpCode[] SingleByteOpCodes = new OpCode[0x100];
     private static readonly OpCode[] MultiByteOpCodes = new OpCode[0x100];
@@ -48,11 +45,11 @@ internal static class MoveDetailResolver
         }
     }
 
-    public static List<ResolvedIntentIcon> ResolveIntentIcons(MoveState moveState)
+    public static List<ResolvedIntent> ResolveIntentIcons(MoveState moveState, IntentOverride?[]? intentOverrides)
     {
         var intents = moveState.Intents;
         var originalIcons = intents
-            .Select((intent, index) => new ResolvedIntentIcon(intent, index))
+            .Select((intent, index) => new ResolvedIntent(intent, index))
             .ToList();
 
         if (!IntentGraphMod.Config.ShowMoveDetail || intents.Count == 0)
@@ -62,17 +59,22 @@ internal static class MoveDetailResolver
 
         try
         {
+            if (intents.All(i => !IsReplaceableIntent(i.IntentType)))
+            {
+                return GenerateResolvedIntents(intents, originalIcons, intentOverrides, contentByIntent: null);
+            }
 
             var rawContents = RawMoveDetailCache.GetValue(moveState, ScanMove);
             if (rawContents.Count == 0)
             {
-                return originalIcons;
+                return GenerateResolvedIntents(intents, originalIcons, intentOverrides, contentByIntent: null);
             }
 
             var contentByIntent = new Dictionary<int, List<RawMoveDetail>>();
             var powerIntentIndices = Enumerable.Range(0, intents.Count)
                 .Where(i => IsPowerIntent(intents[i].IntentType))
                 .ToList();
+
             AssignPowers(
                 rawContents.Where(content => content.Type == MoveDetailIconType.Power).ToList(),
                 powerIntentIndices,
@@ -80,31 +82,68 @@ internal static class MoveDetailResolver
                 contentByIntent);
 
             AssignByPosition(
-                rawContents.Where(content => content.Type == MoveDetailIconType.Status).ToList(),
+                rawContents.Where(content => content.Type == MoveDetailIconType.Card).ToList(),
                 Enumerable.Range(0, intents.Count).Where(i => intents[i].IntentType == IntentType.StatusCard).ToList(),
                 contentByIntent);
 
-            var result = new List<ResolvedIntentIcon>();
-            for (var i = 0; i < intents.Count; i++)
-            {
-                if (!IsReplaceableIntent(intents[i].IntentType)
-                    || !contentByIntent.TryGetValue(i, out var contents)
-                    || contents.Count == 0)
-                {
-                    result.Add(originalIcons[i]);
-                    continue;
-                }
-
-                result.AddRange(contents.Select(content => CreateResolvedIcon(intents[i], i, content)));
-            }
-
-            return result;
+            return GenerateResolvedIntents(intents, originalIcons, intentOverrides, contentByIntent);
         }
         catch (Exception ex)
         {
             IgLogger.Warn($"Unable to resolve action contents for move '{moveState.Id}': {ex}");
             return originalIcons;
         }
+    }
+
+    private static List<ResolvedIntent> GenerateResolvedIntents(IReadOnlyList<AbstractIntent> intents, List<ResolvedIntent> originalIcons, IntentOverride?[]? intentOverrides, Dictionary<int, List<RawMoveDetail>>? contentByIntent)
+    {
+        var result = new List<ResolvedIntent>();
+        for (var i = 0; i < intents.Count; i++)
+        {
+            var intentOverride = i < intentOverrides?.Length ? intentOverrides[i] : null;
+            if (intentOverride != null && intentOverride.Details != null)
+            {
+                if (intentOverride.Details.Length > 0 && intentOverride.Details.All(d => d.Type == MoveDetailIconType.None))
+                {
+                    result.Add(originalIcons[i]);
+                    continue;
+                }
+
+                foreach (var detail in intentOverride.Details)
+                {
+                    if (detail.Id == null)
+                    {
+                        continue;
+                    }
+
+                    var modelId = detail.Type switch
+                    {
+                        MoveDetailIconType.Card => new ModelId("CARD", detail.Id),
+                        MoveDetailIconType.Power => new ModelId("POWER", detail.Id),
+                        _ => null,
+                    };
+
+                    if (modelId != null && ModelDb.GetByIdOrNull<AbstractModel>(modelId) != null)
+                    {
+                        result.Add(new ResolvedIntent(intents[i], i, modelId, detail.Value, detail.ValueText));
+                    }
+                }
+                continue;
+            }
+
+            if (contentByIntent == null ||
+                !IsReplaceableIntent(intents[i].IntentType) ||
+                !contentByIntent.TryGetValue(i, out var contents) ||
+                contents.Count == 0)
+            {
+                result.Add(originalIcons[i]);
+                continue;
+            }
+
+            result.AddRange(contents.Select(content => CreateResolvedIcon(intents[i], i, content)));
+        }
+
+        return result;
     }
 
     private static bool IsReplaceableIntent(IntentType intentType)
@@ -244,62 +283,14 @@ internal static class MoveDetailResolver
         values.Add(content);
     }
 
-    private static ResolvedIntentIcon CreateResolvedIcon(AbstractIntent intent, int intentIndex, RawMoveDetail content)
+    private static ResolvedIntent CreateResolvedIcon(AbstractIntent intent, int intentIndex, RawMoveDetail content)
     {
-        return content.Type switch
-        {
-            MoveDetailIconType.Power => new ResolvedIntentIcon(
-                intent,
-                intentIndex,
-                GetPowerModel(content.ModelType)?.IconPath ?? string.Empty,
-                MoveDetailIconType.Power,
-                content.Amount),
-            MoveDetailIconType.Status => new ResolvedIntentIcon(
-                intent,
-                intentIndex,
-                GetCardModel(content.ModelType)?.PortraitPath ?? string.Empty,
-                MoveDetailIconType.Status,
-                intent is StatusIntent statusIntent ? statusIntent.CardCount : content.Amount),
-            _ => new ResolvedIntentIcon(intent, intentIndex),
-        };
+        return new ResolvedIntent(intent, intentIndex, ModelDb.GetId(content.ModelType), content.Amount);
     }
 
     private static PowerModel? GetPowerModel(Type powerType)
     {
-        lock (ModelCacheLock)
-        {
-            if (!PowerModelCache.TryGetValue(powerType, out var power))
-            {
-                try
-                {
-                    power = ModelDb.DebugPower(powerType);
-                }
-                catch
-                {
-                }
-                PowerModelCache[powerType] = power;
-            }
-            return power;
-        }
-    }
-
-    private static CardModel? GetCardModel(Type cardType)
-    {
-        lock (ModelCacheLock)
-        {
-            if (!CardModelCache.TryGetValue(cardType, out var card))
-            {
-                try
-                {
-                    card = ModelDb.GetByIdOrNull<CardModel>(ModelDb.GetId(cardType));
-                }
-                catch
-                {
-                }
-                CardModelCache[cardType] = card;
-            }
-            return card;
-        }
+        return ModelDb.GetByIdOrNull<PowerModel>(ModelDb.GetId(powerType));
     }
 
     private static List<RawMoveDetail> ScanMove(MoveState moveState)
@@ -373,10 +364,11 @@ internal static class MoveDetailResolver
                     var genericArguments = calledMethod.GetGenericArguments();
                     if (genericArguments.Length > 0)
                     {
+                        var powerModel = GetPowerModel(genericArguments[0]);
                         destination.Add(new RawMoveDetail(
                             MoveDetailIconType.Power,
                             genericArguments[0],
-                            ScanDecimalAmountBefore(instructions, i, evaluationTarget)));
+                            powerModel?.StackType == PowerStackType.Counter ? ScanDecimalAmountBefore(instructions, i, evaluationTarget) : null));
                     }
                 }
                 else
@@ -390,10 +382,11 @@ internal static class MoveDetailResolver
                             continue;
                         }
 
+                        var powerModel = GetPowerModel(candidate.type);
                         destination.Add(new RawMoveDetail(
                             MoveDetailIconType.Power,
                             candidate.type,
-                            ScanDecimalAmountBefore(instructions, i, evaluationTarget)));
+                            powerModel?.StackType == PowerStackType.Counter ? ScanDecimalAmountBefore(instructions, i, evaluationTarget) : null));
                         powerCandidates[candidateIndex] = (candidate.type, true);
                         break;
                     }
@@ -409,9 +402,9 @@ internal static class MoveDetailResolver
                 if (genericArguments.Length > 0)
                 {
                     destination.Add(new RawMoveDetail(
-                        MoveDetailIconType.Status,
+                        MoveDetailIconType.Card,
                         genericArguments[0],
-                        ScanIntBefore(instructions, i)));
+                        null)); // no need to scan for amount, as the intent meta has amount
                 }
                 continue;
             }
@@ -847,10 +840,3 @@ internal static class MoveDetailResolver
     private sealed record RawMoveDetail(MoveDetailIconType Type, Type ModelType, int? Amount);
     private sealed record IlInstruction(int Offset, OpCode OpCode, object? Operand);
 }
-
-internal sealed record ResolvedIntentIcon(
-    AbstractIntent Intent,
-    int OriginalIntentIndex,
-    string ImageResourcePath = "",
-    MoveDetailIconType MoveDetailType = MoveDetailIconType.None,
-    int? Value = null);

@@ -29,6 +29,77 @@
                     }
                 ]
             }
+        },
+        {
+            "condition": "showMoveDetail",
+            "upToDateCondition": "mm.hasMove_MULTI_CLAW_MOVE && mm.hasMove_RESPAWN_MOVE && mm.nextMoveOf_RESPAWN_MOVE_is_REVIVE_BRANCH",
+            "graphPatch": {
+                "labels": [
+                    {
+                        "x": 3.7,
+                        "y": 1.85,
+                        "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE"
+                    }
+                ]
+            },
+            "stateMachine": [
+                {
+                    "name": "BITE_MOVE",
+                    "isInitialState": true,
+                    "followUpState": "SKULL_BASH_MOVE"
+                },
+                {
+                    "name": "SKULL_BASH_MOVE",
+                    "followUpState": "BITE_MOVE"
+                },
+                {
+                    "name": "RESPAWN_MOVE1",
+                    "moveName": "RESPAWN_MOVE",
+                    "isInitialState": true,
+                    "followUpState": "MULTI_CLAW_MOVE"
+                },
+                {
+                    "name": "MULTI_CLAW_MOVE",
+                    "followUpState": "MULTI_CLAW_MOVE"
+                },
+                {
+                    "name": "RESPAWN_MOVE2",
+                    "moveName": "RESPAWN_MOVE",
+                    "isInitialState": true,
+                    "followUpState": "PHASE3_LACERATE_MOVE"
+                },
+                {
+                    "name": "PHASE3_LACERATE_MOVE",
+                    "followUpState": "BIG_POUNCE"
+                },
+                {
+                    "name": "BIG_POUNCE",
+                    "followUpState": "BURNING_GROWL_MOVE"
+                },
+                {
+                    "name": "BURNING_GROWL_MOVE",
+                    "followUpState": "PHASE3_LACERATE_MOVE"
+                }
+            ],
+            "moveReplacements": {
+                "MULTI_CLAW_MOVE": [
+                    {
+                        "timesText": "T"
+                    }
+                ],
+                "/RESPAWN_MOVE1": [
+                    null,
+                    {
+                        "details": [{ "type": "power", "id": "PAINFUL_STABS_POWER", "value": 1 }]
+                    }
+                ],
+                "/RESPAWN_MOVE2": [
+                    null,
+                    {
+                        "details": [{ "type": "power", "id": "NEMESIS_POWER" }]
+                    }
+                ]
+            }
         }
     ],
     "MegaCrit.Sts2.Core.Models.Monsters.TerrorEel": [
@@ -84,6 +155,129 @@
             "condition": "inBestiary && slotName_is_phrog",
             "__comment": "Use empty stateMachine to hide in the bestiary",
             "stateMachine": []
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.ShrinkerBeetle": [
+        {
+            "moveReplacements": {
+                "SHRINKER_MOVE": [
+                    {
+                        "details": [{ "type": "power", "id": "SHRINK_POWER" }]
+                    }
+                ]
+            }
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.SoulFysh": [
+        {
+            "moveReplacements": {
+                "BECKON_MOVE": [
+                    {
+                        "details": [{ "type": "card", "id": "BECKON" }]
+                    }
+                ],
+                "GAZE_MOVE": [
+                    null,
+                    {
+                        "details": [{ "type": "card", "id": "BECKON" }]
+                    }
+                ],
+                "FADE_MOVE": [
+                    {
+                        "details": [{ "type": "power", "id": "INTANGIBLE_POWER", "value": 1 }]
+                    }
+                ]
+            }
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.Entomancer": [
+        {
+            "condition": "true"
+        },
+        {
+            "condition": "showMoveDetail",
+            "stateMachine": [
+                {
+                    "name": "BEES_MOVE",
+                    "isInitialState": true,
+                    "followUpState": "SPEAR_MOVE"
+                },
+                {
+                    "name": "SPEAR_MOVE",
+                    "followUpState": "cond"
+                },
+                {
+                    "name": "cond",
+                    "children": [
+                        {
+                            "label": "branch.MegaCrit.Sts2.Core.Models.Monsters.Entomancer.PHEROMONE_SPIT_MOVE",
+                            "node": {
+                                "name": "PHEROMONE_SPIT_MOVE1",
+                                "moveName": "PHEROMONE_SPIT_MOVE"
+                            }
+                        },
+                        {
+                            "label": "ui.Otherwise",
+                            "node": {
+                                "name": "PHEROMONE_SPIT_MOVE2",
+                                "moveName": "PHEROMONE_SPIT_MOVE"
+                            }
+                        }
+                    ],
+                    "followUpState": "BEES_MOVE"
+                }
+            ],
+            "moveReplacements": {
+                "/cond/PHEROMONE_SPIT_MOVE1": [
+                    {
+                        "details": [
+                            { "type": "power", "id": "PERSONAL_HIVE_POWER", "value": 1 },
+                            { "type": "power", "id": "STRENGTH_POWER", "value": 1 }
+                        ]
+                    }
+                ],
+                "/cond/PHEROMONE_SPIT_MOVE2": [
+                    {
+                        "details": [
+                            { "type": "power", "id": "STRENGTH_POWER", "value": 2 }
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.TheInsatiable": [
+        {
+            "moveReplacements": {
+                "LIQUIFY_GROUND_MOVE": [
+                    null,
+                    {
+                        "details": [{ "type": "card", "id": "FRANTIC_ESCAPE" }]
+                    }
+                ]
+            }
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.Noisebot": [
+        {
+            "moveReplacements": {
+                "NOISE_MOVE": [
+                    {
+                        "details": [{ "type": "card", "id": "DAZED" }]
+                    }
+                ]
+            }
+        }
+    ],
+    "MegaCrit.Sts2.Core.Models.Monsters.Queen": [
+        {
+            "moveReplacements": {
+                "BURN_BRIGHT_FOR_ME_MOVE": [
+                    {
+                        "details": [{ "type": "power", "id": "STRENGTH_POWER", "value": 1 }]
+                    }
+                ]
+            }
         }
     ],
     "MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat": [

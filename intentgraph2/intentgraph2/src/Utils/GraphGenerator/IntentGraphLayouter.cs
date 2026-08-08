@@ -64,13 +64,17 @@ internal class IntentGraphLayouter
             if (state != null && state is MoveState moveState)
             {
                 var (x, y) = ResolveRelative(move, allStateNodes);
-                var resolvedIntents = MoveDetailResolver.ResolveIntentIcons(moveState);
+                MoveReplacement? replacement = null;
+                var replacements = intentDefinition?.MoveReplacements;
+                replacements?.TryGetValue(moveState.Id, out replacement);
+                var intentOverrides = replacement?.IntentOverrides;
+                var resolvedIntents = MoveDetailResolver.ResolveIntentIcons(moveState, intentOverrides);
                 AddMove(moveState,
                     resolvedIntents,
                     new HashSet<string>([move.Id, .. move.Ids ?? []]).ToArray(),
                     result,
                     x, y,
-                    intentOverrides: null,
+                    intentOverrides,
                     move.PossiblePreviousMoveNodeIndices,
                     subGraph: null);
             }
@@ -262,15 +266,13 @@ internal class IntentGraphLayouter
     private void AddMove(MoveState moveState, MonsterStateNode node, Graph graph, float x, float y, GraphGenerationContext context)
     {
         var subGraph = context.SubGraphs[node.YIndex];
-        MoveReplacement? replacement = null;
-        var replacements = context.IntentDefinition?.MoveReplacements;
-        replacements?.TryGetValue(moveState.Id, out replacement);
-        if (node.FullId != null && replacements?.TryGetValue(node.FullId, out var fullIdReplacement) == true)
-        {
-            replacement = fullIdReplacement;
-        }
+        var replacement = context.IntentDefinition?.MoveReplacements.GetMoveReplacementOrNull(moveState.Id, node.FullId);
         var intentOverrides = replacement?.IntentOverrides;
-        var resolvedIntents = node.ResolvedIntentIcons ?? MoveDetailResolver.ResolveIntentIcons(moveState);
+        var resolvedIntents = node.ResolvedIntentIcons;
+        if (resolvedIntents == null)
+        {
+            return;
+        }
         var move = AddMove(moveState, resolvedIntents, node.MoveStateIds.ToArray(), graph, x, y, intentOverrides, possiblePreviousMoveIndices: null, subGraph);
         context.StateNodeToMove[node] = move;
         context.MoveToStateNode[move] = node;
@@ -278,12 +280,12 @@ internal class IntentGraphLayouter
 
     private Move AddMove(
         MoveState moveState,
-        List<ResolvedIntentIcon> resolvedIntents,
+        List<ResolvedIntent> resolvedIntents,
         string[] ids,
         Graph graph,
         float x,
         float y,
-        IntentOverride[]? intentOverrides,
+        IntentOverride?[]? intentOverrides,
         int?[]? possiblePreviousMoveIndices,
         SubGraph? subGraph)
     {
@@ -296,19 +298,24 @@ internal class IntentGraphLayouter
                 ? intentOverrides[resolvedIntent.OriginalIntentIndex]
                 : null;
             var iconX = i * (1 + IconPaddingInMove) + x;
-            if (resolvedIntent.MoveDetailType != MoveDetailIconType.None)
+            if (resolvedIntent.ModelId != null)
             {
-                var value = resolvedIntent.Value;
+                var imageResourcePath = resolvedIntent.ModelId.Category switch
+                {
+                    "POWER" => ModelDb.GetByIdOrNull<PowerModel>(resolvedIntent.ModelId)?.IconPath ?? string.Empty,
+                    "CARD" => ModelDb.GetByIdOrNull<CardModel>(resolvedIntent.ModelId)?.PortraitPath ?? string.Empty,
+                    _ => string.Empty,
+                };
+
+                var value = resolvedIntent.Value ?? (intent as StatusIntent)?.CardCount;
                 icons[i] = new Icon(
                     iconX,
                     y,
                     intent.IntentType,
                     value,
-                    ValueText: intent is StatusIntent
-                        ? GetLocalizedValueText(intentOverride?.ValueText, value ?? 0)
-                        : string.Empty,
-                    ImageResourcePath: resolvedIntent.ImageResourcePath,
-                    MoveDetailType: resolvedIntent.MoveDetailType);
+                    ValueText: GetLocalizedValueText(resolvedIntent.ValueText ?? intentOverride?.ValueText, value ?? 0),
+                    ImageResourcePath: imageResourcePath,
+                    MoveDetailType: Enum.TryParse<MoveDetailIconType>(resolvedIntent.ModelId.Category, true, out var type) ? type : MoveDetailIconType.None);
             }
             else if (intent is AttackIntent attackIntent)
             {

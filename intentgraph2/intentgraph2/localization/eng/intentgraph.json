@@ -7,6 +7,7 @@
 	"ui.UnknownCondition": "condition?",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "Blocked",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.HEADBUTT_MOVE": "{otherwise}",
+    "branch.MegaCrit.Sts2.Core.Models.Monsters.Entomancer.PHEROMONE_SPIT_MOVE": "Less than 3 Personal Hive",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.Fabricator.fabricateBranch.RAND": "0~2 minions",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.Fabricator.fabricateBranch.DISINTEGRATE_MOVE": "{otherwise}",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.FrogKnight.HALF_HEALTH.TONGUE_LASH": "{otherwise}",

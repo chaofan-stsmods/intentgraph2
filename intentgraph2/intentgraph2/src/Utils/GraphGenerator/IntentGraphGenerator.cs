@@ -6,8 +6,6 @@ using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Models.Monsters;
-using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 using MegaCrit.Sts2.Core.Random;
 using System;
 using System.Collections.Generic;
@@ -129,16 +127,8 @@ public class IntentGraphGenerator
             return graph;
         }
 
-        var converter = new MonsterStateNodeConverter(localizer);
-        List<MonsterStateNode> stateNodes;
-        if (intentDefinition?.StateMachine != null)
-        {
-            stateNodes = converter.FromStateMachineNodes(stateMachine, intentDefinition.StateMachine, font);
-        }
-        else
-        {
-            stateNodes = converter.FromMonsterMoveStateMachine(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, initialState, intentDefinition, ref warning);
-        }
+        var converter = new MonsterStateNodeConverter(localizer, intentDefinition);
+        var stateNodes = converter.ToMonsterStateNodes(monster, stateMachine, font, ref warning);
 
         graph = layouter.StateNodesToGraph(stateNodes, intentDefinition);
         graph.Warning = warning;

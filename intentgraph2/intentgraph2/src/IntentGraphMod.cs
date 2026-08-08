@@ -136,6 +136,24 @@ public class IntentGraphMod
             };
         }
 
+        var updateConfigHandler = new EventHandler<string>((sender, e) =>
+        {
+            if (e == nameof(Config.ShowMonsterMoveNames) || e == nameof(Config.ShowMoveDetail))
+            {
+                RegenerateIntentGraphsInCombat();
+            }
+        });
+
+        if (ritsuLibHelper != null)
+        {
+            ritsuLibHelper.Config.OnUpdated += updateConfigHandler;
+        }
+
+        if (baseLibHelper != null)
+        {
+            baseLibHelper.Config.OnUpdated += updateConfigHandler;
+        }
+
         try
         {
             var fileIo = new GodotFileIo($"{UserDataPathProvider.GetAccountScopedBasePath(null)}/mod_data/intentgraph2");
@@ -179,17 +197,7 @@ public class IntentGraphMod
 
         BestiaryPatches.ReloadIntents();
 
-        var combatState = CombatManager.Instance.DebugOnlyGetState();
-        if (combatState == null || combatState.Encounter == null)
-        {
-            return;
-        }
-
-        GeneratedGraphs.Clear();
-        foreach (var creature in combatState.Enemies)
-        {
-            MonsterSetupPatch.Postfix(CombatManager.Instance, creature);
-        }
+        RegenerateIntentGraphsInCombat();
     }
 
     public static void LoadIntentStrings(string language)
@@ -286,6 +294,21 @@ public class IntentGraphMod
     private static IEnumerable<Mod> GetLoadedMods()
     {
         return ModManager.GetLoadedMods();
+    }
+
+    private static void RegenerateIntentGraphsInCombat()
+    {
+        var combatState = CombatManager.Instance.DebugOnlyGetState();
+        if (combatState == null || combatState.Encounter == null)
+        {
+            return;
+        }
+
+        GeneratedGraphs.Clear();
+        foreach (var creature in combatState.Enemies)
+        {
+            MonsterSetupPatch.Postfix(CombatManager.Instance, creature);
+        }
     }
 
     private static void LoadIntentDefinitionForMod(string modId)

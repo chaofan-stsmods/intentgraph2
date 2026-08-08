@@ -148,6 +148,33 @@ internal class MonsterStateNodeSimplifier
                 {
                     return false;
                 }
+
+                if ((a.ResolvedIntentIcons == null) != (b.ResolvedIntentIcons == null))
+                {
+                    return false;
+                }
+
+                if (a.ResolvedIntentIcons != null && b.ResolvedIntentIcons != null)
+                {
+                    if (a.ResolvedIntentIcons.Count != b.ResolvedIntentIcons.Count)
+                    {
+                        return false;
+                    }
+                    for (int i = 0; i < a.ResolvedIntentIcons.Count; i++)
+                    {
+                        var ar = a.ResolvedIntentIcons[i];
+                        var br = b.ResolvedIntentIcons[i];
+                        if (ar.OriginalIntentIndex != br.OriginalIntentIndex)
+                        {
+                            return false;
+                        }
+
+                        if (ar.Value != br.Value || ar.ModelId != br.ModelId)
+                        {
+                            return false;
+                        }
+                    }
+                }
             }
 
             if (a.NextState != null)

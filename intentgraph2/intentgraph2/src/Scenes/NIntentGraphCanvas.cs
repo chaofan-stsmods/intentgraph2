@@ -412,7 +412,7 @@ public partial class NIntentGraphCanvas : Control
             texture = intentTextures[textureKey] = ResourceLoader.Load<Texture2D>(icon.ImageResourcePath);
         }
 
-        if (icon.MoveDetailType == MoveDetailIconType.Status)
+        if (icon.MoveDetailType == MoveDetailIconType.Card)
         {
             DrawTextureCover(texture, destination);
         }

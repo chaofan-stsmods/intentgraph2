@@ -56,7 +56,20 @@
           "followUpState": "rand2",
           "horizontalLayout": true
         }
-      ]
+      ],
+      "moveReplacements": {
+        "SLUDGE": [
+          null,
+          {
+            "details": [
+              {
+                "type": "card",
+                "id": "VOID"
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "ActsFromThePast.BronzeAutomaton": [
@@ -429,6 +442,17 @@
         "DIVIDER": [
           {
             "valueText": "N"
+          }
+        ],
+        "SEAR": [
+          null,
+          {
+            "details": [
+              {
+                "type": "card",
+                "id": "BURN"
+              }
+            ]
           }
         ]
       }
@@ -1395,7 +1419,21 @@
           ],
           "followUpState": "cond"
         }
-      ]
+      ],
+      "moveReplacements": {
+        "ENCOURAGE": [
+          null,
+          {
+            "details": [
+              {
+                "type": "power",
+                "id": "STRENGTH_POWER",
+                "valueText": "{m.StrengthAmount}"
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "ActsFromThePast.GremlinNob": [
@@ -1464,9 +1502,9 @@
           "arrowOverride": {
             "path": [
               0,
+              4.6,
               null,
               null,
-              5,
               null
             ]
           }
@@ -1867,7 +1905,20 @@
           ],
           "followUpState": "rand"
         }
-      ]
+      ],
+      "moveReplacements": {
+        "LASER": [
+          null,
+          {
+            "details": [
+              {
+                "type": "card",
+                "id": "BURN"
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "ActsFromThePast.FungiBeast": [
@@ -2486,6 +2537,21 @@
           }
         ]
       }
+    }
+  ],
+  "ActsFromThePast.Acts.TheBeyond.Enemies.SnakeDagger": [
+    {
+      "condition": "true",
+      "stateMachine": [
+        {
+          "name": "WOUND_STAB",
+          "isInitialState": true,
+          "followUpState": "EXPLODE"
+        },
+        {
+          "name": "EXPLODE"
+        }
+      ]
     }
   ]
 }

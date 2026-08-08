@@ -1,6 +1,7 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Scenes;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 using System;
@@ -18,16 +19,35 @@ internal class MonsterStateNodeConverter
     private const string OtherwiseMark = "{" + Otherwise + "}";
 
     private readonly IntentGraphLocalizer localizer;
-    private readonly Dictionary<MoveState, List<ResolvedIntentIcon>> resolvedIntentsByMoveState = new();
+    private readonly IntentDefinition? intentDefinition;
 
-    public MonsterStateNodeConverter(IntentGraphLocalizer localizer)
+    private readonly Dictionary<MoveState, List<ResolvedIntent>> resolvedIntentsByMoveState = new();
+
+    public MonsterStateNodeConverter(IntentGraphLocalizer localizer, IntentDefinition? intentDefinition)
     {
         this.localizer = localizer;
+        this.intentDefinition = intentDefinition;
     }
 
     public bool EvaluateInitialState { get; set; } = true;
 
-    public List<MonsterStateNode> FromStateMachineNodes(MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, Font font)
+    public List<MonsterStateNode> ToMonsterStateNodes(MonsterModel monster, MonsterMoveStateMachine stateMachine, Font font, ref string? warning)
+    {
+        if (intentDefinition?.StateMachine != null)
+        {
+            return FromStateMachineNodes(stateMachine, intentDefinition.StateMachine, font);
+        }
+        else
+        {
+            var initialState = stateMachine.GetInitialState();
+            return FromMonsterMoveStateMachine(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, intentDefinition, ref warning);
+        }
+    }
+
+    private List<MonsterStateNode> FromStateMachineNodes(
+        MonsterMoveStateMachine stateMachine,
+        StateMachineNode[] overwriteStateMachine,
+        Font font)
     {
         var existingNodes = new Dictionary<string, MonsterStateNode>();
         var initialStates = new List<(int, MonsterStateNode)>();
@@ -50,12 +70,19 @@ internal class MonsterStateNodeConverter
         return result;
     }
 
-    public List<MonsterStateNode> FromMonsterMoveStateMachine(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState initialState, IntentDefinition? intentDefinition, ref string? warning)
+    private List<MonsterStateNode> FromMonsterMoveStateMachine(
+        string monsterName,
+        Font font,
+        MonsterMoveStateMachine stateMachine,
+        IntentDefinition? intentDefinition,
+        ref string? warning)
     {
         var existingNodes = new Dictionary<MonsterState, MonsterStateNode>();
 
         var result = new List<MonsterStateNode>();
         MonsterStateNode? initialStateNode = null;
+
+        var initialState = stateMachine.GetInitialState();
 
         // For conditional branch to check monster slot.
         if (EvaluateInitialState && initialState is ConditionalBranchState conditionalBranchState)
@@ -136,7 +163,13 @@ internal class MonsterStateNodeConverter
             (maxRepeat > 0 ? ", ≤" + maxRepeat : "")));
     }
 
-    private MonsterStateNode? StateMachineNodeToMonsterStateNode(Font font, MonsterMoveStateMachine stateMachine, StateMachineNode[] overwriteStateMachine, StateMachineNode? node, Dictionary<string, MonsterStateNode> existingNodes, MonsterStateNode? parent)
+    private MonsterStateNode? StateMachineNodeToMonsterStateNode(
+        Font font,
+        MonsterMoveStateMachine stateMachine,
+        StateMachineNode[] overwriteStateMachine,
+        StateMachineNode? node,
+        Dictionary<string, MonsterStateNode> existingNodes,
+        MonsterStateNode? parent)
     {
         if (node == null)
         {
@@ -155,7 +188,9 @@ internal class MonsterStateNodeConverter
             MonsterStateNode result;
             if (state != null)
             {
-                var resolvedIntentIcons = GetResolvedIntentIcons(state);
+                var replacement = intentDefinition?.MoveReplacements?.GetMoveReplacementOrNull(state.Id,
+                    string.IsNullOrEmpty(node.Name) ? null : (parent == null ? $"/{node.Name}" : $"{parent.FullId}/{node.Name}"));
+                var resolvedIntentIcons = MoveDetailResolver.ResolveIntentIcons(state, replacement?.IntentOverrides);
                 result = new MonsterStateNode
                 {
                     Id = node.Name,
@@ -264,19 +299,15 @@ internal class MonsterStateNodeConverter
         }
     }
 
-    private List<ResolvedIntentIcon> GetResolvedIntentIcons(MoveState moveState)
-    {
-        if (!resolvedIntentsByMoveState.TryGetValue(moveState, out var resolvedIntents))
-        {
-            resolvedIntents = MoveDetailResolver.ResolveIntentIcons(moveState);
-            resolvedIntentsByMoveState[moveState] = resolvedIntents;
-        }
-
-        return resolvedIntents;
-    }
-
     [return: NotNullIfNotNull(nameof(state))]
-    private MonsterStateNode? MonsterStateToMonsterStateNode(string monsterName, Font font, MonsterMoveStateMachine stateMachine, MonsterState? state, Dictionary<MonsterState, MonsterStateNode> existingNodes, MonsterStateNode? parent, ref string? warning)
+    private MonsterStateNode? MonsterStateToMonsterStateNode(
+        string monsterName,
+        Font font,
+        MonsterMoveStateMachine stateMachine,
+        MonsterState? state,
+        Dictionary<MonsterState, MonsterStateNode> existingNodes,
+        MonsterStateNode? parent,
+        ref string? warning)
     {
         if (state == null)
         {
@@ -290,7 +321,9 @@ internal class MonsterStateNodeConverter
 
         if (state is MoveState moveState)
         {
-            var resolvedIntentIcons = GetResolvedIntentIcons(moveState);
+            var replacement = intentDefinition?.MoveReplacements?.GetMoveReplacementOrNull(state.Id,
+                parent == null ? $"/{state.Id}" : $"{parent.FullId}/{state.Id}");
+            var resolvedIntentIcons = MoveDetailResolver.ResolveIntentIcons(moveState, replacement?.IntentOverrides);
             var result = new MonsterStateNode
             {
                 Id = state.Id,

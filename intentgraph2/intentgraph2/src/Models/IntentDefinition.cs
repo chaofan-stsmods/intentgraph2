@@ -82,9 +82,11 @@ public class StateMachineNode
 public record class StateMachinNodeChildren(string Label = "", StateMachineNode? Node = null);
 
 [JsonConverter(typeof(MoveReplacementJsonConverter))]
-public record class MoveReplacement(IntentOverride[]? IntentOverrides, ArrowOverride? ArrowOverride);
+public record class MoveReplacement(IntentOverride?[]? IntentOverrides, ArrowOverride? ArrowOverride);
 
-public record class IntentOverride(string? ValueText, string? TimesText);
+public record class IntentOverride(string? ValueText, string? TimesText, MoveDetailOverride[]? Details);
+
+public record class MoveDetailOverride(MoveDetailIconType Type, string? Id, int? Value, string? ValueText);
 
 public record class ArrowOverride(float?[] Path);
 
@@ -92,3 +94,22 @@ public record class ArrowOverride(float?[] Path);
 public record class SecondaryInitialState(string Id, Position Offset = default);
 
 public record struct Position(float X = 0, float Y = 0);
+
+public static class IntentDefinitionExtensions
+{
+    public static MoveReplacement? GetMoveReplacementOrNull(this Dictionary<string, MoveReplacement>? moveReplacements, string stateId, string? nodeFullId)
+    {
+        if (moveReplacements == null)
+        {
+            return null;
+        }
+
+        if (nodeFullId != null && moveReplacements.TryGetValue(nodeFullId, out var nodeReplacement))
+        {
+            return nodeReplacement;
+        }
+
+        moveReplacements.TryGetValue(stateId, out var replacement);
+        return replacement;
+    }
+}

@@ -7,6 +7,7 @@
 	"ui.UnknownCondition": "條件?",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.DIZZY_MOVE": "被格擋",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.BowlbugRock.POST_HEADBUTT.HEADBUTT_MOVE": "{otherwise}",
+	"branch.MegaCrit.Sts2.Core.Models.Monsters.Entomancer.PHEROMONE_SPIT_MOVE": "個人蜂巢少於3層",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.Fabricator.fabricateBranch.RAND": "爪牙數為0~2",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.Fabricator.fabricateBranch.DISINTEGRATE_MOVE": "{otherwise}",
 	"branch.MegaCrit.Sts2.Core.Models.Monsters.FrogKnight.HALF_HEALTH.TONGUE_LASH": "{otherwise}",

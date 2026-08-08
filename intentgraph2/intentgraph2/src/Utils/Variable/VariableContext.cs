@@ -130,6 +130,7 @@ public class VariableContext : IVariableContext
                     Traverse.Create(RunManager.Instance.AscensionManager).Field("_level").GetValue<int>(),
                 "showMoveNames" => IntentGraphMod.Config.ShowMonsterMoveNames,
                 "inBestiary" => InBestiary,
+                "showMoveDetail" => IntentGraphMod.Config.ShowMoveDetail,
                 _ => null,
             };
         }

@@ -1,4 +1,3 @@
-using IntentGraph2.Utils.Rule;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using System;
 using System.Collections.Generic;
@@ -85,7 +84,7 @@ public enum MoveDetailIconType
 {
     None,
     Power,
-    Status,
+    Card,
 }
 
 public record class IconGroup(

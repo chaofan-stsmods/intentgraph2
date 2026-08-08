@@ -1203,9 +1203,14 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildMoveReplacementCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "intentOverrides", "arrowOverride", "path" })
+        foreach (var propertyName in new[] { "intentOverrides", "arrowOverride", "path", "valueText", "timesText", "details", "type", "value", "id" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
+        }
+
+        foreach (var valueName in new[] { "none", "card", "power" })
+        {
+            yield return StringValueCompletion(valueName, isInsideString, CodeEdit.CodeCompletionKind.Enum);
         }
 
         foreach (var stateId in availableStateIds)
@@ -1213,8 +1218,6 @@ public partial class NIntentGraphEditor : Control
             yield return PropertyCompletion(stateId, isInsideString, CodeEdit.CodeCompletionKind.Variable);
         }
 
-        yield return PropertyCompletion("valueText", isInsideString);
-        yield return PropertyCompletion("timesText", isInsideString);
         yield return SnippetCompletion("move replacement entry", "[\n  {\n    \"valueText\": \"\",\n    \"timesText\": \"\"\n  }\n]");
         yield return PlainTextCompletion("null", "null");
     }

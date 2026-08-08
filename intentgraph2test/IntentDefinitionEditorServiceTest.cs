@@ -49,7 +49,7 @@ public class IntentDefinitionEditorServiceTest : IDisposable
                 ],
                 MoveReplacements = new Dictionary<string, MoveReplacement>
                 {
-                    ["ROOT_MOVE"] = new MoveReplacement([new IntentOverride("N", "T")], null),
+                    ["ROOT_MOVE"] = new MoveReplacement([new IntentOverride("N", "T", null)], null),
                 },
                 GraphPatch = new Graph
                 {
