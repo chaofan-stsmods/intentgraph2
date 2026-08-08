@@ -1,3 +1,4 @@
+using IntentGraph2.Utils.Expression;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using System;
 using System.Collections.Generic;
@@ -76,9 +77,9 @@ public record class Icon(
     string TimesText = "",
     // Only works in graph patch
     string? RelativeTo = null,
-    // Generated action-content icons only
-    string ImageResourcePath = "",
-    MoveDetailIconType MoveDetailType = MoveDetailIconType.None) : IRelativeToPosition;
+    // Generated move detail icons only
+    [property: JsonIgnore] string ImageResourcePath = "",
+    [property: JsonIgnore] MoveDetailIconType MoveDetailType = MoveDetailIconType.None) : IRelativeToPosition;
 
 public enum MoveDetailIconType
 {
@@ -143,7 +144,9 @@ public record class Move(
     Icon[]? Icons = null,
     int?[]? PossiblePreviousMoveNodeIndices = null,
     // Only works in graph patch
-    string? RelativeTo = null) : IRelativeToPosition
+    string? RelativeTo = null,
+    // Generated only
+    [property: JsonIgnore] IExpression? CurrentMoveCondition = null) : IRelativeToPosition
 {
     public override int GetHashCode()
     {

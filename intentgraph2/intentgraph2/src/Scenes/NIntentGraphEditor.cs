@@ -1203,7 +1203,7 @@ public partial class NIntentGraphEditor : Control
 
     private IEnumerable<CompletionItem> BuildMoveReplacementCompletionItems(bool isInsideString)
     {
-        foreach (var propertyName in new[] { "intentOverrides", "arrowOverride", "path", "valueText", "timesText", "details", "type", "value", "id" })
+        foreach (var propertyName in new[] { "intentOverrides", "arrowOverride", "path", "valueText", "timesText", "details", "type", "value", "id", "currentMoveCondition" })
         {
             yield return PropertyCompletion(propertyName, isInsideString);
         }

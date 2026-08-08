@@ -1,6 +1,8 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Scenes;
+using IntentGraph2.Utils.Expression;
+using IntentGraph2.Utils.Variable;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
@@ -16,11 +18,13 @@ internal class IntentGraphLayouter
 {
     private readonly MonsterModel monster;
     private readonly IntentGraphLocalizer localizer;
+    private readonly VariableContext variableContext;
 
-    public IntentGraphLayouter(MonsterModel monster, IntentGraphLocalizer localizer)
+    public IntentGraphLayouter(MonsterModel monster, IntentGraphLocalizer localizer, VariableContext variableContext)
     {
         this.monster = monster;
         this.localizer = localizer;
+        this.variableContext = variableContext;
     }
 
     public Graph MakeGraphFromIntentDefinition(MonsterMoveStateMachine stateMachine, Graph graph, IntentDefinition intentDefinition, Font font, List<MonsterStateNode>? stateNodes = null)
@@ -67,14 +71,13 @@ internal class IntentGraphLayouter
                 MoveReplacement? replacement = null;
                 var replacements = intentDefinition?.MoveReplacements;
                 replacements?.TryGetValue(moveState.Id, out replacement);
-                var intentOverrides = replacement?.IntentOverrides;
-                var resolvedIntents = MoveDetailResolver.ResolveIntentIcons(moveState, intentOverrides);
+                var resolvedIntents = MoveDetailResolver.ResolveIntentIcons(moveState, replacement?.IntentOverrides);
                 AddMove(moveState,
                     resolvedIntents,
                     new HashSet<string>([move.Id, .. move.Ids ?? []]).ToArray(),
                     result,
                     x, y,
-                    intentOverrides,
+                    replacement,
                     move.PossiblePreviousMoveNodeIndices,
                     subGraph: null);
             }
@@ -267,13 +270,12 @@ internal class IntentGraphLayouter
     {
         var subGraph = context.SubGraphs[node.YIndex];
         var replacement = context.IntentDefinition?.MoveReplacements.GetMoveReplacementOrNull(moveState.Id, node.FullId);
-        var intentOverrides = replacement?.IntentOverrides;
         var resolvedIntents = node.ResolvedIntentIcons;
         if (resolvedIntents == null)
         {
             return;
         }
-        var move = AddMove(moveState, resolvedIntents, node.MoveStateIds.ToArray(), graph, x, y, intentOverrides, possiblePreviousMoveIndices: null, subGraph);
+        var move = AddMove(moveState, resolvedIntents, node.MoveStateIds.ToArray(), graph, x, y, replacement, possiblePreviousMoveIndices: null, subGraph);
         context.StateNodeToMove[node] = move;
         context.MoveToStateNode[move] = node;
     }
@@ -285,10 +287,11 @@ internal class IntentGraphLayouter
         Graph graph,
         float x,
         float y,
-        IntentOverride?[]? intentOverrides,
+        MoveReplacement? replacement,
         int?[]? possiblePreviousMoveIndices,
         SubGraph? subGraph)
     {
+        var intentOverrides = replacement?.IntentOverrides;
         var icons = new Icon[resolvedIntents.Count];
         for (int i = 0; i < resolvedIntents.Count; i++)
         {
@@ -338,7 +341,9 @@ internal class IntentGraphLayouter
             }
         }
 
-        var move = new Move(ids[0], ids, x, y, icons, possiblePreviousMoveIndices);
+        var currentMoveConditionStr = replacement?.CurrentMoveCondition;
+        var currentMoveCondition = currentMoveConditionStr != null ? IExpression.Parse(currentMoveConditionStr, variableContext) : null;
+        var move = new Move(ids[0], ids, x, y, icons, possiblePreviousMoveIndices, CurrentMoveCondition: currentMoveCondition);
         graph.Moves.Add(move);
         if (subGraph != null)
         {

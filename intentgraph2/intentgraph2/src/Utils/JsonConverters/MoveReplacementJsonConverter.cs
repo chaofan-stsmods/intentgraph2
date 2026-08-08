@@ -11,7 +11,7 @@ public class MoveReplacementJsonConverter : JsonConverter<MoveReplacement>
         if (reader.TokenType == JsonTokenType.StartArray)
         {
             var intentOverrides = JsonSerializer.Deserialize<IntentOverride[]>(ref reader, options);
-            return new MoveReplacement(intentOverrides, null);
+            return new MoveReplacement(intentOverrides, null, null);
         }
         else if (reader.TokenType == JsonTokenType.StartObject)
         {
@@ -30,7 +30,13 @@ public class MoveReplacementJsonConverter : JsonConverter<MoveReplacement>
                 arrowOverride = JsonSerializer.Deserialize<ArrowOverride>(arrowOverrideElement, options);
             }
 
-            return new MoveReplacement(intentOverrides, arrowOverride);
+            string? currentMoveCondition = null;
+            if (root.TryGetProperty("currentMoveCondition", out var currentMoveConditionElement))
+            {
+                currentMoveCondition = JsonSerializer.Deserialize<string>(currentMoveConditionElement, options);
+            }
+
+            return new MoveReplacement(intentOverrides, arrowOverride, currentMoveCondition);
         }
         else
         {
@@ -40,7 +46,7 @@ public class MoveReplacementJsonConverter : JsonConverter<MoveReplacement>
 
     public override void Write(Utf8JsonWriter writer, MoveReplacement value, JsonSerializerOptions options)
     {
-        if (value.ArrowOverride == null && value.IntentOverrides != null)
+        if (value.ArrowOverride == null && value.IntentOverrides != null && value.CurrentMoveCondition == null)
         {
             JsonSerializer.Serialize(writer, value.IntentOverrides, options);
             return;
@@ -56,6 +62,11 @@ public class MoveReplacementJsonConverter : JsonConverter<MoveReplacement>
         {
             writer.WritePropertyName("arrowOverride");
             JsonSerializer.Serialize(writer, value.ArrowOverride, options);
+        }
+        if (value.CurrentMoveCondition != null)
+        {
+            writer.WritePropertyName("currentMoveCondition");
+            JsonSerializer.Serialize(writer, value.CurrentMoveCondition, options);
         }
         writer.WriteEndObject();
     }

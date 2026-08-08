@@ -182,10 +182,6 @@ public partial class NIntentGraphCanvas : Control
         {
             var glowOpacity = AnimatedIcons ? 0.3f + 0.4f * Mathf.Sin(lastDrawTime / 1000f * Mathf.Pi) : 0.5f;
             glowColor = new Color(1, 1, 1, glowOpacity);
-        }
-
-        if (ShowCurrentMove)
-        {
             DrawGlow(graph.Moves);
         }
 
@@ -242,7 +238,9 @@ public partial class NIntentGraphCanvas : Control
         glowingMoves.Clear();
 
         var lastIndex = 1;
-        var possibleMoves = moves.Select<Move, (Move? curr, Move final)>(m => (m, m)).ToList();
+        var possibleMoves = moves
+            .Where(m => m.CurrentMoveCondition?.GetBool() != false)
+            .Select<Move, (Move? curr, Move final)>(m => (m, m)).ToList();
         while (fullStateLog.Count >= lastIndex)
         {
             var state = fullStateLog[^lastIndex];

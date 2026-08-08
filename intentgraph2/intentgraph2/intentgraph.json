@@ -228,21 +228,27 @@
                 }
             ],
             "moveReplacements": {
-                "/cond/PHEROMONE_SPIT_MOVE1": [
-                    {
-                        "details": [
-                            { "type": "power", "id": "PERSONAL_HIVE_POWER", "value": 1 },
-                            { "type": "power", "id": "STRENGTH_POWER", "value": 1 }
-                        ]
-                    }
-                ],
-                "/cond/PHEROMONE_SPIT_MOVE2": [
-                    {
-                        "details": [
-                            { "type": "power", "id": "STRENGTH_POWER", "value": 2 }
-                        ]
-                    }
-                ]
+                "/cond/PHEROMONE_SPIT_MOVE1": {
+                    "intentOverrides": [
+                        {
+                            "details": [
+                                { "type": "power", "id": "PERSONAL_HIVE_POWER", "value": 1 },
+                                { "type": "power", "id": "STRENGTH_POWER", "value": 1 }
+                            ]
+                        }
+                    ],
+                    "currentMoveCondition": "m.hasPower_PERSONAL_HIVE_POWER && m.powerAmount_PERSONAL_HIVE_POWER < 3"
+                },
+                "/cond/PHEROMONE_SPIT_MOVE2": {
+                    "intentOverrides": [
+                        {
+                            "details": [
+                                { "type": "power", "id": "STRENGTH_POWER", "value": 2 }
+                            ]
+                        }
+                    ],
+                    "currentMoveCondition": "!m.hasPower_PERSONAL_HIVE_POWER || m.powerAmount_PERSONAL_HIVE_POWER >= 3"
+                }
             }
         }
     ],

@@ -117,7 +117,7 @@ public class IntentGraphGenerator
         }
 
         var font = ResourceLoader.Load<Font>("res://themes/kreon_bold_glyph_space_one.tres");
-        var layouter = new IntentGraphLayouter(monster, localizer);
+        var layouter = new IntentGraphLayouter(monster, localizer, variableContext);
         Graph graph;
         if (intentDefinition?.Graph != null)
         {

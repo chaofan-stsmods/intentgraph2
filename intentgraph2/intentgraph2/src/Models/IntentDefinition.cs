@@ -82,7 +82,10 @@ public class StateMachineNode
 public record class StateMachinNodeChildren(string Label = "", StateMachineNode? Node = null);
 
 [JsonConverter(typeof(MoveReplacementJsonConverter))]
-public record class MoveReplacement(IntentOverride?[]? IntentOverrides, ArrowOverride? ArrowOverride);
+public record class MoveReplacement(
+    IntentOverride?[]? IntentOverrides,
+    ArrowOverride? ArrowOverride,
+    string? CurrentMoveCondition);
 
 public record class IntentOverride(string? ValueText, string? TimesText, MoveDetailOverride[]? Details);
 

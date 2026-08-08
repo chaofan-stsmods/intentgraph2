@@ -65,6 +65,18 @@ public class VariableContext : IVariableContext
         {
             if (variableName.StartsWith("m."))
             {
+                if (variableName.StartsWith("m.hasPower_"))
+                {
+                    var powerId = variableName.Substring(11);
+                    return Monster.Creature.Powers.Any(p => p.Id.Entry == powerId);
+                }
+                else if (variableName.StartsWith("m.powerAmount_"))
+                {
+                    var powerId = variableName.Substring(14);
+                    var power = Monster.Creature.Powers.FirstOrDefault(p => p.Id.Entry == powerId);
+                    return power?.Amount ?? 0;
+                }
+
                 var fieldName = variableName.Substring(2);
                 var monsterType = Traverse.Create(Monster);
                 return monsterType.Property(fieldName).GetValue() ?? monsterType.Field(fieldName).GetValue();
@@ -147,6 +159,15 @@ public class VariableContext : IVariableContext
         {
             if (variableName.StartsWith("m."))
             {
+                if (variableName.StartsWith("m.hasPower_"))
+                {
+                    return typeof(bool);
+                }
+                else if (variableName.StartsWith("m.powerAmount_"))
+                {
+                    return typeof(int);
+                }
+
                 var fieldName = variableName.Substring(2);
                 var monsterType = Traverse.Create(Monster);
                 return monsterType.Property(fieldName).GetValueType() ?? monsterType.Field(fieldName).GetValueType();
