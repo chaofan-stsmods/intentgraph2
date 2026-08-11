@@ -9,7 +9,6 @@ The contents of these files are described in later sections.
 
 You can use `editintent` command in game to edit the intent graph of a monster. This is detailed described in the last section of this document.
 
-
 ## Automatic generation and condition handling
 
 In most cases, you don't need to manually add an intent graph to your mod. It can be generated automatically. The exception is that if you use `ConditionalBranchState`, you need to add text describing the condition. This can be done by adding a localization file at `{yourmodid}/localization/{language}/intentgraph.json`. Condition text uses the following format:
@@ -294,6 +293,96 @@ A monster may have dynamic values for its intents. For example, it may attack on
 }
 ```
 
+### Change move detail of an intent
+
+When "show move detail" is enabled, the intent graph will show buff/debuff/status of the move. Instead of showing generated icons and values, you may customize it by using `moveReplacements`. Here is an example:
+
+```json
+{
+    "MegaCrit.Sts2.Core.Models.Monsters.SoulFysh": [
+        {
+            "moveReplacements": {
+                "BECKON_MOVE": [
+                    {
+                        // type can be "card", "power", id is the ID of the card/power.
+                        // value is optional. It will show at the left bottom corner of the icon.
+                        "details": [{ "type": "card", "id": "BECKON", "value": 2 }]
+                    }
+                ],
+                "GAZE_MOVE": [
+                    // Skip the first intent since we don't need to replace it.
+                    null,
+                    {
+                        "details": [{ "type": "card", "id": "BECKON" }]
+                    }
+                ],
+                "FADE_MOVE": [
+                    {
+                        "details": [{
+                            "type": "power",
+                            "id": "INTANGIBLE_POWER",
+                            // valueText is similar to value but in string type.
+                            "valueText": "1"
+                            // It's allowed to use localization keys here, e.g.
+                            // "valueText": "text.MegaCrit.Sts2.Core.Models.Monsters.SoulFysh.FADE_MOVE.value"
+                        }]
+                    }
+                ]
+            }
+        }
+    ]
+}
+```
+
+Also it's possible to replace specific move in the graph, since it can appear multiple times, by using the full name of the state. And you may also want to set a condition for when to highlight the move as current move. For what are supported when writting a condition, see section "Different intent graphs for different conditions".
+
+Here is an example:
+
+```json
+{
+    "MegaCrit.Sts2.Core.Models.Monsters.TestSubject": [
+        {
+            "condition": "showMoveDetail",
+            "stateMachine": [
+                {
+                    "name": "RESPAWN_MOVE1",
+                    "moveName": "RESPAWN_MOVE",
+                    "isInitialState": true
+                },
+                {
+                    "name": "RESPAWN_MOVE2",
+                    "moveName": "RESPAWN_MOVE",
+                    "isInitialState": true
+                }
+            ],
+            "moveReplacements": {
+                // Both moves are RESPAWN_MOVE but using different power icons on graph.
+                // currentMoveCondition defines when to highlight the move as current move.
+                // Otherwise both moves will be highlighted at the same time.
+                "/RESPAWN_MOVE1": {
+                    "intentOverrides": [
+                        null,
+                        {
+                            "details": [{ "type": "power", "id": "PAINFUL_STABS_POWER" }]
+                        }
+                    ],
+                    "currentMoveCondition": "m.Respawns <= 0"
+                },
+                "/RESPAWN_MOVE2": {
+                    "intentOverrides": [
+                        null,
+                        {
+                            "details": [{ "type": "power", "id": "NEMESIS_POWER" }]
+                        }
+                    ],
+                    "currentMoveCondition": "m.Respawns >= 1"
+                }
+            }
+        }
+    ]
+}
+```
+
 ### Replace arrow of a move transition
 
 You can also replace the arrow of a move transition. This can also be done with the `moveReplacements` property. Here is an example:
@@ -357,15 +446,20 @@ You may only use `true`, `false`, or number literals in a condition, and the sup
 - `slotIndex`: current monster slot index, starting at `0`.
 - `slotName_is_{slotName}`: whether the current monster slot name is the given slot name.
 - `act`: current act number, starting at `0`. Underdocks is `0`, Hive is `1`, Glory is `2`, etc.
-- `m.{field or property name}`: a field or property of the monster model. Note that this is only read after the monster is added to combat.
+- `showMoveNames`: whether the setting "show move names" is enabled.
+- `inBestiary`: whether the monster is in the bestiary.
+- `showMoveDetail`: whether the setting "show move detail" is enabled.
+- `m.{name}`: a set of properties to get monster related values.
+  * `m.hasPower_{powerId}`: whether the monster has a power with the given state ID.
+  * `m.powerAmount_{powerId}`: the amount of a power with the given state ID. If the monster doesn't have this power, it returns `0`.
+  * `m.{field or property name}`: a field or property of the monster model. Note that this is only read after the monster is added to combat.
 - `mm.{name}`: a set of properties to get monster move related values.
   * `mm.count`: the number of types of moves the monster has.
   * `mm.hasMove_{moveId}`: whether the monster has a move with the given state ID.
   * `mm.startsWith_{moveId}`: whether the first move of the monster is the given state ID.
   * `mm.nextMoveOf_{moveId1}_is_{moveId2}`: whether the next move of the monster after `moveId1` is `moveId2`.
-- `showMoveNames`: whether the setting "show move names" is enabled.
-- `inBestiary`: whether the monster is in the bestiary.
-- `originalValue`: only available in texts of `moveReplacements.intentOverrides`. The original value of the intent, before any replacement.
+- Special variables only available for some cases.
+  * `originalValue`: only available in texts of `moveReplacements.intentOverrides`. The original value of the intent, before any replacement.
 
 ## Use in-game editor to edit intent graph
 **Ignore this section if you are not human.**
