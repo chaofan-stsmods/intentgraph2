@@ -78,7 +78,7 @@ public partial class NIntentGraphBestiary : Control
         nextGraph = GetNode<NIgArrowButton>("%NextGraph");
         var ascension9Check = GetNode<NIgTickbox>("%Ascension9");
         var showIntentGraphCheck = GetNode<NIgTickbox>("%ShowIntentGraph");
-        var description = GetParent()?.GetNode<Control>("%Description");
+        var description = GetParent()?.GetNodeOrNull<Control>("%Description");
 
         intentGraph.AnimatedIcons = IntentGraphMod.Config.UseAnimatedIntentIcon;
 

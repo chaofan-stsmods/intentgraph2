@@ -22,6 +22,8 @@ public partial class NIntentGraphCanvas : Control
     private const int AnimatedIconFrameDurationMs = 80;
     private readonly Move InitMove = new Move(IntentGraphMod.ModId + "_special_init_move_", PossiblePreviousMoveNodeIndices: []);
 
+    private const string BlankImageResourcePath = "res://intentgraph2/images/blank.png";
+
     private static readonly Dictionary<IntentType, string> IntentImageResourcePath = new Dictionary<IntentType, string>
     {
         { IntentType.Attack, "res://images/packed/intents/attack/intent_attack_1.png" },
@@ -365,7 +367,8 @@ public partial class NIntentGraphCanvas : Control
             if (!TryGetAnimatedIntentTexture(icon.IntentType, out var texture)
                 && !intentTextures.TryGetValue(icon.IntentType.ToString(), out texture))
             {
-                texture = intentTextures[icon.IntentType.ToString()] = ResourceLoader.Load<Texture2D>(IntentImageResourcePath[icon.IntentType]);
+                var path = IntentImageResourcePath.GetValueOrDefault(icon.IntentType) ?? BlankImageResourcePath;
+                texture = intentTextures[icon.IntentType.ToString()] = ResourceLoader.Load<Texture2D>(path);
             }
 
             return texture;
