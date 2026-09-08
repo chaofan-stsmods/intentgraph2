@@ -569,7 +569,7 @@ internal class IntentGraphLayouter
         if (stateNode.YIndex == nextStateNode.YIndex)
         {
             // o--->o or o<---o or both
-            if (Math.Abs(stateNode.XIndex - nextStateNode.XIndex) == 1 &&
+            if (stateNode.XIndex != nextStateNode.XIndex &&
                 TryAddHorizontalStraightArrow(stateNode, nextStateNode, graph, context))
             {
                 return;
@@ -578,12 +578,10 @@ internal class IntentGraphLayouter
             //      o    o
             //      ^ or ^
             // o----+    +----o
-            if (stateNode.XIndex != nextStateNode.XIndex)
+            if (stateNode.XIndex != nextStateNode.XIndex &&
+                TryAddHorizontalThenUpArrow(stateNode, nextStateNode, graph, context))
             {
-                if (TryAddHorizontalThenUpArrow(stateNode, nextStateNode, graph, context))
-                {
-                    return;
-                }
+                return;
             }
 
             //  o   o   o--+    o--+   o   o
@@ -720,56 +718,65 @@ internal class IntentGraphLayouter
     {
         var minY = Math.Max(stateNode.Y + 0.25f, nextStateNode.Y + 0.25f);
         var maxY = Math.Min(stateNode.Y + stateNode.Height - 0.25f, nextStateNode.Y + nextStateNode.Height - 0.25f);
-        if (minY <= maxY)
+        if (minY > maxY)
         {
-            var centerY = (minY + maxY) / 2;
-            if (stateNode.X < nextStateNode.X)
+            return false;
+        }
+
+        var centerY = (minY + maxY) / 2;
+        for (int i = Math.Min(stateNode.XIndex, nextStateNode.XIndex) + 1; i < Math.Max(stateNode.XIndex, nextStateNode.XIndex); i++)
+        {
+            var midNode = context.IndexToNode[(i, stateNode.YIndex)];
+            if (midNode.Y + midNode.Height + 0.2f > centerY)
             {
-                // -->
-                // <--
-                if (nextStateNode.NextState == stateNode && !nextStateNode.AddedArrow && !TryGetArrowOverride(nextStateNode, context, out _))
-                {
-                    AddArrow(graph, new Arrow([0, stateNode.X + stateNode.Width, centerY - 0.2f, nextStateNode.X]), context, nextStateNode); // -->
-                    AddArrow(graph, new Arrow([0, nextStateNode.X, centerY + 0.2f, stateNode.X + stateNode.Width]), context, stateNode); // <--
-                    nextStateNode.AddedArrow = true;
-                    return true;
-                }
-                else // -->
-                {
-                    var arrow = new Arrow([0, stateNode.X + stateNode.Width, centerY, nextStateNode.X]);
-                    if (stateNode.Parent != null)
-                    {
-                        arrow.Path[1] -= 0.1f;
-                    }
-                    AddArrow(graph, arrow, context, nextStateNode); // -->
-                    return true;
-                }
-            }
-            else
-            {
-                // <--
-                // -->
-                if (nextStateNode.NextState == stateNode && !nextStateNode.AddedArrow && !TryGetArrowOverride(nextStateNode, context, out _))
-                {
-                    AddArrow(graph, new Arrow([0, stateNode.X, centerY + 0.2f, nextStateNode.X + nextStateNode.Width]), context, nextStateNode); // <--
-                    AddArrow(graph, new Arrow([0, nextStateNode.X + nextStateNode.Width, centerY - 0.2f, stateNode.X]), context, stateNode); // -->
-                    nextStateNode.AddedArrow = true;
-                    return true;
-                }
-                else // <--
-                {
-                    var arrow = new Arrow([0, stateNode.X, centerY, nextStateNode.X + nextStateNode.Width]);
-                    if (stateNode.Parent != null)
-                    {
-                        arrow.Path[1] += 0.1f;
-                    }
-                    AddArrow(graph, arrow, context, nextStateNode); // <--
-                    return true;
-                }
+                return false;
             }
         }
 
-        return false;
+        if (stateNode.X < nextStateNode.X)
+        {
+            // -->
+            // <--
+            if (nextStateNode.NextState == stateNode && !nextStateNode.AddedArrow && !TryGetArrowOverride(nextStateNode, context, out _))
+            {
+                AddArrow(graph, new Arrow([0, stateNode.X + stateNode.Width, centerY - 0.2f, nextStateNode.X]), context, nextStateNode); // -->
+                AddArrow(graph, new Arrow([0, nextStateNode.X, centerY + 0.2f, stateNode.X + stateNode.Width]), context, stateNode); // <--
+                nextStateNode.AddedArrow = true;
+                return true;
+            }
+            else // -->
+            {
+                var arrow = new Arrow([0, stateNode.X + stateNode.Width, centerY, nextStateNode.X]);
+                if (stateNode.Parent != null)
+                {
+                    arrow.Path[1] -= 0.1f;
+                }
+                AddArrow(graph, arrow, context, nextStateNode); // -->
+                return true;
+            }
+        }
+        else
+        {
+            // <--
+            // -->
+            if (nextStateNode.NextState == stateNode && !nextStateNode.AddedArrow && !TryGetArrowOverride(nextStateNode, context, out _))
+            {
+                AddArrow(graph, new Arrow([0, stateNode.X, centerY + 0.2f, nextStateNode.X + nextStateNode.Width]), context, nextStateNode); // <--
+                AddArrow(graph, new Arrow([0, nextStateNode.X + nextStateNode.Width, centerY - 0.2f, stateNode.X]), context, stateNode); // -->
+                nextStateNode.AddedArrow = true;
+                return true;
+            }
+            else // <--
+            {
+                var arrow = new Arrow([0, stateNode.X, centerY, nextStateNode.X + nextStateNode.Width]);
+                if (stateNode.Parent != null)
+                {
+                    arrow.Path[1] += 0.1f;
+                }
+                AddArrow(graph, arrow, context, nextStateNode); // <--
+                return true;
+            }
+        }
     }
 
     private bool TryAddHorizontalThenUpArrow(MonsterStateNode stateNode, MonsterStateNode nextStateNode, Graph graph, GraphGenerationContext context)
