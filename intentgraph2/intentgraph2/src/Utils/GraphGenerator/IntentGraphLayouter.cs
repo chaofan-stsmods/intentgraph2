@@ -718,21 +718,21 @@ internal class IntentGraphLayouter
     {
         var minY = Math.Max(stateNode.Y + 0.25f, nextStateNode.Y + 0.25f);
         var maxY = Math.Min(stateNode.Y + stateNode.Height - 0.25f, nextStateNode.Y + nextStateNode.Height - 0.25f);
+        for (int i = Math.Min(stateNode.XIndex, nextStateNode.XIndex) + 1; i < Math.Max(stateNode.XIndex, nextStateNode.XIndex); i++)
+        {
+            var midNode = context.IndexToNode[(i, stateNode.YIndex)];
+            if (midNode.Y + midNode.Height + 0.2f > minY)
+            {
+                minY = midNode.Y + midNode.Height + 0.2f;
+            }
+        }
+
         if (minY > maxY)
         {
             return false;
         }
 
         var centerY = (minY + maxY) / 2;
-        for (int i = Math.Min(stateNode.XIndex, nextStateNode.XIndex) + 1; i < Math.Max(stateNode.XIndex, nextStateNode.XIndex); i++)
-        {
-            var midNode = context.IndexToNode[(i, stateNode.YIndex)];
-            if (midNode.Y + midNode.Height + 0.2f > centerY)
-            {
-                return false;
-            }
-        }
-
         if (stateNode.X < nextStateNode.X)
         {
             // -->
@@ -784,24 +784,24 @@ internal class IntentGraphLayouter
         //      o    o
         //      ^ or ^
         // o----+    +----o
-        var lineY = stateNode.Y + stateNode.Height / 2;
-        if (lineY < nextStateNode.Y + nextStateNode.Height + 0.25f)
+        var minY = Math.Max(stateNode.Y + 0.25f, nextStateNode.Y + nextStateNode.Height + 0.25f);
+        var maxY = stateNode.Y + stateNode.Height - 0.25f;
+        for (int i = Math.Min(stateNode.XIndex, nextStateNode.XIndex) + 1; i < Math.Max(stateNode.XIndex, nextStateNode.XIndex); i++)
+        {
+            var midNode = context.IndexToNode[(i, stateNode.YIndex)];
+            if (midNode.Y + midNode.Height + 0.2f > minY)
+            {
+                minY = midNode.Y + midNode.Height + 0.2f;
+            }
+        }
+
+        if (maxY < minY)
         {
             return false;
         }
 
-        var canDrawStraightLine = true;
-        for (int i = Math.Min(stateNode.XIndex, nextStateNode.XIndex) + 1; i < Math.Max(stateNode.XIndex, nextStateNode.XIndex); i++)
-        {
-            var midNode = context.IndexToNode[(i, stateNode.YIndex)];
-            if (midNode.Y + midNode.Height + 0.2f > lineY)
-            {
-                canDrawStraightLine = false;
-                break;
-            }
-        }
-
-        if (canDrawStraightLine && !context.HLineTargetNode.ContainsKey(lineY))
+        var lineY = (minY + maxY) / 2;
+        if (!context.HLineTargetNode.ContainsKey(lineY))
         {
             context.HLineTargetNode[lineY] = nextStateNode;
             Arrow arrow;
