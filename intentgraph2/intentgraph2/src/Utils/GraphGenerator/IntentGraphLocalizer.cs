@@ -92,7 +92,12 @@ internal class IntentGraphLocalizer
 
     private string? GetMoveName(string monsterName, string moveId)
     {
+        string? title;
         var locTable = LocManager.Instance.GetTable("monsters");
+        if (TryGetTitle(locTable, monsterName, moveId, out title))
+        {
+            return title;
+        }
 
         var moveIdChanged = true;
         while (moveIdChanged)
@@ -116,7 +121,6 @@ internal class IntentGraphLocalizer
             }
         }
 
-        string? title;
         if (!TryGetTitle(locTable, monsterName, moveId, out title) && moveId.Contains('_'))
         {
             var index2 = moveId.IndexOf('_');
