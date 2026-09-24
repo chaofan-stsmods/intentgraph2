@@ -11,3 +11,4 @@ intentgraph2/publish/
 bin/
 obj/
 docs/superpowers/
+/common.props
