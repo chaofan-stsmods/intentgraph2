@@ -31,7 +31,10 @@
     </Reference>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /-I &quot;$(TargetPath)&quot; &quot;$(Sts2ModsDir)\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(Sts2ModsDir)\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; /-I &quot;$(ProjectDir)\publish\$(TargetName)$(VersionSuffix)$(TargetExt)&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)Antlr4.Runtime.Standard.dll&quot; &quot;$(ProjectDir)\publish\&quot; /Y" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(Sts2ModsDir)\$(TargetName)$(VersionSuffix)$(TargetExt)" />
+    <Copy SourceFiles="$(TargetDir)Antlr4.Runtime.Standard.dll" DestinationFolder="$(Sts2ModsDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(ProjectDir)publish\$(TargetName)$(VersionSuffix)$(TargetExt)" />
+    <Copy SourceFiles="$(TargetDir)Antlr4.Runtime.Standard.dll" DestinationFolder="$(ProjectDir)publish" />
   </Target>
   <Target Name="DeployGodotFiles">
     <ItemGroup>

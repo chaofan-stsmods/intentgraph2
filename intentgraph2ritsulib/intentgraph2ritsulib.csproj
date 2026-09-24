@@ -18,7 +18,8 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(Sts2ModsDir)\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\..\intentgraph2\publish\&quot; /Y" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Sts2ModsDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ProjectDir)..\intentgraph2\publish" />
   </Target>
 
 </Project>
