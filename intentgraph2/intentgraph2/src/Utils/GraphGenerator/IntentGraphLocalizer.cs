@@ -15,7 +15,7 @@ internal class IntentGraphLocalizer
     private readonly VariableContext variableContext;
     private readonly IntentDefinition? intentDefinition;
 
-    private static Regex PlaceholderFinder = new Regex(@"{{|{([^}]+)}", RegexOptions.Compiled);
+    private static readonly Regex PlaceholderFinder = new Regex(@"{{|{([^}]+)}", RegexOptions.Compiled);
 
     public delegate string? OnFoundVariableDelegate(string variableName, string? variableType);
 

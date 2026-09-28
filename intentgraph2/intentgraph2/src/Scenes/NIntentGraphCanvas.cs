@@ -1,28 +1,35 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Patches;
+using MegaCrit.Sts2.Core.Context;
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.Fonts;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.TestSupport;
+using MegaCrit.Sts2.Core.ValueProps;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.RegularExpressions;
 using static IntentGraph2.Scenes.NIntentGraph;
 
 namespace IntentGraph2.Scenes;
 
 public partial class NIntentGraphCanvas : Control
 {
+    private const string BlankImageResourcePath = "res://intentgraph2/images/blank.png";
+    private static readonly Regex PlaceholderFinder = new Regex(@"{{|{([^}]+)}", RegexOptions.Compiled);
+
     private const int ArrowWidth = 10;
     private const int ArrowEndLength = 15;
     private const int AnimatedIconFrameDurationMs = 80;
     private readonly Move InitMove = new Move(IntentGraphMod.ModId + "_special_init_move_", PossiblePreviousMoveNodeIndices: []);
-
-    private const string BlankImageResourcePath = "res://intentgraph2/images/blank.png";
 
     private static readonly Dictionary<IntentType, string> IntentImageResourcePath = new Dictionary<IntentType, string>
     {
@@ -130,6 +137,8 @@ public partial class NIntentGraphCanvas : Control
     public bool AnimatedIcons { get; set; }
 
     public bool ShowCurrentMove { get; set; }
+
+    private string AttackDamageFormat => IntentGraphMod.Config.AttackDamageFormat;
 
     public override void _Ready()
     {
@@ -303,19 +312,24 @@ public partial class NIntentGraphCanvas : Control
             DrawNormalIconIntent(icon);
         }
 
-        var text = string.Empty;
         var valueText = !string.IsNullOrEmpty(icon.ValueText) ? icon.ValueText : (icon.Value?.ToString() ?? string.Empty);
-        if (!string.IsNullOrEmpty(valueText))
+        var timesText = string.IsNullOrEmpty(valueText) || (icon.Times <= 1 && string.IsNullOrEmpty(icon.TimesText)) ?
+            string.Empty :
+            (!string.IsNullOrEmpty(icon.TimesText) ? icon.TimesText : icon.Times.ToString());
+
+        string text;
+        if (string.IsNullOrEmpty(timesText))
         {
-            if (icon.Times <= 1 && string.IsNullOrEmpty(icon.TimesText))
-            {
-                text = valueText;
-            }
-            else
-            {
-                var timesText = !string.IsNullOrEmpty(icon.TimesText) ? icon.TimesText : icon.Times.ToString();
-                text = $"{valueText}x{timesText}";
-            }
+            text = valueText;
+        }
+        else
+        {
+            text = $"{valueText}x{timesText}";
+        }
+
+        if (icon.IntentType == IntentType.Attack)
+        {
+            text = GetFormattedAttackText(valueText, timesText, text);
         }
 
         if (!string.IsNullOrEmpty(text))
@@ -324,6 +338,83 @@ public partial class NIntentGraphCanvas : Control
             DrawStringOutline(font, textPosition, text, fontSize: 22, size: 16, modulate: new Color(0, 0, 0, 0.5f));
             DrawString(font, textPosition, text, fontSize: 22);
         }
+    }
+
+    private string GetFormattedAttackText(string valueText, string timesText, string text)
+    {
+        if (string.IsNullOrEmpty(AttackDamageFormat) || AttackDamageFormat == "{base}" || Monster == null)
+        {
+            return text;
+        }
+
+        int? value = int.TryParse(valueText, out var v) ? v : null;
+        int? times = int.TryParse(timesText, out var t) ? t : null;
+
+        int ModifyDamage(int damage)
+        {
+            Player? me = LocalContext.GetMe(Monster.CombatState);
+            if (me != null)
+            {
+                damage = (int)Hook.ModifyDamage(me.RunState, me.Creature.CombatState, me.Creature, Monster.Creature, damage, ValueProp.Move, null, null, ModifyDamageHookType.All, CardPreviewMode.None, out IEnumerable<AbstractModel> _);
+            }
+            return Math.Max(0, damage);
+        }
+
+        return PlaceholderFinder.Replace(AttackDamageFormat, match =>
+        {
+            if (match.Value == "{{")
+            {
+                return "{";
+            }
+            
+            var variable = match.Groups[1].Value;
+
+            if (variable == "base")
+            {
+                return text;
+            }
+            else if (variable == "base:total")
+            {
+                return (value.HasValue && times.HasValue) ? (value.Value * times.Value).ToString() : text;
+            }
+            else if (variable.StartsWith("modified"))
+            {
+                var modifiedValue = value.HasValue ? ModifyDamage(value.Value) : (int?)null;
+                if (variable == "modified")
+                {
+                    if (!modifiedValue.HasValue)
+                    {
+                        return text;
+                    }
+                    else
+                    {
+                        return string.IsNullOrEmpty(timesText) ? modifiedValue.Value.ToString() : $"{modifiedValue.Value}x{timesText}" ;
+                    }
+                }
+                else if (variable == "modified:total")
+                {
+                    if (!modifiedValue.HasValue)
+                    {
+                        return text;
+                    }
+                    else if (times.HasValue)
+                    {
+                        return (modifiedValue.Value * times.Value).ToString();
+                    }
+                    else
+                    {
+                        return string.IsNullOrEmpty(timesText) ? modifiedValue.Value.ToString() : $"{modifiedValue.Value}x{timesText}" ;
+                    }
+                }
+                else {
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        });
     }
 
     private void DrawNormalIconIntent(Icon icon)

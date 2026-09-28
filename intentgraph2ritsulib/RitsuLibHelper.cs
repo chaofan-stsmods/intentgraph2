@@ -103,6 +103,17 @@ public class RitsuLibHelper : IRitsuLibHelper
                 settings.NotifyUpdated(nameof(IntentGraphModConfig.IntentGraphScale));
             });
 
+        var attackDamageFormat = new ModSettingsValueBinding<IntentGraphModConfig, string>(
+            IntentGraphMod.ModId,
+            SettingKey,
+            SaveScope.Global,
+            settings => settings.AttackDamageFormat,
+            (settings, value) =>
+            {
+                settings.AttackDamageFormat = value;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.AttackDamageFormat));
+            });
+
         var pinableIntentGraph = new ModSettingsValueBinding<IntentGraphModConfig, bool>(
             IntentGraphMod.ModId,
             SettingKey,
@@ -152,6 +163,11 @@ public class RitsuLibHelper : IRitsuLibHelper
                     maxValue: 150,
                     step: 10,
                     valueFormatter: (value) => $"{value:0.##}%");
+                section.AddString(
+                    "attack_damage_format",
+                    ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title", "Attack Damage Format"),
+                    attackDamageFormat,
+                    description: ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc", "Attack Damage Format Description"));
             });
             page.AddSection("control", section =>
             {

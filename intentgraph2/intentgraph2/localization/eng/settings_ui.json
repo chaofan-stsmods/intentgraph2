@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Top Right",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Top Center",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "Top Left or Right",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Intent Graph Scale"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Intent Graph Scale",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "Attack Damage Format",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "Customize how to display damage value of attacks. {base} - the base damage. {modified} - the damage modified by buffs and relics. {base:total} - multiply base damage and count. {modified:total} - multiply modified damage and count."
 }

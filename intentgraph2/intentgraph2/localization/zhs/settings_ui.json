@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "右上",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "中上",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "左上或右上",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "意图状态机缩放比例"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "意图状态机缩放比例",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "攻击伤害格式",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "自定义显示攻击伤害数值的格式。{base} - 基础伤害。{modified} - 经过增益和遗物修正后的伤害。{base:total} - 基础伤害乘以次数。{modified:total} - 修正后的伤害乘以次数。"
 }

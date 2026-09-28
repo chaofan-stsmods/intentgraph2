@@ -86,6 +86,17 @@ public class HelperModConfig : SimpleModConfig
         }
     }
 
+    [ConfigHoverTip]
+    public static string AttackDamageFormat
+    {
+        get => BaseConfig.AttackDamageFormat;
+        set
+        {
+            BaseConfig.AttackDamageFormat = value;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.AttackDamageFormat));
+        }
+    }
+
     [ConfigSection("Control")]
     public static bool PinableIntentGraph
     {

@@ -21,6 +21,8 @@ public class IntentGraphModConfig
 
     public float IntentGraphScale { get; set; } = 1.0f;
 
+    public string AttackDamageFormat { get; set; } = "{base}";
+
     public event EventHandler<string>? OnUpdated;
 
     public void NotifyUpdated(string propertyName)
@@ -38,6 +40,7 @@ public class IntentGraphModConfig
         PinableIntentGraph = config.PinableIntentGraph;
         IntentGraphPosition = config.IntentGraphPosition;
         IntentGraphScale = config.IntentGraphScale;
+        AttackDamageFormat = config.AttackDamageFormat;
     }
 }
 
