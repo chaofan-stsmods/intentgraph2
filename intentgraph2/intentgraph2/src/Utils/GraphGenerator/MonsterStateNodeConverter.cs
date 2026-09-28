@@ -20,34 +20,34 @@ internal class MonsterStateNodeConverter
 
     private readonly IntentGraphLocalizer localizer;
     private readonly IntentDefinition? intentDefinition;
+    private readonly Func<string, int, Vector2> getStringSize;
 
     private readonly Dictionary<MoveState, List<ResolvedIntent>> resolvedIntentsByMoveState = new();
 
-    public MonsterStateNodeConverter(IntentGraphLocalizer localizer, IntentDefinition? intentDefinition)
+    public MonsterStateNodeConverter(IntentGraphLocalizer localizer, IntentDefinition? intentDefinition, Func<string, int, Vector2> getStringSize)
     {
         this.localizer = localizer;
         this.intentDefinition = intentDefinition;
+        this.getStringSize = getStringSize;
     }
 
     public bool EvaluateInitialState { get; set; } = true;
 
-    public List<MonsterStateNode> ToMonsterStateNodes(MonsterModel monster, MonsterMoveStateMachine stateMachine, Font font, ref string? warning)
+    public List<MonsterStateNode> ToMonsterStateNodes(MonsterModel monster, MonsterMoveStateMachine stateMachine, ref string? warning)
     {
         if (intentDefinition?.StateMachine != null)
         {
-            return FromStateMachineNodes(stateMachine, intentDefinition.StateMachine, font);
+            return FromStateMachineNodes(stateMachine, intentDefinition.StateMachine);
         }
         else
         {
-            var initialState = stateMachine.GetInitialState();
-            return FromMonsterMoveStateMachine(monster.GetType().FullName ?? "_unknownMonster", font, stateMachine, intentDefinition, ref warning);
+            return FromMonsterMoveStateMachine(monster.GetType().FullName ?? "_unknownMonster", stateMachine, intentDefinition, ref warning);
         }
     }
 
     private List<MonsterStateNode> FromStateMachineNodes(
         MonsterMoveStateMachine stateMachine,
-        StateMachineNode[] overwriteStateMachine,
-        Font font)
+        StateMachineNode[] overwriteStateMachine)
     {
         var existingNodes = new Dictionary<string, MonsterStateNode>();
         var initialStates = new List<(int, MonsterStateNode)>();
@@ -56,7 +56,7 @@ internal class MonsterStateNodeConverter
         {
             if (node.IsInitialState)
             {
-                var stateNode = StateMachineNodeToMonsterStateNode(font, stateMachine, overwriteStateMachine, node, existingNodes, parent: null);
+                var stateNode = StateMachineNodeToMonsterStateNode(stateMachine, overwriteStateMachine, node, existingNodes, parent: null);
                 if (stateNode != null)
                 {
                     initialStates.Add((node.InitialStatePriority, stateNode));
@@ -72,7 +72,6 @@ internal class MonsterStateNodeConverter
 
     private List<MonsterStateNode> FromMonsterMoveStateMachine(
         string monsterName,
-        Font font,
         MonsterMoveStateMachine stateMachine,
         IntentDefinition? intentDefinition,
         ref string? warning)
@@ -91,7 +90,7 @@ internal class MonsterStateNodeConverter
             var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == stateName);
             if (state != null)
             {
-                initialStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null, ref warning);
+                initialStateNode = MonsterStateToMonsterStateNode(monsterName, stateMachine, state, existingNodes, parent: null, ref warning);
                 initialStateNode.SetIsInitialState(true);
                 // If next state is the same as initial state, use the initial state can simplify the graph.
                 if (initialStateNode.NextState?.State == initialState)
@@ -103,7 +102,7 @@ internal class MonsterStateNodeConverter
 
         if (initialStateNode == null)
         {
-            initialStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, initialState, existingNodes, parent: null, ref warning);
+            initialStateNode = MonsterStateToMonsterStateNode(monsterName, stateMachine, initialState, existingNodes, parent: null, ref warning);
             initialStateNode.SetIsInitialState(true);
         }
 
@@ -119,7 +118,7 @@ internal class MonsterStateNodeConverter
                 var state = stateMachine.States.Values.FirstOrDefault(s => s.Id == secondaryState.Id);
                 if (state != null && !existingNodes.ContainsKey(state))
                 {
-                    var stateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, state, existingNodes, parent: null, ref warning);
+                    var stateNode = MonsterStateToMonsterStateNode(monsterName, stateMachine, state, existingNodes, parent: null, ref warning);
                     var secondaryAllNodes = stateNode.GetAllNodes();
                     MonsterStateNodeSimplifier.SimplifyStateNodes(stateNode, secondaryAllNodes, this);
                     foreach (var item in secondaryAllNodes)
@@ -164,7 +163,6 @@ internal class MonsterStateNodeConverter
     }
 
     private MonsterStateNode? StateMachineNodeToMonsterStateNode(
-        Font font,
         MonsterMoveStateMachine stateMachine,
         StateMachineNode[] overwriteStateMachine,
         StateMachineNode? node,
@@ -241,7 +239,7 @@ internal class MonsterStateNodeConverter
 
             if (node.FollowUpState != null)
             {
-                result.NextState = StateMachineNodeToMonsterStateNode(font, stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null);
+                result.NextState = StateMachineNodeToMonsterStateNode(stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null);
             }
 
             return result;
@@ -269,11 +267,11 @@ internal class MonsterStateNodeConverter
                 var text = node.Children[i].Label;
                 text = localizer.GetOrElse(text, text);
                 text = localizer.FormatWithVariables(text);
-                var childStateNode = StateMachineNodeToMonsterStateNode(font, stateMachine, overwriteStateMachine, childNode, existingNodes, parent: result);
+                var childStateNode = StateMachineNodeToMonsterStateNode(stateMachine, overwriteStateMachine, childNode, existingNodes, parent: result);
                 if (childStateNode != null)
                 {
                     childStateNode.Label = new MonsterStateNodeLabel { Text = text };
-                    childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(text, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
+                    childStateNode.Width = Math.Max(childStateNode.Width, getStringSize(text, NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
                     children.Add(childStateNode);
                     result.MoveStateIds.AddRange(childStateNode.MoveStateIds);
                 }
@@ -290,7 +288,7 @@ internal class MonsterStateNodeConverter
 
             if (node.FollowUpState != null)
             {
-                result.NextState = StateMachineNodeToMonsterStateNode(font, stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null);
+                result.NextState = StateMachineNodeToMonsterStateNode(stateMachine, overwriteStateMachine, overwriteStateMachine.FirstOrDefault(n => n.Name == node.FollowUpState), existingNodes, parent: null);
             }
 
             result.NextStateCount = (result.NextState == null ? 0 : 1) + children.Select(c => c.NextStateCount).DefaultIfEmpty(0).Max();
@@ -302,7 +300,6 @@ internal class MonsterStateNodeConverter
     [return: NotNullIfNotNull(nameof(state))]
     private MonsterStateNode? MonsterStateToMonsterStateNode(
         string monsterName,
-        Font font,
         MonsterMoveStateMachine stateMachine,
         MonsterState? state,
         Dictionary<MonsterState, MonsterStateNode> existingNodes,
@@ -342,7 +339,7 @@ internal class MonsterStateNodeConverter
                 existingNodes[state] = result;
             }
 
-            result.NextState = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, moveState.FollowUpState, existingNodes, parent: null, ref warning);
+            result.NextState = MonsterStateToMonsterStateNode(monsterName, stateMachine, moveState.FollowUpState, existingNodes, parent: null, ref warning);
 
             return result;
         }
@@ -395,7 +392,7 @@ internal class MonsterStateNodeConverter
                     var evaluatedState = stateMachine.States.Values.FirstOrDefault(s => s.Id == evaluatedSstateName);
                     if (evaluatedState != null)
                     {
-                        return MonsterStateToMonsterStateNode(monsterName, font, stateMachine, evaluatedState, existingNodes, parent, ref warning);
+                        return MonsterStateToMonsterStateNode(monsterName, stateMachine, evaluatedState, existingNodes, parent, ref warning);
                     }
                 }
 
@@ -462,16 +459,27 @@ internal class MonsterStateNodeConverter
             {
                 var (childStateId, label) = childCandidates[i];
                 var childState = stateMachine.States.Values.FirstOrDefault(s => s.Id == childStateId);
-                if (childState != null)
+                if (childState == null)
                 {
-                    var childStateNode = MonsterStateToMonsterStateNode(monsterName, font, stateMachine, childState, existingNodes, parent: result, ref warning);
-                    if (childStateNode != null)
+                    continue;
+                }
+
+                if (IsStateInParentChain(result, childState))
+                {
+                    if (warning == null)
                     {
-                        childStateNode.Label = label;
-                        childStateNode.Width = Math.Max(childStateNode.Width, font.GetStringSize(label.Text, fontSize: NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
-                        children.Add(childStateNode);
-                        result.MoveStateIds.AddRange(childStateNode.MoveStateIds);
+                        warning = localizer.GetOrElse("ui.Incomplete", "Incomplete");
                     }
+                    continue;
+                }
+
+                var childStateNode = MonsterStateToMonsterStateNode(monsterName, stateMachine, childState, existingNodes, parent: result, ref warning);
+                if (childStateNode != null)
+                {
+                    childStateNode.Label = label;
+                    childStateNode.Width = Math.Max(childStateNode.Width, getStringSize(label.Text, NIntentGraph.LabelFontSize).X / NIntentGraph.GridSize);
+                    children.Add(childStateNode);
+                    result.MoveStateIds.AddRange(childStateNode.MoveStateIds);
                 }
             }
 
@@ -492,5 +500,20 @@ internal class MonsterStateNodeConverter
 
             return result;
         }
+    }
+
+    private bool IsStateInParentChain(MonsterStateNode parent, MonsterState state)
+    {
+        var currentParent = parent;
+        while (currentParent != null)
+        {
+            if (currentParent.State == state)
+            {
+                return true;
+            }
+            currentParent = currentParent.Parent;
+        }
+
+        return false;
     }
 }

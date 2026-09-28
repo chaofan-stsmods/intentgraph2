@@ -127,8 +127,9 @@ public class IntentGraphGenerator
             return graph;
         }
 
-        var converter = new MonsterStateNodeConverter(localizer, intentDefinition);
-        var stateNodes = converter.ToMonsterStateNodes(monster, stateMachine, font, ref warning);
+        var converter = new MonsterStateNodeConverter(localizer, intentDefinition,
+            (text, fontSize) => font.GetStringSize(text, fontSize: fontSize));
+        var stateNodes = converter.ToMonsterStateNodes(monster, stateMachine, ref warning);
 
         graph = layouter.StateNodesToGraph(stateNodes, intentDefinition);
         graph.Warning = warning;
