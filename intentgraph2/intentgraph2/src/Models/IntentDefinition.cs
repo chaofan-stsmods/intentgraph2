@@ -87,7 +87,7 @@ public record class MoveReplacement(
     ArrowOverride? ArrowOverride,
     string? CurrentMoveCondition);
 
-public record class IntentOverride(string? ValueText, string? TimesText, MoveDetailOverride[]? Details);
+public record class IntentOverride(string? ValueText, string? TimesText, string? VolatileValueText, MoveDetailOverride[]? Details);
 
 public record class MoveDetailOverride(MoveDetailIconType Type, string? Id, int? Value, string? ValueText);
 

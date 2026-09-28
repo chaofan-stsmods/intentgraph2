@@ -75,6 +75,7 @@ public record class Icon(
     int Times = 1,
     string ValueText = "",
     string TimesText = "",
+    string VolatileValueText = "",
     // Only works in graph patch
     string? RelativeTo = null,
     // Generated move detail icons only

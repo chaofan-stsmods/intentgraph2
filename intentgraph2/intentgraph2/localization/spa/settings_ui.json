@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Arriba a la derecha",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Arriba al centro",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "Arriba a la izquierda o a la derecha",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Escala del grafo de intenciones"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Escala del grafo de intenciones",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "Formato del daño de ataque",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "Personaliza cómo se muestra el daño de los ataques. Solo se aplica en combate.\n{base} - daño base.\n{modified} - daño modificado por mejoras y reliquias.\n{base:total} - daño base multiplicado por el número de golpes.\n{modified:total} - daño modificado multiplicado por el número de golpes."
 }

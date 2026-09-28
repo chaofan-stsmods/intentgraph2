@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "오른쪽 위",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "위 중앙",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "왼쪽 위 또는 오른쪽 위",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "의도 그래프 크기"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "의도 그래프 크기",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "공격 피해 표시 형식",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "공격 피해 수치의 표시 형식을 설정합니다. 전투 중에만 적용됩니다.\n{base} - 기본 피해.\n{modified} - 강화 효과와 유물로 보정된 피해.\n{base:total} - 기본 피해에 공격 횟수를 곱한 값.\n{modified:total} - 보정된 피해에 공격 횟수를 곱한 값."
 }

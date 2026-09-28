@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Справа сверху",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Сверху по центру",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "Слева сверху или справа сверху",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Масштаб графа намерений"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Масштаб графа намерений",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "Формат урона атаки",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "Настройте отображение урона атак. Действует только в бою.\n{base} - базовый урон.\n{modified} - урон с учётом усилений и реликвий.\n{base:total} - базовый урон, умноженный на число ударов.\n{modified:total} - изменённый урон, умноженный на число ударов."
 }

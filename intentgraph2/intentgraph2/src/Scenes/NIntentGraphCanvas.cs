@@ -1,6 +1,8 @@
 using Godot;
 using IntentGraph2.Models;
 using IntentGraph2.Patches;
+using IntentGraph2.Utils.GraphGenerator;
+using IntentGraph2.Utils.Variable;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -115,6 +117,8 @@ public partial class NIntentGraphCanvas : Control
     private int previousStateLogLength;
     private string? previousStateId;
     private List<Move> glowingMoves = new();
+    private IntentGraphLocalizer? intentGraphLocalizer;
+    private MonsterModel? monster;
 
     private ulong lastDrawTime;
 
@@ -132,7 +136,20 @@ public partial class NIntentGraphCanvas : Control
         }
     }
 
-    public MonsterModel? Monster { get; set; }
+    public MonsterModel? Monster {
+        get => this.monster;
+        set {
+            this.monster = value;
+            if (value != null)
+            {
+                this.intentGraphLocalizer = new IntentGraphLocalizer(null, new VariableContext(value), null);
+            }
+            else
+            {
+                this.intentGraphLocalizer = null;
+            }
+        }
+    }
 
     public bool AnimatedIcons { get; set; }
 
@@ -329,7 +346,7 @@ public partial class NIntentGraphCanvas : Control
 
         if (icon.IntentType == IntentType.Attack)
         {
-            text = GetFormattedAttackText(valueText, timesText, text);
+            text = GetFormattedAttackText(valueText, timesText, text, icon.VolatileValueText);
         }
 
         if (!string.IsNullOrEmpty(text))
@@ -340,13 +357,20 @@ public partial class NIntentGraphCanvas : Control
         }
     }
 
-    private string GetFormattedAttackText(string valueText, string timesText, string text)
+    private string GetFormattedAttackText(string valueText, string timesText, string text, string volatileValueText)
     {
         if (string.IsNullOrEmpty(AttackDamageFormat) || AttackDamageFormat == "{base}" || Monster == null)
         {
             return text;
         }
 
+        var valueTextForModified = valueText;
+        if (!string.IsNullOrEmpty(volatileValueText) && intentGraphLocalizer != null)
+        {
+            valueTextForModified = intentGraphLocalizer.FormatWithVariables(volatileValueText, (v, t) => v == "originalValue" ? valueText : null);
+        }
+
+        int? valueForModified = int.TryParse(valueTextForModified, out var mv) ? mv : null;
         int? value = int.TryParse(valueText, out var v) ? v : null;
         int? times = int.TryParse(timesText, out var t) ? t : null;
 
@@ -377,41 +401,35 @@ public partial class NIntentGraphCanvas : Control
             {
                 return (value.HasValue && times.HasValue) ? (value.Value * times.Value).ToString() : text;
             }
-            else if (variable.StartsWith("modified"))
+            else if (variable == "modified")
             {
-                var modifiedValue = value.HasValue ? ModifyDamage(value.Value) : (int?)null;
-                if (variable == "modified")
+                var modifiedValue = valueForModified.HasValue ? ModifyDamage(valueForModified.Value) : (int?)null;
+                if (!modifiedValue.HasValue)
                 {
-                    if (!modifiedValue.HasValue)
-                    {
-                        return text;
-                    }
-                    else
-                    {
-                        return string.IsNullOrEmpty(timesText) ? modifiedValue.Value.ToString() : $"{modifiedValue.Value}x{timesText}" ;
-                    }
+                    return text;
                 }
-                else if (variable == "modified:total")
+                else
                 {
-                    if (!modifiedValue.HasValue)
-                    {
-                        return text;
-                    }
-                    else if (times.HasValue)
-                    {
-                        return (modifiedValue.Value * times.Value).ToString();
-                    }
-                    else
-                    {
-                        return string.IsNullOrEmpty(timesText) ? modifiedValue.Value.ToString() : $"{modifiedValue.Value}x{timesText}" ;
-                    }
-                }
-                else {
-                    return string.Empty;
+                    return string.IsNullOrEmpty(timesText) ? modifiedValue.Value.ToString() : $"{modifiedValue.Value}x{timesText}" ;
                 }
             }
-            else
+            else if (variable == "modified:total")
             {
+                var modifiedValue = valueForModified.HasValue ? ModifyDamage(valueForModified.Value) : (int?)null;
+                if (!modifiedValue.HasValue)
+                {
+                    return text;
+                }
+                else if (times.HasValue)
+                {
+                    return (modifiedValue.Value * times.Value).ToString();
+                }
+                else
+                {
+                    return string.IsNullOrEmpty(timesText) ? modifiedValue.Value.ToString() : $"{modifiedValue.Value}x{timesText}" ;
+                }
+            }
+            else {
                 return string.Empty;
             }
         });

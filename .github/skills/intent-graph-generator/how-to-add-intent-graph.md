@@ -188,7 +188,11 @@ Alternatively, you can use the `graph` property to define the graph precisely. T
                     "times": 2,
                     // Optional, show value and times as texts instead of numbers
                     "valueText": "N",
-                    "timesText": "T"
+                    "timesText": "T",
+                    // Optional, it takes effect only when "{modified}" is used in setting "Attack damage format"
+                    // Variables are supported here. See supported variable section below.
+                    // This fallbacks to valueText if not set.
+                    "volatileValueText": "{m.CurrentAttackDamage}",
                 }
             ],
             // Squares
@@ -272,7 +276,7 @@ A monster may have dynamic values for its intents. For example, it may attack on
                     {
                         // Both are optional; replace only the one you need.
                         "valueText": "N",
-                        "timesText": "T"
+                        "timesText": "T",
                         // It's allowed to use localization keys here, e.g.
                         // "valueText": "text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE.value"
                     }
@@ -285,6 +289,27 @@ A monster may have dynamic values for its intents. For example, it may attack on
                         "x": 3.5,
                         "y": 0.8,
                         "text": "text.MegaCrit.Sts2.Core.Models.Monsters.TestSubject.MULTI_CLAW_MOVE"
+                    }
+                ]
+            }
+        }
+    ]
+}
+```
+
+You can also add optional `volatileValueText` which takes effect when "{modified}" is used in setting "Attack damage format". Here's an example:
+
+```json
+{
+    "MegaCrit.Sts2.Core.Models.Monsters.WaterfallGiant": [
+        {
+            "moveReplacements": {
+                "PRESSURE_GUN_MOVE": [
+                    {
+                        "valueText": "{m.BasePressureGunDamage}",
+                        // Variables are supported here. See supported variable section below.
+                        // This fallbacks to valueText if not set.
+                        "volatileValueText": "{m.CurrentPressureGunDamage}"
                     }
                 ]
             }

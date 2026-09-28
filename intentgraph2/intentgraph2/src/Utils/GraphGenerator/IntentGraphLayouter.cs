@@ -34,7 +34,16 @@ internal class IntentGraphLayouter
         {
             Width = graph.Width,
             Height = graph.Height,
-            Icons = graph.Icons.Select(i => (i, ResolveRelative(i, allStateNodes))).Select(t => t.i with { X = t.Item2.x, Y = t.Item2.y, RelativeTo = null }).ToList(),
+            Icons = graph.Icons
+                .Select(i => (i, ResolveRelative(i, allStateNodes)))
+                .Select(t => t.i with
+                {
+                    X = t.Item2.x,
+                    Y = t.Item2.y,
+                    RelativeTo = null,
+                    VolatileValueText = string.IsNullOrEmpty(t.i.VolatileValueText) ? t.i.ValueText : t.i.VolatileValueText,
+                })
+                .ToList(),
             IconGroups = graph.IconGroups.Select(i => (i, ResolveRelative(i, allStateNodes))).Select(t => t.i with { X = t.Item2.x, Y = t.Item2.y, RelativeTo = null }).ToList(),
             Arrows = graph.Arrows.Select(i => ResolveRelative(i, allStateNodes)).ToList(),
         };
@@ -53,7 +62,7 @@ internal class IntentGraphLayouter
             if (graph.Expand)
             {
                 var lines = resolvedLabel.Text.Split('\n');
-                var labelWidth = lines.Select(l => font.GetStringSize(l, fontSize: resolvedLabel.FontSize).X).Max() / NIntentGraph.GridSize;
+                var labelWidth = lines.Max(l => font.GetStringSize(l, fontSize: resolvedLabel.FontSize).X) / NIntentGraph.GridSize;
                 result.Height = Math.Max(result.Height, resolvedLabel.Y + (resolvedLabel.FontSize + NIntentGraph.LabelLinePadding) * (lines.Length - 1) / NIntentGraph.GridSize);
                 if (resolvedLabel.Align != "right")
                 {
@@ -327,7 +336,8 @@ internal class IntentGraphLayouter
                 icons[i] = new Icon(iconX, y, intent.IntentType,
                     value, times,
                     GetLocalizedValueText(intentOverride?.ValueText, value ?? 0),
-                    GetLocalizedValueText(intentOverride?.TimesText, times));
+                    GetLocalizedValueText(intentOverride?.TimesText, times),
+                    intentOverride?.VolatileValueText ?? intentOverride?.ValueText ?? string.Empty);
             }
             else if (intent is StatusIntent statusIntent)
             {

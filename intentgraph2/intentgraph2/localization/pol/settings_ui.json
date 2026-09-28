@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Prawy gorny rog",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Gora srodek",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "Lewy lub prawy gorny rog",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Skala grafu intencji"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Skala grafu intencji",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "Format obrażeń ataku",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "Dostosuj sposób wyświetlania obrażeń ataków. Działa tylko podczas walki.\n{base} - obrażenia bazowe.\n{modified} - obrażenia zmodyfikowane przez wzmocnienia i relikty.\n{base:total} - obrażenia bazowe pomnożone przez liczbę trafień.\n{modified:total} - zmodyfikowane obrażenia pomnożone przez liczbę trafień."
 }

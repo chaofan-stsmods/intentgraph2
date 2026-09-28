@@ -127,7 +127,10 @@
             },
             "moveReplacements": {
                 "PRESSURE_GUN_MOVE": [
-                    { "valueText": "{m.BasePressureGunDamage}" }
+                    {
+                        "valueText": "{m.BasePressureGunDamage}",
+                        "volatileValueText": "{m.CurrentPressureGunDamage}"
+                    }
                 ]
             }
         }

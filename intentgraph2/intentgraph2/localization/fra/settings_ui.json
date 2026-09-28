@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "En haut a droite",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "En haut au centre",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "En haut a gauche ou a droite",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Echelle du graphe d'intention"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Echelle du graphe d'intention",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "Format des dégâts d'attaque",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "Personnalisez l'affichage des dégâts des attaques. S'applique uniquement en combat.\n{base} - dégâts de base.\n{modified} - dégâts modifiés par les bonus et les reliques.\n{base:total} - dégâts de base multipliés par le nombre de coups.\n{modified:total} - dégâts modifiés multipliés par le nombre de coups."
 }

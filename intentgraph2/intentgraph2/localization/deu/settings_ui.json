@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Oben rechts",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Oben mittig",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "Oben links oder rechts",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Skalierung des Absichtsgraphen"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Skalierung des Absichtsgraphen",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "Format des Angriffsschadens",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "Passe an, wie Angriffsschaden angezeigt wird. Gilt nur im Kampf.\n{base} - Grundschaden.\n{modified} - durch Verstärkungen und Relikte veränderter Schaden.\n{base:total} - Grundschaden multipliziert mit der Anzahl der Treffer.\n{modified:total} - veränderter Schaden multipliziert mit der Anzahl der Treffer."
 }

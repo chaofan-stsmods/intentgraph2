@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "右上",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "中上",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "左上或右上",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "意圖狀態機縮放比例"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "意圖狀態機縮放比例",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "攻擊傷害格式",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "自訂攻擊傷害數值的顯示格式。僅在戰鬥中生效。\n{base} - 基礎傷害。\n{modified} - 經增益效果與遺物修正後的傷害。\n{base:total} - 基礎傷害乘以攻擊次數。\n{modified:total} - 修正後的傷害乘以攻擊次數。"
 }

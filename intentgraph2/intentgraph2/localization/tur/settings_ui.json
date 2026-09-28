@@ -16,5 +16,7 @@
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopRight": "Sag ust",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopCenter": "Ust orta",
     "INTENTGRAPH2-INTENT_GRAPH_POSITION.TopLeftOrRight": "Sol ust veya sag ust",
-    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Niyet grafigi olcegi"
+    "INTENTGRAPH2-INTENT_GRAPH_SCALE.title": "Niyet grafigi olcegi",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.title": "Saldırı Hasarı Biçimi",
+    "INTENTGRAPH2-ATTACK_DAMAGE_FORMAT.hover.desc": "Saldırı hasarının nasıl gösterileceğini özelleştirir. Yalnızca savaş sırasında geçerlidir.\n{base} - temel hasar.\n{modified} - güçlendirmeler ve kalıntılarla değişen hasar.\n{base:total} - temel hasarın vuruş sayısıyla çarpımı.\n{modified:total} - değiştirilmiş hasarın vuruş sayısıyla çarpımı."
 }
