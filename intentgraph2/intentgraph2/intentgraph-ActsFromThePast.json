@@ -2313,7 +2313,19 @@
           "name": "SLAM",
           "followUpState": "GOOP_SPRAY"
         }
-      ]
+      ],
+      "moveReplacements": {
+        "GOOP_SPRAY": [
+          {
+            "details": [
+              {
+                "type": "card",
+                "id": "SLIMED"
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "ActsFromThePast.SnakePlant": [
