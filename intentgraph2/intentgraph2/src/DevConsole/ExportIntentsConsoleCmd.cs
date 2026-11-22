@@ -17,6 +17,7 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Monsters;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Random;
+using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using System;
 using System.Collections.Generic;
@@ -41,15 +42,20 @@ public class ExportIntentsConsoleCmd : AbstractConsoleCmd
 
         try
         {
+            IsDreadPatches.OverwriteIsDread = false;
             HasAscensionLevelPatches.OverwriteAsensionLevel = AscensionLevel.None;
             GenerateGraphForAllEncounters(tasks);
 
             HasAscensionLevelPatches.OverwriteAsensionLevel = AscensionLevel.DeadlyEnemies;
             GenerateGraphForAllEncounters(tasks, "a9_");
+
+            IsDreadPatches.OverwriteIsDread = true;
+            GenerateGraphForAllEncounters(tasks, "dread_", encounter => encounter.RoomType == RoomType.Boss);
         }
         finally
         {
             HasAscensionLevelPatches.OverwriteAsensionLevel = null;
+            IsDreadPatches.OverwriteIsDread = null;
         }
 
         var task = Task.WhenAll(tasks).ContinueWith(task =>
@@ -60,13 +66,18 @@ public class ExportIntentsConsoleCmd : AbstractConsoleCmd
         return new CmdResult(task, success: true, "Intent graph images exported");
     }
 
-    private static void GenerateGraphForAllEncounters(List<Task> tasks, string prefix = "")
+    private static void GenerateGraphForAllEncounters(List<Task> tasks, string prefix = "", Func<EncounterModel, bool>? filter = null)
     {
         var addedGraphs = new HashSet<Graph>();
         var graphMetadata = new Dictionary<Graph, (MonsterModel monster, string suffix)>();
 
         foreach (var canonicalEncounter in ModelDb.AllEncounters)
         {
+            if (filter != null && !filter(canonicalEncounter))
+            {
+                continue;
+            }
+
             var encounter = canonicalEncounter.ToMutable();
             new Traverse(encounter).Field("_rng").SetValue(Rng.Chaotic);
             encounter.GenerateMonstersWithSlots(NullRunState.Instance);

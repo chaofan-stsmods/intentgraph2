@@ -45,5 +45,6 @@
   </Target>
   <Target Name="BuildMultipleVersion" AfterTargets="BeforeBuild" Condition="'$(BuildMultipleVersion)' == 'true'">
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="DefineConstants=$(DefineConstants);LESS_THAN_0_110_0;VersionSuffix=-lt-0.110.0;BuildMultipleVersion=false" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="DefineConstants=$(DefineConstants);LESS_THAN_0_113_0;VersionSuffix=-lt-0.113.0;BuildMultipleVersion=false" />
   </Target>
 </Project>

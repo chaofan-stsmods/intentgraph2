@@ -140,6 +140,9 @@ public class VariableContext : IVariableContext
                 "slotIndex" => Monster.CombatState.Encounter?.Slots.IndexOf(Monster.Creature.SlotName),
                 "ascension" => ((int?)HasAscensionLevelPatches.OverwriteAsensionLevel) ??
                     Traverse.Create(RunManager.Instance.AscensionManager).Field("_level").GetValue<int>(),
+#if !LESS_THAN_0_113_0
+                "isDread" => RunManager.Instance.IsDread(),
+#endif
                 "showMoveNames" => IntentGraphMod.Config.ShowMonsterMoveNames,
                 "inBestiary" => InBestiary,
                 "showMoveDetail" => IntentGraphMod.Config.ShowMoveDetail,

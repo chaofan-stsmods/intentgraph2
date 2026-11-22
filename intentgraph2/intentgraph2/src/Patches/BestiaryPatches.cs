@@ -46,6 +46,7 @@ public class BestiaryPatches
                 return;
             }
 
+            intentGraphBestiary.EncounterType = entry.Entry.roomType;
             var monster = entry.Entry.monsterModel;
             if (monster != null)
             {

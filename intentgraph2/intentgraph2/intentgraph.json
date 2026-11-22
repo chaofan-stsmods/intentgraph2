@@ -287,6 +287,30 @@
                     }
                 ]
             }
+        },
+        {
+            "condition": "isDread",
+            "moveReplacements": {
+                "DREAD_INITIAL_MOVE": [
+                    {
+                        "details": [{ "type": "power", "id": "CHAINS_OF_BINDING_POWER", "valueText": "{m.ChainsOfBindingAmount}" }]
+                    },
+                    {
+                        "details": [
+                            { "type": "power", "id": "FRAIL_POWER", "value": 99 },
+                            { "type": "power", "id": "WEAK_POWER", "value": 99 },
+                            { "type": "power", "id": "VULNERABLE_POWER", "value": 99 }
+                        ]
+                    }
+                ],
+                "BURN_BRIGHT_FOR_ME_MOVE": [
+                    {
+                        "details": [
+                            { "type": "power", "id": "STRENGTH_POWER", "value": 2 }
+                        ]
+                    }
+                ]
+            }
         }
     ],
     "MegaCrit.Sts2.Core.Models.Monsters.TwoTailedRat": [

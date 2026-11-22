@@ -8,6 +8,7 @@ using MegaCrit.Sts2.Core.Entities.Ascension;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Random;
+using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using System;
 using System.Collections.Generic;
@@ -19,13 +20,16 @@ public partial class NIntentGraphBestiary : Control
 {
     private MonsterModel? monster;
     private EncounterModel? encounter;
+    private RoomType encounterType = RoomType.Monster;
     private List<Graph> graphs = new List<Graph>();
     private int currentGraphIndex = 0;
 
     private NIntentGraph? intentGraph;
     private NIgArrowButton? previousGraph;
     private NIgArrowButton? nextGraph;
+    private NIgTickbox? dreadCheck;
     private bool ascension9 = false;
+    private bool dread = false;
 
     public MonsterModel? Monster
     {
@@ -71,12 +75,32 @@ public partial class NIntentGraphBestiary : Control
         }
     }
 
+    public RoomType EncounterType
+    {
+        get => encounterType;
+        set
+        {
+            this.encounterType = value;
+#if !LESS_THAN_0_113_0
+            if (dreadCheck != null)
+            {
+                dreadCheck.Visible = encounterType == RoomType.Boss;
+                if (!dreadCheck.Visible)
+                {
+                    dreadCheck.IsTicked = false;
+                }
+            }
+#endif
+        }
+    }
+
     public override void _Ready()
     {
         intentGraph = GetNode<NIntentGraph>("%IntentGraph");
         previousGraph = GetNode<NIgArrowButton>("%PreviousGraph");
         nextGraph = GetNode<NIgArrowButton>("%NextGraph");
         var ascension9Check = GetNode<NIgTickbox>("%Ascension9");
+        dreadCheck = GetNode<NIgTickbox>("%Dread");
         var showIntentGraphCheck = GetNode<NIgTickbox>("%ShowIntentGraph");
         var description = GetParent()?.GetNodeOrNull<Control>("%Description");
 
@@ -104,6 +128,11 @@ public partial class NIntentGraphBestiary : Control
         ascension9Check.Toggled += (tickbox) =>
         {
             ascension9 = tickbox.IsTicked;
+            if (!ascension9)
+            {
+                dreadCheck.IsTicked = false;
+                dread = false;
+            }
             if (monster != null || encounter != null)
             {
                 GenerateGraphs();
@@ -116,6 +145,27 @@ public partial class NIntentGraphBestiary : Control
         {
             ascensionLevelText.Add("ascension", 9);
             ascension9Label.Text = ascensionLevelText.GetFormattedText();
+        }
+
+        dreadCheck.Toggled += (tickbox) =>
+        {
+            dread = tickbox.IsTicked;
+            if (dread)
+            {
+                ascension9Check.IsTicked = true;
+                ascension9 = true;
+            }
+            if (monster != null || encounter != null)
+            {
+                GenerateGraphs();
+            }
+        };
+
+        var dreadLabel = dreadCheck.Label;
+        var dreadText = LocString.GetIfExists("main_menu_ui", "DREAD.title");
+        if (dreadText != null && dreadLabel != null)
+        {
+            dreadLabel.Text = dreadText.GetFormattedText();
         }
 
         showIntentGraphCheck.IsTicked = true;
@@ -167,6 +217,7 @@ public partial class NIntentGraphBestiary : Control
         }
 
         HasAscensionLevelPatches.OverwriteAsensionLevel = ascension9 ? AscensionLevel.DeadlyEnemies : AscensionLevel.None;
+        IsDreadPatches.OverwriteIsDread = dread;
         try
         {
             graphs.Clear();
@@ -233,6 +284,7 @@ public partial class NIntentGraphBestiary : Control
         finally
         {
             HasAscensionLevelPatches.OverwriteAsensionLevel = null;
+            IsDreadPatches.OverwriteIsDread = null;
         }
     }
 
