@@ -77,9 +77,22 @@ public class VariableContext : IVariableContext
                     return power?.Amount ?? 0;
                 }
 
-                var fieldName = variableName.Substring(2);
+                object? obj = Monster;
+                var remainingVariableName = variableName.Substring(2);
+                while (remainingVariableName.Contains('.'))
+                {
+                    var dotIndex = remainingVariableName.IndexOf('.');
+                    var fieldName = remainingVariableName.Substring(0, dotIndex);
+                    obj = Traverse.Create(obj).Property(fieldName).GetValue() ?? Traverse.Create(obj).Field(fieldName).GetValue();
+                    if (obj == null)
+                    {
+                        return null;
+                    }
+                    remainingVariableName = remainingVariableName.Substring(dotIndex + 1);
+                }
+
                 var monsterType = Traverse.Create(Monster);
-                return monsterType.Property(fieldName).GetValue() ?? monsterType.Field(fieldName).GetValue();
+                return monsterType.Property(remainingVariableName).GetValue() ?? monsterType.Field(remainingVariableName).GetValue();
             }
 
             // For outdate check

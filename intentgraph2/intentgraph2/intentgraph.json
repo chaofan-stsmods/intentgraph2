@@ -87,18 +87,24 @@
                         "timesText": "T"
                     }
                 ],
-                "/RESPAWN_MOVE1": [
-                    null,
-                    {
-                        "details": [{ "type": "power", "id": "PAINFUL_STABS_POWER", "value": 1 }]
-                    }
-                ],
-                "/RESPAWN_MOVE2": [
-                    null,
-                    {
-                        "details": [{ "type": "power", "id": "NEMESIS_POWER" }]
-                    }
-                ]
+                "/RESPAWN_MOVE1": {
+                    "intentOverrides": [
+                        null,
+                        {
+                            "details": [{ "type": "power", "id": "PAINFUL_STABS_POWER", "value": 1 }]
+                        }
+                    ],
+                    "currentMoveCondition": "m.Respawns == 0 || (m.Respawns == 1 && (m._creature.CurrentHp > 0 || !m.hasPower_PAINFUL_STABS_POWER))"
+                },
+                "/RESPAWN_MOVE2":{
+                    "intentOverrides": [
+                        null,
+                        {
+                            "details": [{ "type": "power", "id": "NEMESIS_POWER" }]
+                        }
+                    ],
+                    "currentMoveCondition": "m.Respawns > 1 || (m.Respawns == 1 && m._creature.CurrentHp == 0 && m.hasPower_PAINFUL_STABS_POWER)"
+                }
             }
         }
     ],

@@ -23,6 +23,8 @@ public class IntentGraphModConfig
 
     public string AttackDamageFormat { get; set; } = "{base}";
 
+    public IntentGraphHoverTrigger IntentGraphHoverTrigger { get; set; } = IntentGraphHoverTrigger.Monster;
+
     public event EventHandler<string>? OnUpdated;
 
     public void NotifyUpdated(string propertyName)
@@ -41,6 +43,7 @@ public class IntentGraphModConfig
         IntentGraphPosition = config.IntentGraphPosition;
         IntentGraphScale = config.IntentGraphScale;
         AttackDamageFormat = config.AttackDamageFormat;
+        IntentGraphHoverTrigger = config.IntentGraphHoverTrigger;
     }
 }
 
@@ -51,4 +54,11 @@ public enum IntentGraphPosition
     TopCenter,
     TopRight,
     TopLeftOrRight,
+}
+
+public enum IntentGraphHoverTrigger
+{
+    Monster,
+    Intents,
+    Both,
 }

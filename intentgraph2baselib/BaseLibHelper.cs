@@ -108,6 +108,16 @@ public class HelperModConfig : SimpleModConfig
         }
     }
 
+    public static IntentGraphHoverTrigger IntentGraphHoverTrigger
+    {
+        get => BaseConfig.IntentGraphHoverTrigger;
+        set
+        {
+            BaseConfig.IntentGraphHoverTrigger = value;
+            BaseConfig.NotifyUpdated(nameof(IntentGraphModConfig.IntentGraphHoverTrigger));
+        }
+    }
+
     [ConfigSection("Hotkey")]
     public static Key ToggleIntentGraphKey
     {

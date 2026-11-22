@@ -125,6 +125,17 @@ public class RitsuLibHelper : IRitsuLibHelper
                 settings.NotifyUpdated(nameof(IntentGraphModConfig.PinableIntentGraph));
             });
 
+        var intentGraphHoverTrigger = new ModSettingsValueBinding<IntentGraphModConfig, IntentGraphHoverTrigger>(
+            IntentGraphMod.ModId,
+            SettingKey,
+            SaveScope.Global,
+            settings => settings.IntentGraphHoverTrigger,
+            (settings, value) =>
+            {
+                settings.IntentGraphHoverTrigger = value;
+                settings.NotifyUpdated(nameof(IntentGraphModConfig.IntentGraphHoverTrigger));
+            });
+
         RitsuLibFramework.RegisterModSettings(IntentGraphMod.ModId, page =>
         {
             page.WithTitle(ModSettingsText.LocString("settings_ui", "INTENTGRAPH2.mod_title", "Intent Graph"));
@@ -176,6 +187,12 @@ public class RitsuLibHelper : IRitsuLibHelper
                     "pinable_intent_graph",
                     ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-PINABLE_INTENT_GRAPH.title", "Pinable Intent Graph"),
                     pinableIntentGraph);
+                section.AddEnumChoice(
+                    "intent_graph_hover_trigger",
+                    ModSettingsText.LocString("settings_ui", "INTENTGRAPH2-INTENT_GRAPH_HOVER_TRIGGER.title", "Intent Graph Hover Trigger"),
+                    intentGraphHoverTrigger,
+                    optionLabelFactory: (trigger) => ModSettingsText.LocString("settings_ui", $"INTENTGRAPH2-INTENT_GRAPH_HOVER_TRIGGER.{trigger}", trigger.ToString()),
+                    presentation: ModSettingsChoicePresentation.Stepper);
             });
             page.AddSection("hotkey", section =>
             {
