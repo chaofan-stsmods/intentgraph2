@@ -1,6 +1,6 @@
 ﻿{
   "ActsFromThePast.BookOfStabbing.Text": "T +1 каждый ход",
-  "ActsFromThePast.Hexaghost.Text": "N=ваше ОЗ/12 (округление вверх)",
+  "ActsFromThePast.Hexaghost.Text": "N=ваше ОЗ/{m.DividerDivisor || 12} (округление вверх)",
   "ActsFromThePast.Centurion.Alone": "Один",
   "ActsFromThePast.Mystic.Lose20Hp": "Враги теряют 20+ ОЗ, <=2",
   "ActsFromThePast.Champ.Turn4812": "Ход 4, 8, 12, ...",

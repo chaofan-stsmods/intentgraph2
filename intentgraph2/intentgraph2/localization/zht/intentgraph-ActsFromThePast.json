@@ -1,6 +1,6 @@
 {
   "ActsFromThePast.BookOfStabbing.Text": "T每回合+1",
-  "ActsFromThePast.Hexaghost.Text": "N=你的HP/12向上取整",
+  "ActsFromThePast.Hexaghost.Text": "N=你的HP/{m.DividerDivisor || 12}向上取整",
   "ActsFromThePast.Centurion.Alone": "落單",
   "ActsFromThePast.Mystic.Lose20Hp": "敵人失去20+ HP，≤2",
   "ActsFromThePast.Champ.Turn4812": "第4、8、12...回合",

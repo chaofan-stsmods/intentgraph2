@@ -1,6 +1,6 @@
 {
   "ActsFromThePast.BookOfStabbing.Text": "T +1 a chaque tour",
-  "ActsFromThePast.Hexaghost.Text": "N=vos PV/12 (arrondi au superieur)",
+  "ActsFromThePast.Hexaghost.Text": "N=vos PV/{m.DividerDivisor || 12} (arrondi au superieur)",
   "ActsFromThePast.Centurion.Alone": "Seul",
   "ActsFromThePast.Mystic.Lose20Hp": "Les ennemis perdent 20+ PV, <=2",
   "ActsFromThePast.Champ.Turn4812": "Tour 4, 8, 12, ...",

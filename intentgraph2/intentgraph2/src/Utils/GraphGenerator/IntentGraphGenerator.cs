@@ -104,7 +104,7 @@ public class IntentGraphGenerator
         {
             try
             {
-                var expression = ExpressionParserHelper.Parse(intentDefinition.UpToDateCondition, variableContext);
+                var expression = IExpression.Parse(intentDefinition.UpToDateCondition, variableContext);
                 if (expression?.GetBool() == false)
                 {
                     warning = localizer.GetOrElse("ui.Outdated", "Outdated");

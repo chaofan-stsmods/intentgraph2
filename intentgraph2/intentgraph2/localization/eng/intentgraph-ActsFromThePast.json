@@ -1,6 +1,6 @@
 {
   "ActsFromThePast.BookOfStabbing.Text": "T +1 every turn",
-  "ActsFromThePast.Hexaghost.Text": "N=your HP/12 (rounded up)",
+  "ActsFromThePast.Hexaghost.Text": "N=your HP/{m.DividerDivisor || 12} (rounded up)",
   "ActsFromThePast.Centurion.Alone": "Alone",
   "ActsFromThePast.Mystic.Lose20Hp": "Enemies lose 20+ HP, ≤2",
   "ActsFromThePast.Champ.Turn4812": "Turn 4, 8, 12, ...",

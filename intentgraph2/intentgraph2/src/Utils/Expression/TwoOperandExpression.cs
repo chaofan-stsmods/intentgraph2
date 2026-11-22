@@ -33,7 +33,12 @@ public class TwoOperandExpression : IExpression
 
     public int GetInt()
     {
-        return Check() ? 1 : 0;
+        return compareOperator switch
+        {
+            IExpression.Operator.AND => operandA.GetBool() ? operandB.GetInt() : operandA.GetInt(),
+            IExpression.Operator.OR => operandA.GetBool() ? operandA.GetInt() : operandB.GetInt(),
+            _ => Check() ? 1 : 0,
+        };
     }
 
     public bool GetBool()
@@ -43,6 +48,11 @@ public class TwoOperandExpression : IExpression
 
     public string GetString()
     {
-        return Check().ToString();
+        return compareOperator switch
+        {
+            IExpression.Operator.AND => operandA.GetBool() ? operandB.GetString() : operandA.GetString(),
+            IExpression.Operator.OR => operandA.GetBool() ? operandA.GetString() : operandB.GetString(),
+            _ => Check().ToString(),
+        };
     }
 }

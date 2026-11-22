@@ -1,6 +1,6 @@
 {
   "ActsFromThePast.BookOfStabbing.Text": "T +1 co ture",
-  "ActsFromThePast.Hexaghost.Text": "N=twoje PW/12 (zaokraglone w gore)",
+  "ActsFromThePast.Hexaghost.Text": "N=twoje PW/{m.DividerDivisor || 12} (zaokraglone w gore)",
   "ActsFromThePast.Centurion.Alone": "Sam",
   "ActsFromThePast.Mystic.Lose20Hp": "Wrogowie traca 20+ PW, <=2",
   "ActsFromThePast.Champ.Turn4812": "Tura 4, 8, 12, ...",

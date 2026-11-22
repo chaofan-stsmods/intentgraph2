@@ -1,6 +1,6 @@
 {
   "ActsFromThePast.BookOfStabbing.Text": "T her tur +1",
-  "ActsFromThePast.Hexaghost.Text": "N=HP'niz/12 (yukari yuvarlanir)",
+  "ActsFromThePast.Hexaghost.Text": "N=HP'niz/{m.DividerDivisor || 12} (yukari yuvarlanir)",
   "ActsFromThePast.Centurion.Alone": "Yalniz",
   "ActsFromThePast.Mystic.Lose20Hp": "Dusmanlar 20+ HP kaybeder, <=2",
   "ActsFromThePast.Champ.Turn4812": "4, 8, 12, ... tur",

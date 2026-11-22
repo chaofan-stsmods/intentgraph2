@@ -78,21 +78,22 @@ public class VariableContext : IVariableContext
                 }
 
                 object? obj = Monster;
+                var objType = Traverse.Create(obj);
                 var remainingVariableName = variableName.Substring(2);
                 while (remainingVariableName.Contains('.'))
                 {
                     var dotIndex = remainingVariableName.IndexOf('.');
                     var fieldName = remainingVariableName.Substring(0, dotIndex);
-                    obj = Traverse.Create(obj).Property(fieldName).GetValue() ?? Traverse.Create(obj).Field(fieldName).GetValue();
+                    obj = objType.Property(fieldName).GetValue() ?? objType.Field(fieldName).GetValue();
                     if (obj == null)
                     {
                         return null;
                     }
+                    objType = Traverse.Create(obj);
                     remainingVariableName = remainingVariableName.Substring(dotIndex + 1);
                 }
 
-                var monsterType = Traverse.Create(Monster);
-                return monsterType.Property(remainingVariableName).GetValue() ?? monsterType.Field(remainingVariableName).GetValue();
+                return objType.Property(remainingVariableName).GetValue() ?? objType.Field(remainingVariableName).GetValue();
             }
 
             // For outdate check
@@ -155,6 +156,8 @@ public class VariableContext : IVariableContext
                     Traverse.Create(RunManager.Instance.AscensionManager).Field("_level").GetValue<int>(),
 #if !LESS_THAN_0_113_0
                 "isDread" => RunManager.Instance.IsDread(),
+#else
+                "isDread" => false,
 #endif
                 "showMoveNames" => IntentGraphMod.Config.ShowMonsterMoveNames,
                 "inBestiary" => InBestiary,
@@ -184,9 +187,23 @@ public class VariableContext : IVariableContext
                     return typeof(int);
                 }
 
-                var fieldName = variableName.Substring(2);
-                var monsterType = Traverse.Create(Monster);
-                return monsterType.Property(fieldName).GetValueType() ?? monsterType.Field(fieldName).GetValueType();
+                object? obj = Monster;
+                var objType = Traverse.Create(obj);
+                var remainingVariableName = variableName.Substring(2);
+                while (remainingVariableName.Contains('.'))
+                {
+                    var dotIndex = remainingVariableName.IndexOf('.');
+                    var fieldName = remainingVariableName.Substring(0, dotIndex);
+                    obj = objType.Property(fieldName).GetValue() ?? objType.Field(fieldName).GetValue();
+                    if (obj == null)
+                    {
+                        return null;
+                    }
+                    objType = Traverse.Create(obj);
+                    remainingVariableName = remainingVariableName.Substring(dotIndex + 1);
+                }
+
+                return objType.Property(remainingVariableName).GetValueType() ?? objType.Field(remainingVariableName).GetValueType();
             }
 
             // For outdate check
@@ -229,6 +246,7 @@ public class VariableContext : IVariableContext
                 "showMoveNames" => typeof(bool),
                 "inBestiary" => typeof(bool),
                 "showMoveDetail" => typeof(bool),
+                "isDread" => typeof(bool),
                 _ => null,
             };
         }

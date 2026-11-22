@@ -1,6 +1,6 @@
 {
   "ActsFromThePast.BookOfStabbing.Text": "T +1 a cada turno",
-  "ActsFromThePast.Hexaghost.Text": "N=seu PV/12 (arredondado para cima)",
+  "ActsFromThePast.Hexaghost.Text": "N=seu PV/{m.DividerDivisor || 12} (arredondado para cima)",
   "ActsFromThePast.Centurion.Alone": "Sozinho",
   "ActsFromThePast.Mystic.Lose20Hp": "Inimigos perdem 20+ PV, <=2",
   "ActsFromThePast.Champ.Turn4812": "Turno 4, 8, 12, ...",

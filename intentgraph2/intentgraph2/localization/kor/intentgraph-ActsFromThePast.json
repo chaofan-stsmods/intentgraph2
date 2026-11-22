@@ -1,6 +1,6 @@
 ﻿{
   "ActsFromThePast.BookOfStabbing.Text": "T는 매 턴 +1",
-  "ActsFromThePast.Hexaghost.Text": "N=당신의 체력/12 (올림)",
+  "ActsFromThePast.Hexaghost.Text": "N=당신의 체력/{m.DividerDivisor || 12} (올림)",
   "ActsFromThePast.Centurion.Alone": "혼자",
   "ActsFromThePast.Mystic.Lose20Hp": "적 체력 20+ 감소, <=2",
   "ActsFromThePast.Champ.Turn4812": "4, 8, 12... 턴",

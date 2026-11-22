@@ -25,7 +25,13 @@ public static class ExpressionParserHelper
         var lexer = new ExpressionLexer(CharStreams.fromString(expression));
         var tokenStream = new CommonTokenStream(lexer);
         var parser = new ExpressionParser(tokenStream);
-        var tree = parser.prog().expr();
+        var progContext = parser.prog();
+        if (parser.NumberOfSyntaxErrors > 0)
+        {
+            return null;
+        }
+
+        var tree = progContext.expr();
         return Expr(tree, expressionContext);
     }
 

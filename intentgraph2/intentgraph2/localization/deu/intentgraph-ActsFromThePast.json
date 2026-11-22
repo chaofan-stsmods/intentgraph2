@@ -1,6 +1,6 @@
 {
   "ActsFromThePast.BookOfStabbing.Text": "T +1 pro Zug",
-  "ActsFromThePast.Hexaghost.Text": "N=deine LP/12 (aufgerundet)",
+  "ActsFromThePast.Hexaghost.Text": "N=deine LP/{m.DividerDivisor || 12} (aufgerundet)",
   "ActsFromThePast.Centurion.Alone": "Allein",
   "ActsFromThePast.Mystic.Lose20Hp": "Gegner verlieren 20+ LP, <=2",
   "ActsFromThePast.Champ.Turn4812": "Zug 4, 8, 12, ...",

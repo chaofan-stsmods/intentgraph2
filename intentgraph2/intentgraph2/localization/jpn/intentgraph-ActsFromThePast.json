@@ -1,6 +1,6 @@
 ﻿{
   "ActsFromThePast.BookOfStabbing.Text": "Tは毎ターン+1",
-  "ActsFromThePast.Hexaghost.Text": "N=あなたのHP/12（切り上げ）",
+  "ActsFromThePast.Hexaghost.Text": "N=あなたのHP/{m.DividerDivisor || 12}（切り上げ）",
   "ActsFromThePast.Centurion.Alone": "単独",
   "ActsFromThePast.Mystic.Lose20Hp": "敵のHPが20以上減少、<=2",
   "ActsFromThePast.Champ.Turn4812": "4、8、12...ターン目",
