@@ -287,16 +287,6 @@
     "MegaCrit.Sts2.Core.Models.Monsters.Queen": [
         {
             "moveReplacements": {
-                "BURN_BRIGHT_FOR_ME_MOVE": [
-                    {
-                        "details": [{ "type": "power", "id": "STRENGTH_POWER", "value": 1 }]
-                    }
-                ]
-            }
-        },
-        {
-            "condition": "isDread",
-            "moveReplacements": {
                 "DREAD_INITIAL_MOVE": [
                     {
                         "details": [{ "type": "power", "id": "CHAINS_OF_BINDING_POWER", "valueText": "{m.ChainsOfBindingAmount}" }]
@@ -311,9 +301,7 @@
                 ],
                 "BURN_BRIGHT_FOR_ME_MOVE": [
                     {
-                        "details": [
-                            { "type": "power", "id": "STRENGTH_POWER", "value": 2 }
-                        ]
+                        "details": [{ "type": "power", "id": "STRENGTH_POWER", "valueText": "{isDread && 2 || 1}" }]
                     }
                 ]
             }
