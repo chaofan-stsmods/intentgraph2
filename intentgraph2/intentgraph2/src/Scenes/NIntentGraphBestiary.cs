@@ -140,10 +140,9 @@ public partial class NIntentGraphBestiary : Control
         };
 
         var ascension9Label = ascension9Check.Label;
-        var ascensionLevelText = LocString.GetIfExists("gameplay_ui", "ASCENSION_LEVEL");
+        var ascensionLevelText = LocString.GetIfExists("ascension", "LEVEL_09.title");
         if (ascensionLevelText != null && ascension9Label != null)
         {
-            ascensionLevelText.Add("ascension", 9);
             ascension9Label.Text = ascensionLevelText.GetFormattedText();
         }
 
