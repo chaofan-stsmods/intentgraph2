@@ -181,6 +181,7 @@ public partial class NIntentGraphBestiary : Control
         {
             intentGraph.Visible = tickbox.IsTicked;
             ascension9Check.Visible = tickbox.IsTicked;
+            dreadCheck.Visible = tickbox.IsTicked;
             previousGraph.Visible = tickbox.IsTicked && graphs.Count > 1;
             nextGraph.Visible = tickbox.IsTicked && graphs.Count > 1;
             if (description != null)
